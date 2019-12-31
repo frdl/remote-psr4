@@ -1,0 +1,14 @@
+{
+  "name" : "frdl/remote-psr4",
+  "type" : "library",
+  "description": "An php psr4 Autoloader which is autoloading from a remote server.",	  
+  "license": ["MIT"],	  
+  "require" : {
+	    "php": ">=5.3"
+  },	  
+  "autoload": {
+        "psr-4": {
+            "Webfan\\Psr4Loader\\": "src/Webfan/Psr4Loader/"
+        }
+  }  
+}
