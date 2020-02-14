@@ -13,6 +13,7 @@ class RemoteFromWebfan
 	protected $server;
 	protected $domain;
 	protected $version;
+	protected $thisHost;
 	
 	protected static $instances = [];
 	
@@ -20,8 +21,8 @@ class RemoteFromWebfan
 	function __construct($server = 'webfan.de', $register = true, $version = 'latest'){
 		$this->version=$version;
 		$this->server = $server;	
-		$_self = (isset($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST'];
-		$h = explode('.', $_self);
+		$this->thisHost = (isset($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST'];
+		$h = explode('.', $this->thisHost);
 		$dns = array_reverse($h);
 		$this->selfDomain = $dns[1].'.'.$dns[0];
 		
@@ -30,7 +31,7 @@ class RemoteFromWebfan
 		$this->domain = $dns[1].'.'.$dns[0];
 		
 		
-		if($this->domain === $this->selfDomain){
+		if($this->domain === $this->selfDomain && $this->server === $this->thisHost){
 		  $register = false;	
 		}
 		
@@ -40,7 +41,7 @@ class RemoteFromWebfan
 	}
 	
 	
-  public static function getInstance($server = 'webfan.de', $register = false, $version = 'latest'){
+  public static function getInstance($server = 'webfan.de', $register = true, $version = 'latest'){
 	  if(!isset(self::$instances[$server])){
 		  self::$instances[$server] = new self($server, $register, $version);
 	  }
@@ -128,7 +129,8 @@ class RemoteFromWebfan
 	
 	protected function register($throw = true, $prepend = false){
 		
-		if($this->domain === $this->selfDomain){
+		
+		if($this->domain === $this->selfDomain && $this->server === $this->thisHost){
 		   throw new \Exception('You should not autoload from remote where you have local access to the source (remote server = host)');
 		}		
 		
@@ -174,9 +176,7 @@ class RemoteFromWebfan
 	      && (filemtime($cacheFile) < time() - ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) ) ? intval($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) :  3 * 60 * 60)) ){
 		     unlink($cacheFile);
       }	
-	 //  if(!file_put_contents($cacheFile, $code)){
-	  //   throw new \Exception('Cannot write '.$url.' to '.$cacheFile);/*   error_log('Cannot write '.$url.' to '.$cacheFile, \E_WARNING); */
-	 //  }
+	
 		file_put_contents($cacheFile, $code);
 	  		
    }//if(false !==$code)	
