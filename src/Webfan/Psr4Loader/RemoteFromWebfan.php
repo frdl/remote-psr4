@@ -155,7 +155,7 @@ class RemoteFromWebfan
 	
 	if(file_exists($cacheFile) 
 	   && (!isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT'])  
-								   || (filemtime($cacheFile) > time() - ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) ) ? intval($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) :  24 * 60 * 60)) )){
+								   || (filemtime($cacheFile) > time() - ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) ) ? intval($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) :  time()-24 * 60 * 60)) )){
 	   require $cacheFile;
        return true;
 	}
@@ -173,7 +173,7 @@ class RemoteFromWebfan
 		
       if(isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) 
 		  && file_exists($cacheFile) 
-	      && (filemtime($cacheFile) < time() - ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) ) ? intval($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) :  3 * 60 * 60)) ){
+	      && (filemtime($cacheFile) < time() - ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) ) ? intval($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) :  time()-24 * 60 * 60)) ){
 		     unlink($cacheFile);
       }	
 	
