@@ -83,7 +83,7 @@ class RemoteFromWebfan
 		   ]
 	];
     $context  = stream_context_create($options);
-    $code = file_get_contents($url, false, $context);
+    $code = @file_get_contents($url, false, $context);
 	foreach($http_response_header as $i => $header){
 		$h = explode(':', $header);
 		if('x-content-hash' === strtolower(trim($h[0]))){
