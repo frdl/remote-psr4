@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 
 namespace Webfan\Psr4Loader;
@@ -13,11 +13,13 @@ class RemoteFromWebfan
 	protected $server;
 	protected $domain;
 	protected $version;
+	protected $allowFromSelfOrigin = false;
 	
 	protected static $instances = [];
 	
 	
-	function __construct($server = 'frdl.webfan.de', $register = true, $version = 'latest'){
+	function __construct($server = 'frdl.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false){
+		$this->allowFromSelfOrigin = $allowFromSelfOrigin;
 		$this->version=$version;
 		$this->server = $server;	
 		$_self = (isset($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST'];
@@ -30,7 +32,7 @@ class RemoteFromWebfan
 		$this->domain = $dns[1].'.'.$dns[0];
 		
 		
-		if($this->domain === $this->selfDomain){
+		if($this->allowFromSelfOrigin && $this->domain === $this->selfDomain){
 		  $register = false;	
 		}
 		
@@ -116,7 +118,7 @@ class RemoteFromWebfan
   if('<?php' === substr($code, 0, strlen('<?php')) ){
 	  $code = substr($code, strlen('<?php'), strlen($code));
   }
-  $code = trim($code, '<?php> ');
+    $code = trim($code, '<?php> ');
   $codeWithStartTags = "<?php "."\n".$code;	
 		
     return $codeWithStartTags;
@@ -130,7 +132,7 @@ class RemoteFromWebfan
 	
 	protected function register($throw = true, $prepend = false){
 		
-		if($this->domain === $this->selfDomain){
+		if(!$this->allowFromSelfOrigin && $this->domain === $this->selfDomain){
 		   throw new \Exception('You should not autoload from remote where you have local access to the source (remote server = host)');
 		}		
 		
