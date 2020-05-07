@@ -42,9 +42,9 @@ class RemoteFromWebfan
 	}
 	
 	
-  public static function getInstance($server = 'frdl.webfan.de', $register = false, $version = 'latest'){
+  public static function getInstance($server = 'frdl.webfan.de', $register = false, $version = 'latest', $allowFromSelfOrigin = false){
 	  if(!isset(self::$instances[$server])){
-		  self::$instances[$server] = new self($server, $register, $version);
+		  self::$instances[$server] = new self($server, $register, $version, $allowFromSelfOrigin);
 	  }
 	  
 	 return self::$instances[$server];
