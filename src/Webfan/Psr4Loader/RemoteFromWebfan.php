@@ -116,7 +116,7 @@ class RemoteFromWebfan
   if('<?php' === substr($code, 0, strlen('<?php')) ){
 	  $code = substr($code, strlen('<?php'), strlen($code));
   }
-  $code = rtrim($code, '<?php ');
+  $code = trim($code, '<?php> ');
   $codeWithStartTags = "<?php "."\n".$code;	
 		
     return $codeWithStartTags;
