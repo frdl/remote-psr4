@@ -13,16 +13,15 @@ class RemoteFromWebfan
 	protected $server;
 	protected $domain;
 	protected $version;
-	protected $thisHost;
 	
 	protected static $instances = [];
 	
 	
-	function __construct($server = 'webfan.de', $register = true, $version = 'latest'){
+	function __construct($server = 'frdl.webfan.de', $register = true, $version = 'latest'){
 		$this->version=$version;
 		$this->server = $server;	
-		$this->thisHost = (isset($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST'];
-		$h = explode('.', $this->thisHost);
+		$_self = (isset($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST'];
+		$h = explode('.', $_self);
 		$dns = array_reverse($h);
 		$this->selfDomain = $dns[1].'.'.$dns[0];
 		
@@ -31,7 +30,7 @@ class RemoteFromWebfan
 		$this->domain = $dns[1].'.'.$dns[0];
 		
 		
-		if($this->domain === $this->selfDomain && $this->server === $this->thisHost){
+		if($this->domain === $this->selfDomain){
 		  $register = false;	
 		}
 		
@@ -41,7 +40,7 @@ class RemoteFromWebfan
 	}
 	
 	
-  public static function getInstance($server = 'webfan.de', $register = true, $version = 'latest'){
+  public static function getInstance($server = 'frdl.webfan.de', $register = false, $version = 'latest'){
 	  if(!isset(self::$instances[$server])){
 		  self::$instances[$server] = new self($server, $register, $version);
 	  }
@@ -72,8 +71,8 @@ class RemoteFromWebfan
 	}
 	  
 	  
-	//$url =	'https://'.$this->server.'/install/?salt='.$salt.'&source='. urlencode( str_replace('\\', '/', $class) . '.php').'&version='.$this->version;
-       $url =	'https://'.$this->server.'/install/?salt='.$salt.'&source='. $class.'&version='.$this->version;
+	$url =	'https://'.$this->server.'/install/?salt='.$salt.'&source='. urlencode( str_replace('\\', '/', $class) . '.php').'&version='.$this->version;
+
 
 	$options = [
 		'https' => [
@@ -83,7 +82,7 @@ class RemoteFromWebfan
 		   ]
 	];
     $context  = stream_context_create($options);
-    $code = @file_get_contents($url, false, $context);
+    $code = file_get_contents($url, false, $context);
 	foreach($http_response_header as $i => $header){
 		$h = explode(':', $header);
 		if('x-content-hash' === strtolower(trim($h[0]))){
@@ -113,14 +112,16 @@ class RemoteFromWebfan
 	   }	   	
      }	
 
-	$code =ltrim($code, '<?php');
-	$code =rtrim($code, '?php>');	
+  $code = trim($code);
+  if('<?php' === substr($code, 0, strlen('<?php')) ){
+	  $code = substr($code, strlen('<?php'), strlen($code));
+  }
+  $code = rtrim($code, '<?php ');
+  $codeWithStartTags = "<?php "."\n".$code;	
 		
-    return '<?php 
-	'.$code.' 
-	
-	';
+    return $codeWithStartTags;
  }
+	
 	
 	
 	public function __invoke(){
@@ -129,8 +130,7 @@ class RemoteFromWebfan
 	
 	protected function register($throw = true, $prepend = false){
 		
-		
-		if($this->domain === $this->selfDomain && $this->server === $this->thisHost){
+		if($this->domain === $this->selfDomain){
 		   throw new \Exception('You should not autoload from remote where you have local access to the source (remote server = host)');
 		}		
 		
@@ -145,17 +145,17 @@ class RemoteFromWebfan
 	
   protected function Autoload($class){
 	$cacheFile = ((isset($_ENV['FRDL_HPS_PSR4_CACHE_DIR'])) ? $_ENV['FRDL_HPS_PSR4_CACHE_DIR'] 
-                   : sys_get_temp_dir() . \DIRECTORY_SEPARATOR . \get_current_user(). \DIRECTORY_SEPARATOR . 'cache-frdl' . \DIRECTORY_SEPARATOR. 'psr4'. \DIRECTORY_SEPARATOR
+                   : sys_get_temp_dir() . \DIRECTORY_SEPARATOR. 'psr4'. \DIRECTORY_SEPARATOR
 					  )
-		          // .  basename($class). '.'. strlen($class) . '.'.sha1($class).'.php';
+		         
 	            	.  str_replace('\\', \DIRECTORY_SEPARATOR, $class). '.php';
-	//$cacheFile = str_replace('\\', \DIRECTORY_SEPARATOR, $cacheFile); 
+	
  
 
 	
 	if(file_exists($cacheFile) 
 	   && (!isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT'])  
-								   || (filemtime($cacheFile) > time() - ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) ) ? intval($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) :  time()-24 * 60 * 60)) )){
+								   || (filemtime($cacheFile) > time() - ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) ) ? intval($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) :  3 * 60 * 60)) )){
 	   require $cacheFile;
        return true;
 	}
@@ -173,10 +173,12 @@ class RemoteFromWebfan
 		
       if(isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) 
 		  && file_exists($cacheFile) 
-	      && (filemtime($cacheFile) < time() - ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) ) ? intval($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) :  time()-24 * 60 * 60)) ){
+	      && (filemtime($cacheFile) < time() - ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) ) ? intval($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) :  3 * 60 * 60)) ){
 		     unlink($cacheFile);
       }	
-	
+	 //  if(!file_put_contents($cacheFile, $code)){
+	  //   throw new \Exception('Cannot write '.$url.' to '.$cacheFile);/*   error_log('Cannot write '.$url.' to '.$cacheFile, \E_WARNING); */
+	 //  }
 		file_put_contents($cacheFile, $code);
 	  		
    }//if(false !==$code)	
