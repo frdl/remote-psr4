@@ -32,7 +32,7 @@ class RemoteFromWebfan
 		$this->domain = $dns[1].'.'.$dns[0];
 		
 		
-		if($this->allowFromSelfOrigin && $this->domain === $this->selfDomain){
+		if(!$this->allowFromSelfOrigin && $this->domain === $this->selfDomain){
 		  $register = false;	
 		}
 		
