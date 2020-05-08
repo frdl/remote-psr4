@@ -73,7 +73,7 @@ class RemoteFromWebfan
 	}
 	  
 	  
-	$url =	'https://'.$this->server.'/install/?salt='.$salt.'&source='. urlencode( str_replace('\\', '/', $class) . '.php').'&version='.$this->version;
+	$url =	'https://'.$this->server.'/install/?salt='.$salt.'&source='. $class.'&version='.$this->version;
 
 
 	$options = [
