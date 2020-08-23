@@ -72,9 +72,17 @@ class RemoteFromWebfan
 		$salt = mt_rand(10000000,99999999);
 	}
 	  
-	  
-	$url =	'https://'.$this->server.'/install/?salt='.$salt.'&source='. $class.'&version='.$this->version;
-
+	
+	$class = str_replace('\\', '/', $class);  
+     
+	
+     if(is_callable($this->server)){
+	$url = call_user_func_array($this->server, [$class, $salt]);	  
+     }elseif(substr($this->server, 0, strlen('http://')) === 'http://' || substr($this->server, 0, strlen('https://')) === 'https://'){
+	  $url = str_replace(['${salt}', '${class}'], [$salt, $class], $this->server);   
+     }else{	  
+	  $url = 'https://'.$this->server.'/install/?salt='.$salt.'&source='. $class.'&version='.$this->version;
+     }
 
 	$options = [
 		'https' => [
