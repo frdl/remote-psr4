@@ -18,10 +18,14 @@ class RemoteFromWebfan
 	protected $allowFromSelfOrigin = false;
 	
 	protected static $instances = [];
+	protected static $classmap = [
+	    \Wehowski\Gist\Http\Response\Helper::class => 'https://gist.githubusercontent.com/wehowski/d762cc34d5aa2b388f3ebbfe7c87d822/raw/5c3acdab92e9c149082caee3714f0cf6a7a9fe0b/Wehowski%255CGist%255CHttp%255CResponse%255CHelper.php',
+	];
 	
 	
-   public function __construct($server = 'frdl.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = true){
+   public function __construct($server = 'frdl.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = true, $classMap = null){
 	        $this->withSalt($salted);
+	        $this->withClassmap($classMap);
 		$this->allowFromSelfOrigin = $allowFromSelfOrigin;
 		$this->version=$version;
 		$this->server = $server;	
@@ -44,6 +48,15 @@ class RemoteFromWebfan
 		}		
 	}
 	
+  public function withClassmap(array $classMap = null){
+     if(null !== $classMap){
+	   foreach($classMap as $class => $url){
+		self::$classmap[$class] = $url;   
+	   }
+     }
+	  
+    return self::$classmap;	  
+  }	
 
   public function withSalt(bool $salted = null){
      if(null !== $salted){
