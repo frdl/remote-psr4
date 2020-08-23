@@ -71,7 +71,7 @@ class RemoteFromWebfan
 	  if(is_array($server)){
 	      $arr = [];
 	      foreach($server as $s){
-		  $arr[]= self::getInstance($s['server'], $s['register'], $s['version'], $s['allowFromSelfOrigin'], $s['salted']);      
+		  $arr[]= self::getInstance($s['server'], $s['register'], $s['version'], $s['allowFromSelfOrigin'], $s['salted'], $s['classmap']);      
 	      }
 		  
 	    return $arr;	  
