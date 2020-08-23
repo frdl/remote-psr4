@@ -9,6 +9,8 @@ namespace Webfan\Psr4Loader;
 class RemoteFromWebfan
 {
 
+	protected $salted = true;
+	
 	protected $selfDomain;
 	protected $server;
 	protected $domain;
@@ -18,7 +20,8 @@ class RemoteFromWebfan
 	protected static $instances = [];
 	
 	
-	function __construct($server = 'frdl.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false){
+   public function __construct($server = 'frdl.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = true){
+	        $this->salted = $salted;
 		$this->allowFromSelfOrigin = $allowFromSelfOrigin;
 		$this->version=$version;
 		$this->server = $server;	
@@ -41,10 +44,32 @@ class RemoteFromWebfan
 		}		
 	}
 	
+
+  public function withSalt(bool $salted = null){
+     if(null !== $salted){
+	     $this->salted = $salted; 
+     }
+	  
+    return $this->salted;	  
+  }
 	
-  public static function getInstance($server = 'frdl.webfan.de', $register = false, $version = 'latest', $allowFromSelfOrigin = false){
+	
+  public static function getInstance($server = 'frdl.webfan.de', $register = false, $version = 'latest', $allowFromSelfOrigin = false, $salted = true){
+	  if(is_array($server)){
+	      $arr = [];
+	      foreach($server as $s){
+		  $arr[]= self::getInstance($s, $register, $version, $allowFromSelfOrigin, $salted);      
+	      }
+		  
+	    return $arr;	  
+	  }elseif(is_callable($server)){
+		$key = \spl_object_id($server);  
+	  }elseif(is_string($server)){
+		$key = $server;  
+	  }
+	  
 	  if(!isset(self::$instances[$server])){
-		  self::$instances[$server] = new self($server, $register, $version, $allowFromSelfOrigin);
+		  self::$instances[$server] = new self($server, $register, $version, $allowFromSelfOrigin, $salted);
 	  }
 	  
 	 return self::$instances[$server];
@@ -68,6 +93,8 @@ class RemoteFromWebfan
 	
 	
   protected function fetchCode($class, $salt = null){
+	//$salted = (false === $salt) ? false : true;
+	  
 	if(!is_string($salt)){
 		$salt = mt_rand(10000000,99999999);
 	}
