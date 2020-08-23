@@ -105,7 +105,12 @@ class RemoteFromWebfan
   }
 	
 	
-  protected function fetchCode($class, $salt = null){		  
+  protected function fetchCode($class, $salt = null){	
+	  
+        $server = (isset(self::$classmap[$class]))
+		? self::$classmap[$class]
+		: $this->server; 
+	  
 	if(!is_string($salt) && true === $this->withSalt()){
 		$salt = mt_rand(10000000,99999999);
 	}
@@ -114,12 +119,12 @@ class RemoteFromWebfan
 	$class = str_replace('\\', '/', $class);  
      
 	
-     if(is_callable($this->server)){
+     if(is_callable($server)){
 	$url = call_user_func_array($this->server, [$class, $this->version, $salt]);	  
-     }elseif(substr($this->server, 0, strlen('http://')) === 'http://' || substr($this->server, 0, strlen('https://')) === 'https://'){
-	  $url = str_replace(['${salt}', '${class}', '${version}'], [$salt, $class, $this->version], $this->server);   
+     }elseif(substr($server, 0, strlen('http://')) === 'http://' || substr($server, 0, strlen('https://')) === 'https://'){
+	  $url = str_replace(['${salt}', '${class}', '${version}'], [$salt, $class, $this->version], $server);   
      }else{	  
-	  $url = 'https://'.$this->server.'/install/?salt='.$salt.'&source='. $class.'&version='.$this->version;
+	  $url = 'https://'.$server.'/install/?salt='.$salt.'&source='. $class.'&version='.$this->version;
      }
 
 	$options = [
@@ -142,13 +147,13 @@ class RemoteFromWebfan
 	}	  
 	  
 	  
-    if(false===$code || !isset($hash) || !isset($userHash)){
-		return false;
-	}
+   
+	  if(false===$code || !is_string($code) || (true === $this->withSalt() && (!isset($hash) || !isset($userHash)))){	
+		  return false;	
+	  }
 	
-
 	
-	$oCode =$code;
+	  $oCode =$code;
 	
 
 	$hash_check = strlen($oCode).'.'.sha1($oCode);
