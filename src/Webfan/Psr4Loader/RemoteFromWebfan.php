@@ -120,7 +120,7 @@ class RemoteFromWebfan
      
 	
      if(is_callable($server)){
-	$url = call_user_func_array($this->server, [$class, $this->version, $salt]);	  
+	$url = call_user_func_array($server, [$class, $this->version, $salt]);	  
      }elseif(substr($server, 0, strlen('http://')) === 'http://' || substr($server, 0, strlen('https://')) === 'https://'){
 	  $url = str_replace(['${salt}', '${class}', '${version}'], [$salt, $class, $this->version], $server);   
      }else{	  
