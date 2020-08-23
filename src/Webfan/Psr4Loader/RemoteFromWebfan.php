@@ -21,7 +21,7 @@ class RemoteFromWebfan
 	
 	
    public function __construct($server = 'frdl.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = true){
-	        $this->salted = $salted;
+	        $this->withSalt($salted);
 		$this->allowFromSelfOrigin = $allowFromSelfOrigin;
 		$this->version=$version;
 		$this->server = $server;	
@@ -58,7 +58,7 @@ class RemoteFromWebfan
 	  if(is_array($server)){
 	      $arr = [];
 	      foreach($server as $s){
-		  $arr[]= self::getInstance($s, $register, $version, $allowFromSelfOrigin, $salted);      
+		  $arr[]= self::getInstance($s['server'], $s['register'], $s['version'], $s['allowFromSelfOrigin'], $s['salted']);      
 	      }
 		  
 	    return $arr;	  
@@ -92,10 +92,8 @@ class RemoteFromWebfan
   }
 	
 	
-  protected function fetchCode($class, $salt = null){
-	//$salted = (false === $salt) ? false : true;
-	  
-	if(!is_string($salt)){
+  protected function fetchCode($class, $salt = null){		  
+	if(!is_string($salt) && true === $this->withSalt()){
 		$salt = mt_rand(10000000,99999999);
 	}
 	  
@@ -104,9 +102,9 @@ class RemoteFromWebfan
      
 	
      if(is_callable($this->server)){
-	$url = call_user_func_array($this->server, [$class, $salt]);	  
+	$url = call_user_func_array($this->server, [$class, $this->version, $salt]);	  
      }elseif(substr($this->server, 0, strlen('http://')) === 'http://' || substr($this->server, 0, strlen('https://')) === 'https://'){
-	  $url = str_replace(['${salt}', '${class}'], [$salt, $class], $this->server);   
+	  $url = str_replace(['${salt}', '${class}', '${version}'], [$salt, $class, $this->version], $this->server);   
      }else{	  
 	  $url = 'https://'.$this->server.'/install/?salt='.$salt.'&source='. $class.'&version='.$this->version;
      }
@@ -143,7 +141,7 @@ class RemoteFromWebfan
 	$hash_check = strlen($oCode).'.'.sha1($oCode);
 	$userHash_check = sha1($salt .$hash_check);	
    
-     if(false!==$salt){
+     if(false!==$salt && true === $this->withSalt()){
 	   if($hash_check !== $hash || $userHash_check !== $userHash){
 		   throw new \Exception('Invalid checksums while fetching source code for '.$class.' from '.$url);
 	   }	   	
