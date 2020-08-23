@@ -50,8 +50,8 @@ class RemoteFromWebfan
 	
   public function withClassmap(array $classMap = null){
      if(null !== $classMap){
-	   foreach($classMap as $class => $url){
-		self::$classmap[$class] = $url;   
+	   foreach($classMap as $class => $server){
+		self::$classmap[$class] = $server;   
 	   }
      }
 	  
