@@ -22,8 +22,18 @@ class RemoteFromWebfan
 	    \Wehowski\Gist\Http\Response\Helper::class => 'https://gist.githubusercontent.com/wehowski/d762cc34d5aa2b388f3ebbfe7c87d822/raw/5c3acdab92e9c149082caee3714f0cf6a7a9fe0b/Wehowski%255CGist%255CHttp%255CResponse%255CHelper.php?cache_bust=${salt}',
 	];
 	
+	protected static $prefixes = [];
+	protected static $registeredGlobal = false;
 	
-   public function __construct($server = 'frdl.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = true, $classMap = null){
+   public function __construct($server = 'frdl.webfan.de',
+			       $register = true, 
+			       $version = 'latest', 
+			       $allowFromSelfOrigin = false,
+			       $salted = true,
+			       $classMap = null, 
+			       string $prefix = null,			
+			       $prependPrefix = false
+			      ){
 	        $this->withSalt($salted);
 	        $this->withClassmap($classMap);
 		$this->allowFromSelfOrigin = $allowFromSelfOrigin;
@@ -45,8 +55,88 @@ class RemoteFromWebfan
 		
 		if(true === $register){
 		   $this->register();	
+		   $this->registerGlobal();
 		}		
+	   
+	     if(is_string($prefix)){
+		 self::addNamespace($prefix, $this, $prependPrefix); 
+	     }
 	}
+	
+	
+public function AutoloadGlobal($class){
+	 $prefix = $class;
+
+        // work backwards through the namespace names of the fully-qualified
+        // class name to find a mapped file name
+         while (false !== $pos = strrpos($prefix, '\\')) {
+
+            // retain the trailing namespace separator in the prefix
+            $prefix = substr($class, 0, $pos + 1);
+
+            // the rest is the relative class name
+            $relative_class = substr($class, $pos + 1);
+
+
+      
+  
+		 if (isset(self::$prefixes[$prefix]) ) {    	    
+			 foreach (self::$prefixes[$prefix] as $server) {  		  
+				 if ($server->Autoload($relative_class)) {  		
+					 return true;           
+				 }       	  	   
+			 }      
+		 }
+            $prefix = rtrim($prefix, '\\');	
+	 }	
+
+  return false;	
+}
+	
+	
+	protected function registerGlobal(){
+		if(false !== self::$registeredGlobal){
+		  return self::$registeredGlobal;	
+		}
+		
+		
+		
+		if(!$this->allowFromSelfOrigin && $this->domain === $this->selfDomain){
+		   throw new \Exception('You should not autoload from remote where you have local access to the source (remote server = host)');
+		}		
+		
+		if(!in_array(self::getLoaderGlobal(), spl_autoload_functions()) ){
+			self::$registeredGlobal =  !!(spl_autoload_register(self::getLoaderGlobal(), $throw, $prepend));
+		}
+	
+	}	
+		
+	protected static function getLoaderGlobal(){
+	     $firstMutex = (count(self::$instances)) ? self::$instances[0] : self::getInstance();
+	     return [$firstMutex, 'AutoloadGlobal'];
+	}
+	
+   public static function addNamespace($prefix, self &$server, $prepend = false)
+    {
+        // normalize namespace prefix
+        $prefix = trim($prefix, '\\') . '\\';
+
+        // normalize the base directory with a trailing separator
+      
+
+        // initialize the namespace prefix array
+        if (isset(self::$prefixes[$prefix]) === false) {
+            self::$prefixes[$prefix] = [];
+        }
+
+        // retain the base directory for the namespace prefix
+        if ($prepend) {
+            array_unshift(self::$prefixes[$prefix], $server);
+        } else {
+            array_push(self::$prefixes[$prefix], $server);
+        }
+  }
+	
 	
   public function withClassmap(array $classMap = null){
      if(null !== $classMap){
@@ -67,11 +157,17 @@ class RemoteFromWebfan
   }
 	
 	
-  public static function getInstance($server = 'frdl.webfan.de', $register = false, $version = 'latest', $allowFromSelfOrigin = false, $salted = true){
+  public static function getInstance($server = 'frdl.webfan.de', 
+				     $register = false,
+				     $version = 'latest', 
+				     $allowFromSelfOrigin = false,
+				     $salted = true,
+				     string $prefix = null,
+				     $prependPrefix = false){
 	  if(is_array($server)){
 	      $arr = [];
 	      foreach($server as $s){
-		  $arr[]= self::getInstance($s['server'], $s['register'], $s['version'], $s['allowFromSelfOrigin'], $s['salted'], $s['classmap']);      
+		  $arr[]= self::getInstance($s['server'], $s['register'], $s['version'], $s['allowFromSelfOrigin'], $s['salted'], $s['classmap'], $s['prefix'], $s['prependPrefix']);      
 	      }
 		  
 	    return $arr;	  
@@ -81,11 +177,11 @@ class RemoteFromWebfan
 		$key = $server;  
 	  }
 	  
-	  if(!isset(self::$instances[$server])){
-		  self::$instances[$server] = new self($server, $register, $version, $allowFromSelfOrigin, $salted);
+	  if(!isset(self::$instances[$key])){
+		  self::$instances[$key] = new self($server, $register, $version, $allowFromSelfOrigin, $salted, $prefix, $prependPrefix);
 	  }
 	  
-	 return self::$instances[$server];
+	 return self::$instances[$key];
   }	
 	
   public static function __callStatic($name, $arguments){
@@ -196,7 +292,7 @@ class RemoteFromWebfan
 		return [$this, 'Autoload'];
 	}
 	
-  protected function Autoload($class){
+  public function Autoload($class){
 	$cacheFile = ((isset($_ENV['FRDL_HPS_PSR4_CACHE_DIR'])) ? $_ENV['FRDL_HPS_PSR4_CACHE_DIR'] 
                    : sys_get_temp_dir() . \DIRECTORY_SEPARATOR. 'psr4'. \DIRECTORY_SEPARATOR
 					  )
