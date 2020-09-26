@@ -25,7 +25,7 @@ class RemoteFromWebfan
 	protected static $prefixes = [];
 	protected static $registeredGlobal = false;
 	
-   public function __construct($server = 'frdl.webfan.de',
+   public function __construct($server,// = 'frdl.webfan.de', 
 			       $register = true, 
 			       $version = 'latest', 
 			       $allowFromSelfOrigin = false,
@@ -157,7 +157,7 @@ public function AutoloadGlobal($class){
   }
 	
 	
-  public static function getInstance($server = 'frdl.webfan.de', 
+  public static function getInstance($server,// = 'frdl.webfan.de', 
 				     $register = false,
 				     $version = 'latest', 
 				     $allowFromSelfOrigin = false,
