@@ -31,8 +31,8 @@ class RemoteFromWebfan
 			       $allowFromSelfOrigin = false,
 			       $salted = true,
 			       $classMap, 
-			       string $prefix = null,			
-			       $prependPrefix = false
+			       $prefix,			
+			       $prependPrefix
 			      ){
 	        $this->withSalt($salted);
 	        $this->withClassmap($classMap);
@@ -163,8 +163,8 @@ public function AutoloadGlobal($class){
 				     $allowFromSelfOrigin = false,
 				     $salted = true,
 			       $classMap, 
-			       string $prefix = null,			
-			       $prependPrefix = false){
+			       $prefix,			
+			       $prependPrefix){
 	  if(is_array($server)){
 	      $arr = [];
 	      foreach($server as $s){
