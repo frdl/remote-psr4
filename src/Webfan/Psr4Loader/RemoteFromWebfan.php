@@ -30,7 +30,7 @@ class RemoteFromWebfan
 			       $version = 'latest', 
 			       $allowFromSelfOrigin = false,
 			       $salted = true,
-			       $classMap = null, 
+			       $classMap, 
 			       string $prefix = null,			
 			       $prependPrefix = false
 			      ){
@@ -162,8 +162,9 @@ public function AutoloadGlobal($class){
 				     $version = 'latest', 
 				     $allowFromSelfOrigin = false,
 				     $salted = true,
-				     string $prefix = null,
-				     $prependPrefix = false){
+			       $classMap, 
+			       string $prefix = null,			
+			       $prependPrefix = false){
 	  if(is_array($server)){
 	      $arr = [];
 	      foreach($server as $s){
