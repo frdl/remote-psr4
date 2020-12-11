@@ -5,5 +5,11 @@ If you are developing a Frdlweb-Project you should use [this package](https://gi
 
 ## Usage
 ````php
- $loader = \Webfan\Psr4Loader\RemoteFromWebfan::getInstance('frdl.webfan.de', true, 'latest', true);
+   $loader = \Webfan\Psr4Loader\RemoteFromWebfan::getInstance('frdl.webfan.de', true, 'latest', true);
+````
+
+...or...
+
+````php
+  $loader = \frdl\implementation\psr4\RemoteAutoloader::getInstance('frdl.webfan.de', true, 'latest', true);
 ````
