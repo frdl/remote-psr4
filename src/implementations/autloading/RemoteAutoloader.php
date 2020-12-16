@@ -168,7 +168,7 @@ class RemoteAutoloader
     protected function loadMappedSource($prefix, $relative_class)
     {
 		
-	$url = false;
+	    $url = false;
 		$class = $prefix.$relative_class;
 		
 		if(isset(self::$classmap[$class]) && is_string(self::$classmap[$class]) && '\\' !== substr($class, -1)  && '\\' !== substr(self::$classmap[$class], -1) ){
@@ -190,14 +190,14 @@ class RemoteAutoloader
 			$url = $this->getUrl($relative_class, $server);
 			
 			if(is_string($url) && $this->exists($url)){
-			  //return $url;
+			    return $url;
 				break;
 			}
         }
 	}
         // never found it
-        return $url;
-    }
+       return $this->getUrl($class, $this->server);
+   }
 
     /**
      * If a file exists, require it from the file system.
