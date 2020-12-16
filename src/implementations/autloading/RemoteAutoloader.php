@@ -32,14 +32,15 @@ class RemoteAutoloader
 	protected $allowFromSelfOrigin = false;
 	
 	protected static $prefixes = [];
-	
+	protected $cacheDir;
+	protected $cacheLimit = 0;
 	protected static $instances = [];
 	protected static $classmap = [
 	    \Wehowski\Gist\Http\Response\Helper::class => 'https://gist.githubusercontent.com/wehowski/d762cc34d5aa2b388f3ebbfe7c87d822/raw/5c3acdab92e9c149082caee3714f0cf6a7a9fe0b/Wehowski%255CGist%255CHttp%255CResponse%255CHelper.php?cache_bust=${salt}',
 	];
 	
 	
-   public function __construct($server = 'frdl.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = false, $classMap = null){
+   public function __construct($server = 'frdl.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = false, $classMap = null, $cacheDir = null, $cacheLimit = null){
 	        $this->withSalt($salted);
 	        $this->withClassmap($classMap);
 		$this->allowFromSelfOrigin = $allowFromSelfOrigin;
@@ -59,6 +60,13 @@ class RemoteAutoloader
 		  $register = false;	
 		}
 		
+		$this->cacheLimit = (is_int($cacheLimit)) ? $cacheLimit : ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']))? $_ENV['FRDL_HPS_PSR4_CACHE_LIMIT'] : 31 * 24 * 60 * 60);   
+		$this->cacheDir = (is_string($cacheDir)) ? $cacheDir 
+			: ((isset($_ENV['FRDL_HPS_PSR4_CACHE_DIR'])) ? $_ENV['FRDL_HPS_PSR4_CACHE_DIR'] :
+			   \sys_get_temp_dir()  . \DIRECTORY_SEPARATOR. \get_current_user () . \DIRECTORY_SEPARATOR. 'psr4'. \DIRECTORY_SEPARATOR
+			  ); 
+	   
+	   
 		if(true === $register){
 		   $this->register();	
 		}		
@@ -143,8 +151,7 @@ class RemoteAutoloader
 		
             // try to load a mapped file for the prefix and relative class
             $mapped_file = $this->loadMappedSource($prefix, $relative_class);
-            if ($mapped_file) {
-		
+            if ($mapped_file && $this->exists($mapped_file) ) {		
                 return $mapped_file;
             }
 
@@ -189,9 +196,10 @@ class RemoteAutoloader
 
 			$url = $this->getUrl($relative_class, $server);
 			
-			if(is_string($url) && $this->exists($url)){
+			if(is_string($url) 
+			  // && $this->exists($url)
+			  ){
 			    return $url;
-				break;
 			}
         }
 	}
@@ -236,11 +244,11 @@ class RemoteAutoloader
   }
 	
 	
-  public static function getInstance($server = 'frdl.webfan.de', $register = false, $version = 'latest', $allowFromSelfOrigin = false, $salted = false, $classMap = null){
+  public static function getInstance($server = 'frdl.webfan.de', $register = false, $version = 'latest', $allowFromSelfOrigin = false, $salted = false, $classMap = null, $cacheDir = null, $cacheLimit = null){
 	  if(is_array($server)){
 	      $arr = [];
 	      foreach($server as $s){
-		  $arr[]= self::getInstance($s['server'], $s['register'], $s['version'], $s['allowFromSelfOrigin'], $s['salted'], $s['classmap']);      
+		  $arr[]= self::getInstance($s['server'], $s['register'], $s['version'], $s['allowFromSelfOrigin'], $s['salted'], $s['classmap'], $s['cacheDir'], $s['cacheLimit']);      
 	      }
 		  
 	    return $arr;	  
@@ -251,7 +259,7 @@ class RemoteAutoloader
 	  }
 	  
 	  if(!isset(self::$instances[$server])){
-		  self::$instances[$server] = new self($server, $register, $version, $allowFromSelfOrigin, $salted, $classMap = null);
+		  self::$instances[$server] = new self($server, $register, $version, $allowFromSelfOrigin, $salted, $classMap, $cacheDir, $cacheLimit);
 	  }
 	  
 	 return self::$instances[$server];
@@ -376,7 +384,8 @@ class RemoteAutoloader
 		   throw new \Exception('You should not autoload from remote where you have local access to the source (remote server = host)');
 		}		
 		
-		if(!in_array($this->getLoader(), spl_autoload_functions()) ){
+		$aFuncs = \spl_autoload_functions();
+		if(!is_array($aFuncs) || !in_array($this->getLoader(), $aFuncs) ){
 			return spl_autoload_register($this->getLoader(), $throw, $prepend);
 		}
 	}
@@ -385,43 +394,44 @@ class RemoteAutoloader
 		return [$this, 'Autoload'];
 	}
 	
-  protected function Autoload($class){
-	$cacheFile = ((isset($_ENV['FRDL_HPS_PSR4_CACHE_DIR'])) ? $_ENV['FRDL_HPS_PSR4_CACHE_DIR'] 
-                   : sys_get_temp_dir() . \DIRECTORY_SEPARATOR. 'psr4'. \DIRECTORY_SEPARATOR
-					  )
-		         
-	            	.  str_replace('\\', \DIRECTORY_SEPARATOR, $class). '.php';
 	
- 
+	
+	
+  public function Autoload($class){
 
+	$cacheFile = rtrim($this->cacheDir, \DIRECTORY_SEPARATOR.'/\\ ').  str_replace('\\', \DIRECTORY_SEPARATOR, $class). '.php';
 	
+ 	
+	  
 	if(file_exists($cacheFile) 
-	   && (!isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT'])  
-								   || (filemtime($cacheFile) > time() - ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) ) ? intval($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) :  3 * 60 * 60)) )){
+	   && ($this->cacheLimit === 0
+		   || $this->cacheLimit === -1
+		   || (filemtime($cacheFile) > time() - $this->cacheLimit)
+		  )){
 	   require $cacheFile;
        return true;
 	}
 
 
 	$code = $this->fetchCode($class, null);
-	
-
-
 
 	if(false !==$code){			
 		if(!is_dir(dirname($cacheFile))){			
 		  mkdir(dirname($cacheFile), 0755, true);
 		}
 		
-      if(isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) 
-		  && file_exists($cacheFile) 
-	      && (filemtime($cacheFile) < time() - ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) ) ? intval($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']) :  3 * 60 * 60)) ){
+     
+	 if(file_exists($cacheFile) 
+	   && ($this->cacheLimit !== 0
+		   && $this->cacheLimit !== -1
+		   && (filemtime($cacheFile) < time() - $this->cacheLimit)
+		  )){
 		     unlink($cacheFile);
       }	
-	 //  if(!file_put_contents($cacheFile, $code)){
-	  //   throw new \Exception('Cannot write '.$url.' to '.$cacheFile);/*   error_log('Cannot write '.$url.' to '.$cacheFile, \E_WARNING); */
-	 //  }
-		file_put_contents($cacheFile, $code);
+
+		if(!file_put_contents($cacheFile, $code)){
+	      throw new \Exception('Cannot write source for class '.$class.' to '.$cacheFile);
+	   }
 	  		
    }//if(false !==$code)	
 	
