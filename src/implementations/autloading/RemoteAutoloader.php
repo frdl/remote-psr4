@@ -11,7 +11,7 @@ if(false === $code){
 
   file_put_contents(__FILE__, $code);
  
-// return require __FILE__;
+ return require __FILE__;
 
 }catch(\Exception $e){
    file_put_contents(__FILE__, $oldc);
@@ -23,7 +23,7 @@ if(false === $code){
 class RemoteAutoloader
 {
 
-	protected $salted = true;
+	protected $salted = false;
 	
 	protected $selfDomain;
 	protected $server;
@@ -39,7 +39,7 @@ class RemoteAutoloader
 	];
 	
 	
-   public function __construct($server = 'frdl.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = true, $classMap = null){
+   public function __construct($server = 'frdl.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = false, $classMap = null){
 	        $this->withSalt($salted);
 	        $this->withClassmap($classMap);
 		$this->allowFromSelfOrigin = $allowFromSelfOrigin;
@@ -86,7 +86,8 @@ class RemoteAutoloader
     }
 
 	
-   public function getUrl($class, $server){
+   public function getUrl($class, $server, $salt = null){
+	   if(!is_string($salt))$salt=mt_rand(1000,9999);
 	  $url = false; 
 			
 			if(is_string($server) && '\\' === substr($server, -1)  ){
@@ -127,10 +128,11 @@ class RemoteAutoloader
         // the current namespace prefix
         $prefix = $class;
 	
-		
+	
         // work backwards through the namespace names of the fully-qualified
         // class name to find a mapped file name
         while (false !== $pos = strrpos($prefix, '\\')) {
+
 
             // retain the trailing namespace separator in the prefix
             $prefix = substr($class, 0, $pos + 1);
@@ -142,6 +144,7 @@ class RemoteAutoloader
             // try to load a mapped file for the prefix and relative class
             $mapped_file = $this->loadMappedSource($prefix, $relative_class);
             if ($mapped_file) {
+		
                 return $mapped_file;
             }
 
@@ -149,7 +152,7 @@ class RemoteAutoloader
             // of strrpos()
             $prefix = rtrim($prefix, '\\');
         }
-
+		
         // never found a mapped file
         return false;
     }
@@ -164,18 +167,23 @@ class RemoteAutoloader
      */
     protected function loadMappedSource($prefix, $relative_class)
     {
-		$url = false;
-	/*		
+		
+	$url = false;
+		$class = $prefix.$relative_class;
+		
 		if(isset(self::$classmap[$class]) && is_string(self::$classmap[$class]) && '\\' !== substr($class, -1)  && '\\' !== substr(self::$classmap[$class], -1) ){
+			$url = $this->getUrl($class, self::$classmap[$class]);
 			return self::$classmap[$class];
 		}
-		*/
+		/*	*/
         // are there any base directories for this namespace prefix?
       //  if (isset($this->prefixes[$prefix]) === false) {
       //      return false;
       //  }
 
 	if (isset($this->prefixes[$prefix]) !== false) {
+		
+		
         // look through base directories for this namespace prefix
         foreach ($this->prefixes[$prefix] as $server) {
 
@@ -228,7 +236,7 @@ class RemoteAutoloader
   }
 	
 	
-  public static function getInstance($server = 'frdl.webfan.de', $register = false, $version = 'latest', $allowFromSelfOrigin = false, $salted = true, $classMap = null){
+  public static function getInstance($server = 'frdl.webfan.de', $register = false, $version = 'latest', $allowFromSelfOrigin = false, $salted = false, $classMap = null){
 	  if(is_array($server)){
 	      $arr = [];
 	      foreach($server as $s){
@@ -305,7 +313,7 @@ class RemoteAutoloader
      }
 */
 	  $url = $this->loadClass($class);
-
+		
 	$options = [
 		'https' => [
            'method'  => 'GET',
@@ -314,7 +322,8 @@ class RemoteAutoloader
 		   ]
 	];
     $context  = stream_context_create($options);
-    $code = @file_get_contents($url, false, $context);
+    $code = file_get_contents($url, false, $context);
+	  //$code = file_get_contents($url);
 	foreach($http_response_header as $i => $header){
 		$h = explode(':', $header);
 		if('x-content-hash' === strtolower(trim($h[0]))){
@@ -328,6 +337,7 @@ class RemoteAutoloader
 	  
    
 	  if(false===$code || !is_string($code) || (true === $this->withSalt() && (!isset($hash) || !isset($userHash)))){	
+		 
 		  return false;	
 	  }
 	
@@ -343,7 +353,7 @@ class RemoteAutoloader
 		   throw new \Exception('Invalid checksums while fetching source code for '.$class.' from '.$url);
 	   }	   	
      }	
-
+ 
   $code = trim($code);
   if('<?php' === substr($code, 0, strlen('<?php')) ){
 	  $code = substr($code, strlen('<?php'), strlen($code));
