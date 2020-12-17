@@ -401,7 +401,7 @@ class RemoteAutoloader
 	
   public function Autoload($class){
 
-	$cacheFile = rtrim($this->cacheDir, \DIRECTORY_SEPARATOR.'/\\ ').  str_replace('\\', \DIRECTORY_SEPARATOR, $class). '.php';
+	$cacheFile = rtrim($this->cacheDir, \DIRECTORY_SEPARATOR.'/\\ '). \DIRECTORY_SEPARATOR. str_replace('\\', \DIRECTORY_SEPARATOR, $class). '.php';
 	
  	
 	  
