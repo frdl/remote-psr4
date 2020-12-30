@@ -636,9 +636,7 @@ Array
 				 throw new \Exception(sprintf('Cannot register of %s ("%s") with cachedir "%s"', __FUNCTION__, __METHOD__, $this->cacheDir));
 			}	  
   }
-	<?php 
 
-namespace frdl\implementation\psr4;
 
 class RemoteAutoloader
 {
