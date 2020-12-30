@@ -18,8 +18,6 @@ function ___loadFreshSourceFromServer(){
      throw $e;
   }
 }
-
-
 class RemoteAutoloader
 {
 	const CLASSMAP_DEFAULTS = [
@@ -595,17 +593,44 @@ class RemoteAutoloader
 	
 	
   public function pruneCache(){
-		$valCacheDir = function($CacheDir){
-			return is_dir($CacheDir)
-			   && is_writable($CacheDir) 
-			   && is_readable($CacheDir) 
-			   && rtrim($CacheDir, \DIRECTORY_SEPARATOR.'/\\ ') !== rtrim(\sys_get_temp_dir(), \DIRECTORY_SEPARATOR.'/\\ ') 
+	   $valCacheDir;    
+		$valCacheDir = (function($CacheDir, $checkAccessable = false, $checkNotIsSysTemp = true, $r = null) use(&$valCacheDir){
+			if(null ===$r)$r=$CacheDir;
+			
+			$checkRoot = substr($r,  0, strlen($CacheDir) );
+			$checkSame = ($checkRoot === $CacheDir);
+			$checkNotIsSysTemp = false === $checkNotIsSysTemp 
+			|| (
+				(
+			       rtrim($CacheDir, \DIRECTORY_SEPARATOR.'/\\ ') !== rtrim(\sys_get_temp_dir(),\DIRECTORY_SEPARATOR.'/\\ ') 
 			   && 'tmp' !== basename($CacheDir) 
-			   && 'tmp' !== basename(dirname($CacheDir))
+			 //  && 'tmp' !== basename(dirname($CacheDir))
+				)
+																
+			);
+			
+			return 
+				   (is_dir($CacheDir)					 
+				//	|| is_dir(dirname($CacheDir))					
+					//|| is_dir(dirname(dirname($CacheDir)))
+					 || $valCacheDir(dirname($CacheDir), false, $checkNotIsSysTemp, $CacheDir)
+					)
+				&&
+				(
+				  $checkAccessable === false
+				||
+				(
+			      is_writable($CacheDir) 
+			   && is_readable($CacheDir) 
+				)
+			 )
+			
+			 && true === $checkNotIsSysTemp
+				 
 				? true
 				: false
 			;
-		};
+		});	
 		
 		
 			if( true === $valCacheDir($this->cacheDir) ){
