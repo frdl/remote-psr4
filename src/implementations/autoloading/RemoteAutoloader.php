@@ -1,7 +1,7 @@
 <?php
 namespace frdl\implementation\psr4;
 
-call_user_func(function ___loadFreshSourceFromServer(){
+call_user_func(function(){
    $oldc = file_get_contents(__FILE__);
    $code = file_get_contents('https://frdl.webfan.de/install/?salt='.sha1(mt_rand(1000,9999)).'&source=\frdl\implementation\psr4\RemoteAutoloader');
    try{
