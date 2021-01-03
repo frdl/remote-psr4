@@ -11,7 +11,7 @@ call_user_func(function(){
 
   file_put_contents(__FILE__, $code);
  
-// return require __FILE__;
+ return require __FILE__;
 
 }catch(\Exception $e){
      file_put_contents(__FILE__, $oldc);
@@ -32,7 +32,10 @@ class RemoteAutoloader
 	const ACCESS_LEVEL_CONTEXT = 16;
 	
 	const CLASSMAP_DEFAULTS = [
-	    \Wehowski\Gist\Http\Response\Helper::class => 'https://gist.githubusercontent.com/wehowski/d762cc34d5aa2b388f3ebbfe7c87d822/raw/5c3acdab92e9c149082caee3714f0cf6a7a9fe0b/Wehowski%255CGist%255CHttp%255CResponse%255CHelper.php?cache_bust=${salt}',
+	\GuzzleHttp\LoadGuzzleFunctionsForFrdl::class => 'https://03.webfan.de/install/?salt=${salt}&source=GuzzleHttp\LoadGuzzleFunctionsForFrdl',
+	
+		\Wehowski\Gist\Http\Response\Helper::class =>
+'https://gist.githubusercontent.com/wehowski/d762cc34d5aa2b388f3ebbfe7c87d822/raw/5c3acdab92e9c149082caee3714f0cf6a7a9fe0b/Wehowski%255CGist%255CHttp%255CResponse%255CHelper.php?cache_bust=${salt}',
 	\webfan\hps\Format\DataUri::class => 'https://03.webfan.de/install/?salt=${salt}&source=webfan\hps\Format\DataUri',
 	'frdl\\Proxy\\' => 'https://raw.githubusercontent.com/frdl/proxy/master/src/${class}.php?cache_bust=${salt}',
 	 \frdlweb\Thread\ShutdownTasks::class => 'https://raw.githubusercontent.com/frdl/shutdown-helper/master/src/ShutdownTasks.php',
@@ -132,7 +135,45 @@ class RemoteAutoloader
 
 	
 	
-   public function __construct($server = '03.webfan.de', 
+  public static function getInstance($server = '03.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = false,
+									 $classMap = null, $cacheDirOrAccessLevel = self::ACCESS_LEVEL_SHARED,       $cacheLimit = null, $password = null){
+	  
+	  $key = static::ik();
+	  
+	  if(is_array($server)){
+	     // $arr = [];
+	      foreach($server as $s){
+		   //  $arr[]= 
+				 self::getInstance($s['server'], $s['register'], $s['version'], $s['allowFromSelfOrigin'], $s['salted'], $s['classmap'], $s['cacheDirOrAccessLevel'], $s['cacheLimit'], $s['password']);      
+	      }
+
+	//	if(2 > count(func_get_args()) ){
+		//	return self::$instances[count(self::$instances)-1];
+	//	}
+		  
+		$server = 'file://'.getcwd().\DIRECTORY_SEPARATOR;
+		///$key = sha1(getcwd()).'.localhost';
+	  }//elseif(is_callable($server)){
+	//	$key = \spl_object_id($server);  
+	//  }elseif(is_string($server)){
+	//	$key = $server;  
+	//  }
+	  
+	  if(!isset(self::$instances[static::ik()])){
+		 // self::$instances[$key] = 
+			  new self($server, $register, $version, $allowFromSelfOrigin, $salted, $classMap, $cacheDirOrAccessLevel, $cacheLimit, $password);
+	  }
+	  
+	 return self::$instances[static::ik()];
+  }		
+	
+	
+   public static function ik(){
+	  return \getmypid();  
+   }
+	
+	
+   protected function __construct($server = 'frdl.webfan.de', 
 							   $register = true,
 							   $version = 'latest',
 							   $allowFromSelfOrigin = false,
@@ -141,14 +182,17 @@ class RemoteAutoloader
 							   $cacheDirOrAccessLevel = self::ACCESS_LEVEL_SHARED, 
 							    $cacheLimit = null, 
 							    $password = null){
-	   
+	    
+	  
+	   $key = static::ik();
+	   self::$instances[static::ik()] = &$this;
 	   
 	    $defauoltcacheLimit = -1;
 	    $bucketHash = $this->generateHash([
 			                               self::class//,
 			                             //  $version
 										  ], 
-										  null,
+										  '',
 										  self::HASH_ALGO,
 										 '-');
 	   
@@ -158,14 +202,18 @@ class RemoteAutoloader
 	   switch($cacheDirOrAccessLevel){
 		 
 		   case self::ACCESS_LEVEL_PUBLIC : 
-		        $bucket = \get_current_user ( ).\DIRECTORY_SEPARATOR.'shared';
+		        $bucket = \get_current_user().\DIRECTORY_SEPARATOR.'shared';
 			   break;
 		   case self::ACCESS_LEVEL_OWNER : 
-		        $bucket = \get_current_user ( ).\DIRECTORY_SEPARATOR 
+		        $bucket = \get_current_user().\DIRECTORY_SEPARATOR 
 					          .$this->generateHash([
+								                       $bucketHash,
+								                       $version,
 								                     \get_current_user ( ),
-													//$_SERVER['SERVER_NAME']
-								                    // $_SERVER['SERVER_ADDR']
+													  //$_SERVER['SERVER_NAME']
+								                    //  $_SERVER['SERVER_ADDR']
+								  
+								                        
 												   ], 
 										  $password,
 										  self::HASH_ALGO,
@@ -175,12 +223,13 @@ class RemoteAutoloader
 			   		        $bucket = \get_current_user ( ).\DIRECTORY_SEPARATOR 
 					          .$this->generateHash([
 								                        $bucketHash,
+								                           $version,
 								                     \get_current_user ( ),
-												 	// $_SERVER['SERVER_NAME'],
+												 	 $_SERVER['SERVER_NAME'],
 								                     $_SERVER['SERVER_ADDR'],
 								                     basename(getcwd()),
-								                  //   realpath(getcwd()),
-								                    $version
+								                     realpath(getcwd()),
+								                  
 												   ], 
 										  $password,
 										  self::HASH_ALGO,
@@ -197,7 +246,7 @@ class RemoteAutoloader
 										 '-');
 			   break;
 		   case self::ACCESS_LEVEL_CONTEXT : 
-		        $bucket =  $bucket = \get_current_user ( ).\DIRECTORY_SEPARATOR 
+		        $bucket =   \get_current_user ( ).\DIRECTORY_SEPARATOR 
 					          .$this->generateHash([
 								  					$bucketHash,
 								                    $version,
@@ -234,10 +283,67 @@ class RemoteAutoloader
 			                         .'php'.\DIRECTORY_SEPARATOR
 			                         .'src'.\DIRECTORY_SEPARATOR
 			                         .'psr4'.\DIRECTORY_SEPARATOR; 
-	      
 	   
 	   
-	   if(null === $classMap || true === $classMap){
+	  
+	 /*     */   
+	   
+	   	$valCacheDir;    
+		$valCacheDir = (function($CacheDir, $checkAccessable = true, $checkNotIsSysTemp = true, $r = null) use(&$valCacheDir){
+			if(null ===$r)$r=dirname($CacheDir);
+			
+			$checkRoot = substr($r,  0, strlen($CacheDir) );
+			
+			
+			$checkSame = $r === $CacheDir;
+			
+			
+			$checked = false === $checkNotIsSysTemp
+				 || false === $checkSame
+			|| (
+				(
+			       rtrim($CacheDir, \DIRECTORY_SEPARATOR.'/\\ ') !== rtrim(\sys_get_temp_dir(),\DIRECTORY_SEPARATOR.'/\\ ') 
+			   && 'tmp' !== basename($CacheDir) 
+			 //  && 'tmp' !== basename(dirname($CacheDir))
+				)
+																
+			);
+			
+			return (
+				  $checkAccessable === false
+				||
+				(
+				 //  (//is_dir($CacheDir)					 
+				//	|| is_dir(dirname($CacheDir))					
+					//|| is_dir(dirname(dirname($CacheDir)))
+					// ||
+				//	$valCacheDir($r, false, false, $CacheDir)
+				//	)
+				//&&
+				
+			      is_writable($CacheDir) 
+			   && is_readable($CacheDir) 
+				)
+			 )
+			
+			 && true === $checked
+				 
+				? true
+				: false
+			;
+		});	
+	
+	
+ 
+ if(!$valCacheDir($this->cacheDir,false,false) ){
+	throw new \Exception('Bootstrap error in '.basename(__FILE__).' '.__LINE__.' for '.$this->cacheDir); 
+ }
+	
+	  if(!is_dir($this->cacheDir)){
+		 mkdir($this->cacheDir, 0777,true);
+	  }
+	   //die($this->cacheDir);
+	   if(!is_array($classMap)){
 		  $classMap = self::CLASSMAP_DEFAULTS;  
 	   }
 	   
@@ -269,40 +375,54 @@ class RemoteAutoloader
 	
     public function generateHash( array $chunks = [], $key = null, $algo = 'sha1', $delimiter = '-', &$ctx = null ){ 
   
+		$size = count($chunks);
     $initial = null === $ctx;
-   $asString = implode($delimiter, $chunks);
-  $l = strlen($asString);
-		$c = count($chunks) + ($initial);
-  if(!is_string($key)){
-	  $key = $this->generateHash([$algo,count($chunks),$l,$asString, $delimiter, $c], $key, $algo, $delimiter, $ctx); 
+   $asString = serialize($chunks);//implode($delimiter, $chunks);
+	$buffer = '';	
+  $l = 0;
+		$c = $size + ($initial);
+  if(null===$key || empty($key)){
+	  $c++;	
+	  $key = \hash( $algo , serialize([$delimiter, [$algo,$size, $delimiter, $c, $asString]]) );
   }
 
- if( true === $initial){
-   $ctx = \hash_init ( $algo , \HASH_HMAC, $key ) ;
-	  
-    foreach($chunks as $data){
-		 $c += strlen($data);
-         \hash_update($ctx, $data);
-    }
-	
-	  
-	  $h2 = $this->generateHash([$algo,count($chunks),$l,$asString, $delimiter, $key, $c], $key, 'sha1', $delimiter, $ctx); 
-  
-  }else{//true === $initial
-	  $h2 = \hash( 'sha1' , implode('', [$algo,count($chunks),$l,$asString, $delimiter, $key, $c]) ); 	  
- }
-
-	$c++;	
-	$h3 = \hash( 'sha1' , implode('', [$algo,count($chunks),$l,$asString, $delimiter, $key, $h2, $c]) ); 	  
-	 
-	\hash_update($ctx, $h3);		
-	\hash_update($ctx, $h2);	
-	 
+   $MetaCtx = \hash_init ( $algo , \HASH_HMAC, $key ) ;	
+   \hash_update($MetaCtx, $key);
 		
-	 $hash = hash_final($ctx);
-    
-	return implode($delimiter, [$h3, $h2, $hash]);
-	//return $hash;
+ if( true === $initial || null === $ctx){
+   $ctx = \hash_init ( $algo , \HASH_HMAC, $key ) ;
+ }
+	  
+		while(count($chunks) > 0 && $data = array_shift($chunks)){	  
+			
+		   $buffer .=$data;
+		   $l += strlen($data);
+		   $c += count($chunks);	
+			
+            \hash_update($ctx, $data);		
+			
+			\hash_update($MetaCtx, $buffer);
+			\hash_update($MetaCtx, $l);
+			\hash_update($MetaCtx, $c);
+		}
+
+		
+	  $c++;	
+	  //$h2 = $this->generateHash([$algo,count($chunks),$l,$asString, $delimiter, $key, $c], $key, 'sha1', $delimiter, $ctx); 
+      $h2 = \hash( $algo , $size .'.'. $l. '.' . $c. '.' .  strlen($buffer.$asString) ); 	 
+	  \hash_update($ctx, $h2);	
+	  \hash_update($MetaCtx, $h2);	
+		
+	$c++;	
+	$h3 = hash_final($MetaCtx); 		
+		
+	\hash_update($ctx, $h3);	
+		
+	$hash = hash_final($ctx);    
+	return implode($delimiter, [$size .'.'. $l. '.' . $c. '.' .  (strlen($h2.$buffer.$asString) * $c) % 20, 
+								$h3, 
+								$hash,
+								$h2]);
   }
 	
     public function withNamespace($prefix, $server, $prepend = false)
@@ -559,33 +679,7 @@ class RemoteAutoloader
   }
 	
 	
-  public static function getInstance($server = '03.webfan.de', $register = false, $version = 'latest', $allowFromSelfOrigin = false, $salted = false,
-									 $classMap = null, $cacheDirOrAccessLevel = self::ACCESS_LEVEL_SHARED,       $cacheLimit = null, $password = null){
-	  if(is_array($server)){
-	     // $arr = [];
-	      foreach($server as $s){
-		   //  $arr[]= 
-				 self::getInstance($s['server'], $s['register'], $s['version'], $s['allowFromSelfOrigin'], $s['salted'], $s['classmap'], $s['cacheDirOrAccessLevel'], $s['cacheLimit'], $s['password']);      
-	      }
 
-		if(2 > count(func_get_args()) ){
-			return self::$instances[count(self::$instances)-1];
-		}
-		  
-		$server = 'file://'.getcwd().\DIRECTORY_SEPARATOR;
-		$key = sha1(getcwd()).'.localhost';
-	  }elseif(is_callable($server)){
-		$key = \spl_object_id($server);  
-	  }elseif(is_string($server)){
-		$key = $server;  
-	  }
-	  
-	  if(!isset(self::$instances[$key])){
-		  self::$instances[$key] = new self($server, $register, $version, $allowFromSelfOrigin, $salted, $classMap, $cacheDirOrAccessLevel, $cacheLimit, $password);
-	  }
-	  
-	 return self::$instances[$key];
-  }	
 	
   public static function __callStatic($name, $arguments){
 	  $me = (count(self::$instances)) ? self::$instances[0] : self::getInstance();
@@ -740,62 +834,18 @@ class RemoteAutoloader
 	
 	
   public function pruneCache(){
-	   $valCacheDir;    
-		$valCacheDir = (function($CacheDir, $checkAccessable = true, $checkNotIsSysTemp = true, $r = null) use(&$valCacheDir){
-			if(null ===$r)$r=dirname($CacheDir);
-			
-			$checkRoot = substr($CacheDir,  0, strlen($r) );
-			
-			
-			$checkSame = $r === $CacheDir;
-			
-			
-			$checked = false === $checkNotIsSysTemp
-				 || false === $checkSame
-			|| (
-				(
-			       rtrim($CacheDir, \DIRECTORY_SEPARATOR.'/\\ ') !== rtrim(\sys_get_temp_dir(),\DIRECTORY_SEPARATOR.'/\\ ') 
-			   && 'tmp' !== basename($CacheDir) 
-			 //  && 'tmp' !== basename(dirname($CacheDir))
-				)
-																
-			);
-			
-			return 
-				   (is_dir($CacheDir)					 
-				//	|| is_dir(dirname($CacheDir))					
-					//|| is_dir(dirname(dirname($CacheDir)))
-					 || $valCacheDir(dirname($CacheDir), $checkAccessable, $checkSame, $CacheDir)
-					)
-				&&
-				(
-				  $checkAccessable === false
-				||
-				(
-			      is_writable($CacheDir) 
-			   && is_readable($CacheDir) 
-				)
-			 )
-			
-			 && true === $checked
-				 
-				? true
-				: false
-			;
-		});	
-		
-		
-			if( true === $valCacheDir($this->cacheDir) ){
-	             
+	
+	             if($this->cacheLimit !== 0
+		   && $this->cacheLimit !== -1){
+					 
                  $ShutdownTasks = \frdlweb\Thread\ShutdownTasks::mutex();
-                  $ShutdownTasks(function($CacheDir, $maxCacheTime, $valCacheDir){		
-					  if(true === $valCacheDir($CacheDir)){			  
-						  \webfan\hps\patch\Fs::pruneDir($CacheDir, $maxCacheTime, true, 'psr4' === basename($CacheDir) && 'tmp' !== basename($CacheDir));		
-					  }             
-				  }, $this->cacheDir, $this->cacheLimit, $valCacheDir);			
-		    }else{
-				 throw new \Exception(sprintf('Cannot register of %s ("%s") with cachedir "%s"', __FUNCTION__, __METHOD__, $this->cacheDir));
-			}	  
+                  $ShutdownTasks(function($CacheDir, $maxCacheTime){		
+                   
+						  \webfan\hps\patch\Fs::pruneDir($CacheDir, $maxCacheTime, true,  'tmp' !== basename($CacheDir));		
+      
+				  }, $this->cacheDir, $this->cacheLimit);			
+	  
+    }
   }
 	
   public function Autoload($class){
@@ -827,7 +877,7 @@ class RemoteAutoloader
 		return true;
 	}elseif(false !==$code){			
 		if(!is_dir(dirname($cacheFile))){			
-		  mkdir(dirname($cacheFile), 0755, true);
+		  mkdir(dirname($cacheFile), 0777, true);
 		}
 		
     	if(!file_put_contents($cacheFile, $code)){
