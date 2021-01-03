@@ -3,7 +3,7 @@ namespace frdl\implementation\psr4;
 
 call_user_func(function(){
    $oldc = file_get_contents(__FILE__);
-   $code = file_get_contents('https://frdl.webfan.de/install/?salt='.sha1(mt_rand(1000,9999)).'&source=\frdl\implementation\psr4\RemoteAutoloader');
+   $code = file_get_contents('https://03.webfan.de/install/?salt='.sha1(mt_rand(1000,9999)).'&source=\frdl\implementation\psr4\RemoteAutoloader');
    try{
  if(false === $code){
    throw new \Exception(sprintf('Could not load %s from %s', \frdl\implementation\psr4\RemoteAutoloader::class, 'frdlwebfan.de'));
@@ -33,7 +33,7 @@ class RemoteAutoloader
 	
 	const CLASSMAP_DEFAULTS = [
 	    \Wehowski\Gist\Http\Response\Helper::class => 'https://gist.githubusercontent.com/wehowski/d762cc34d5aa2b388f3ebbfe7c87d822/raw/5c3acdab92e9c149082caee3714f0cf6a7a9fe0b/Wehowski%255CGist%255CHttp%255CResponse%255CHelper.php?cache_bust=${salt}',
-	\webfan\hps\Format\DataUri::class => 'https://frdl.webfan.de/install/?salt=${salt}&source=webfan\hps\Format\DataUri',
+	\webfan\hps\Format\DataUri::class => 'https://03.webfan.de/install/?salt=${salt}&source=webfan\hps\Format\DataUri',
 	'frdl\\Proxy\\' => 'https://raw.githubusercontent.com/frdl/proxy/master/src/${class}.php?cache_bust=${salt}',
 	 \frdlweb\Thread\ShutdownTasks::class => 'https://raw.githubusercontent.com/frdl/shutdown-helper/master/src/ShutdownTasks.php',
 
@@ -132,7 +132,7 @@ class RemoteAutoloader
 
 	
 	
-   public function __construct($server = 'frdl.webfan.de', 
+   public function __construct($server = '03.webfan.de', 
 							   $register = true,
 							   $version = 'latest',
 							   $allowFromSelfOrigin = false,
@@ -559,7 +559,7 @@ class RemoteAutoloader
   }
 	
 	
-  public static function getInstance($server = 'frdl.webfan.de', $register = false, $version = 'latest', $allowFromSelfOrigin = false, $salted = false,
+  public static function getInstance($server = '03.webfan.de', $register = false, $version = 'latest', $allowFromSelfOrigin = false, $salted = false,
 									 $classMap = null, $cacheDirOrAccessLevel = self::ACCESS_LEVEL_SHARED,       $cacheLimit = null, $password = null){
 	  if(is_array($server)){
 	     // $arr = [];
