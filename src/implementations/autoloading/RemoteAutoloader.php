@@ -20,6 +20,7 @@ call_user_func(function(){
 });
 
 
+
 class RemoteAutoloader
 {
 	
@@ -173,7 +174,7 @@ class RemoteAutoloader
    }
 	
 	
-   protected function __construct($server = 'frdl.webfan.de', 
+   public function __construct($server = 'frdl.webfan.de', 
 							   $register = true,
 							   $version = 'latest',
 							   $allowFromSelfOrigin = false,
@@ -802,7 +803,7 @@ class RemoteAutoloader
 	   return call_user_func_array($this->getLoader(), func_get_args());	
 	}
 	
-	protected function register($throw = true, $prepend = false){
+	public function register($throw = true, $prepend = false){
 		
 		$res = false;
 	
