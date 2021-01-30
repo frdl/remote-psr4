@@ -33,7 +33,8 @@ class RemoteAutoloader
 	const ACCESS_LEVEL_CONTEXT = 16;
 	
 	const CLASSMAP_DEFAULTS = [
-	\GuzzleHttp\LoadGuzzleFunctionsForFrdl::class => 'https://03.webfan.de/install/?salt=${salt}&source=GuzzleHttp\LoadGuzzleFunctionsForFrdl',
+		'GuzzleHttp\choose_handler' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+	\GuzzleHttp\LoadGuzzleFunctionsForFrdl::class => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\LoadGuzzleFunctionsForFrdl',
 	
 		\Wehowski\Gist\Http\Response\Helper::class =>
 'https://gist.githubusercontent.com/wehowski/d762cc34d5aa2b388f3ebbfe7c87d822/raw/5c3acdab92e9c149082caee3714f0cf6a7a9fe0b/Wehowski%255CGist%255CHttp%255CResponse%255CHelper.php?cache_bust=${salt}',
@@ -277,8 +278,8 @@ class RemoteAutoloader
 	   
 	   $this->cacheDir = (is_string($cacheDirOrAccessLevel) && is_dir($cacheDirOrAccessLevel) && is_readable($cacheDirOrAccessLevel) && is_writeable($cacheDirOrAccessLevel) ) 
 		   ? $cacheDirOrAccessLevel 
-			:  \sys_get_temp_dir().\DIRECTORY_SEPARATOR.
-			                         '.frdl'.\DIRECTORY_SEPARATOR
+			:  \sys_get_temp_dir().\DIRECTORY_SEPARATOR
+			                      //   .'.frdl'.\DIRECTORY_SEPARATOR
 			                         .$bucket.\DIRECTORY_SEPARATOR
 			                         .'lib'.\DIRECTORY_SEPARATOR
 			                         .'php'.\DIRECTORY_SEPARATOR
@@ -699,7 +700,9 @@ class RemoteAutoloader
   }
 	
   public function exists($source){
-	if(is_file($source) && file_exists($source) && is_readable($source)){
+	if('http://'!==substr($source, 0, strlen('http://'))
+	   && 'https://'!==substr($source, 0, strlen('https://'))
+	   && is_file($source) && file_exists($source) && is_readable($source)){
 		return true;
 	}
 	  
@@ -818,7 +821,7 @@ class RemoteAutoloader
 		}
 		
 		
-			if( true === $res  ){	             
+			if( false !== $res  ){	             
                  $this->pruneCache();			
 		    }else{
 				 throw new \Exception(sprintf('Cannot register Autoloader of "%s" with cachedir "%s"', __METHOD__, $this->cacheDir));
@@ -865,9 +868,10 @@ class RemoteAutoloader
 	  
 	  
 	if(!file_exists($cacheFile) 
-	   || ($this->cacheLimit === 0
-		   || $this->cacheLimit === -1
-		   || (filemtime($cacheFile) < time() - $this->cacheLimit)
+	   || (
+		   $this->cacheLimit !== 0
+		   && $this->cacheLimit !== -1
+		   && (filemtime($cacheFile) < time() - $this->cacheLimit)
 		  )
 	  ){
 	  
@@ -878,7 +882,7 @@ class RemoteAutoloader
 		return true;
 	}elseif(false !==$code){			
 		if(!is_dir(dirname($cacheFile))){			
-		  mkdir(dirname($cacheFile), 0777, true);
+		  mkdir(dirname($cacheFile), 0775, true);
 		}
 		
     	if(!file_put_contents($cacheFile, $code)){
