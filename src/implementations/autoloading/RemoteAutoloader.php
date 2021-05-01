@@ -6,12 +6,12 @@ call_user_func(function(){
    $code = file_get_contents('https://03.webfan.de/install/?salt='.sha1(mt_rand(1000,9999)).'&source=\frdl\implementation\psr4\RemoteAutoloader');
    try{
  if(false === $code){
-   throw new \Exception(sprintf('Could not load %s from %s', \frdl\implementation\psr4\RemoteAutoloader::class, 'frdlwebfan.de'));
+   throw new \Exception(sprintf('Could not load %s from %s', \frdl\implementation\psr4\RemoteAutoloader::class, 'frdl.webfan.de'));
  }
 
   file_put_contents(__FILE__, $code);
  
- return require __FILE__;
+// return require __FILE__;
 
 }catch(\Exception $e){
      file_put_contents(__FILE__, $oldc);
@@ -33,14 +33,29 @@ class RemoteAutoloader
 	const ACCESS_LEVEL_CONTEXT = 16;
 	
 	const CLASSMAP_DEFAULTS = [
-		'GuzzleHttp\choose_handler' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+		'GuzzleHttp\\uri_template' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+		'GuzzleHttp\\describe_type' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+		'GuzzleHttp\\headers_from_lines' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+		'GuzzleHttp\\debug_resource' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+		'GuzzleHttp\\choose_handler' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+		'GuzzleHttp\\default_user_agent' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+		'GuzzleHttp\\default_ca_bundle' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+		'GuzzleHttp\\normalize_header_keys' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+		'GuzzleHttp\\is_host_in_noproxy' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+		'GuzzleHttp\\json_decode' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+		'GuzzleHttp\\json_encode' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+		
 	\GuzzleHttp\LoadGuzzleFunctionsForFrdl::class => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\LoadGuzzleFunctionsForFrdl',
+		
+	//	'GuzzleHttp\\Psr7\\uri_for' =>  'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\Psr7\uri_for',
+		'GuzzleHttp\\Psr7\\uri_for' =>  'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\Psr7\uri_for',
+		
 	
 		\Wehowski\Gist\Http\Response\Helper::class =>
 'https://gist.githubusercontent.com/wehowski/d762cc34d5aa2b388f3ebbfe7c87d822/raw/5c3acdab92e9c149082caee3714f0cf6a7a9fe0b/Wehowski%255CGist%255CHttp%255CResponse%255CHelper.php?cache_bust=${salt}',
 	\webfan\hps\Format\DataUri::class => 'https://03.webfan.de/install/?salt=${salt}&source=webfan\hps\Format\DataUri',
 	'frdl\\Proxy\\' => 'https://raw.githubusercontent.com/frdl/proxy/master/src/${class}.php?cache_bust=${salt}',
-	 \frdlweb\Thread\ShutdownTasks::class => 'https://raw.githubusercontent.com/frdl/shutdown-helper/master/src/ShutdownTasks.php',
+	 \frdlweb\Thread\ShutdownTasks::class => 'https://raw.githubusercontent.com/frdl/shutdown-helper/master/src/ShutdownTasks.php?cache_bust=${salt}',
 
     // NAMESPACES
     // Zend Framework components
@@ -117,6 +132,10 @@ class RemoteAutoloader
     '@Zend\\Xml2Json' => 'Laminas\\Xml2Json',
     '@Zend\\XmlRpc' => 'Laminas\\XmlRpc',
     '@ZendOAuth' => 'Laminas\\OAuth',	
+		
+		
+		//https://raw.githubusercontent.com/elastic/elasticsearch-php/v7.12.0/src/autoload.php
+	'Elasticsearch\\' => 'https://raw.githubusercontent.com/elastic/elasticsearch-php/v7.12.0/src/${class}.php?cache_bust=${salt}',
 	];
 	
 	
@@ -139,7 +158,8 @@ class RemoteAutoloader
 	
   public static function getInstance($server = '03.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = false,
 									 $classMap = null, $cacheDirOrAccessLevel = self::ACCESS_LEVEL_SHARED,       $cacheLimit = null, $password = null){
-	  
+	  	
+
 	  $key = static::ik();
 	  
 	  if(is_array($server)){
@@ -160,7 +180,7 @@ class RemoteAutoloader
 	//  }elseif(is_string($server)){
 	//	$key = $server;  
 	//  }
-	  
+	  	
 	  if(!isset(self::$instances[static::ik()])){
 		 // self::$instances[$key] = 
 			  new self($server, $register, $version, $allowFromSelfOrigin, $salted, $classMap, $cacheDirOrAccessLevel, $cacheLimit, $password);
@@ -287,7 +307,7 @@ class RemoteAutoloader
 			                         .'psr4'.\DIRECTORY_SEPARATOR; 
 	   
 	   
-	  
+	    
 	 /*     */   
 	   
 	   	$valCacheDir;    
@@ -335,9 +355,9 @@ class RemoteAutoloader
 			;
 		});	
 	
-	
- 
+
  if(!$valCacheDir($this->cacheDir,false,false) ){
+
 	throw new \Exception('Bootstrap error in '.basename(__FILE__).' '.__LINE__.' for '.$this->cacheDir); 
  }
 	
@@ -369,7 +389,7 @@ class RemoteAutoloader
 		}
 		
 
-	   
+	
 		if(true === $register){
 		   $this->register();	
 		}		
@@ -750,8 +770,15 @@ class RemoteAutoloader
 	];
     $context  = stream_context_create($options);
     $code = @file_get_contents($url, false, $context);
+	    $statusCode = 0;  
 	  //$code = file_get_contents($url);
 	foreach($http_response_header as $i => $header){
+				
+		if(0===$i){
+			   preg_match('{HTTP\/\S*\s(\d{3})}', $header, $match);
+               $statusCode = intval($match[1]);
+		}
+		
 		$h = explode(':', $header);
 		if('x-content-hash' === strtolower(trim($h[0]))){
 			$hash = trim($h[1]);
@@ -763,12 +790,13 @@ class RemoteAutoloader
 	  
 	  
    
-	  if(false===$code 
+	  if(   200!==$statusCode
+		 || false===$code 
 		 || !is_string($code) 
 		 || (true === $withSaltedUrl && true === $this->withSalt() && (!isset($hash) || !isset($userHash)))
 		
 		){	
-		  throw new \Exception('Missing checksums while fetching source code for '.$class.' from '.$url);
+		//  throw new \Exception('Missing checksums while fetching source code for '.$class.' from '.$url);
 		  return false;	
 	  }
 	
@@ -839,10 +867,17 @@ class RemoteAutoloader
 	
   public function pruneCache(){
 	
-	             if($this->cacheLimit !== 0
+	 if($this->cacheLimit !== 0
 		   && $this->cacheLimit !== -1){
 					 
-                 $ShutdownTasks = \frdlweb\Thread\ShutdownTasks::mutex();
+                              
+		 $ShutdownTasks = (class_exists(\frdlweb\Thread\ShutdownTasks::class))
+					  ? \frdlweb\Thread\ShutdownTasks::mutex()
+					  : function(){
+						  call_user_func_array('register_shutdown_function', func_get_args());
+					  };
+		 
+		 
                   $ShutdownTasks(function($CacheDir, $maxCacheTime){		
                    
 						  \webfan\hps\patch\Fs::pruneDir($CacheDir, $maxCacheTime, true,  'tmp' !== basename($CacheDir));		
@@ -851,6 +886,12 @@ class RemoteAutoloader
 	  
     }
   }
+	
+
+  public function getCacheDir(){
+	 return $this->cacheDir;  
+  }
+	
 	
   public function Autoload($class){
 
@@ -889,7 +930,7 @@ class RemoteAutoloader
 	      throw new \Exception('Cannot write source for class '.$class.' to '.$cacheFile);
 	   }
 	  		
-   }elseif(false ===$code && !file_exists($cacheFile)){
+   }else/*if(false ===$code || !file_exists($cacheFile))*/{
 		 // die($cacheFile);
 	  return false;	
 	}	
