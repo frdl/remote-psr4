@@ -4,7 +4,7 @@
   "description": "An php psr4 Autoloader which is autoloading from a remote server.",	  
   "license": ["MIT"],	  
   "require" : {
-	    "php": ">=7.3"
+	    "php": ">=7.2"
   },	  
   "autoload": {
     "classmap" : ["src/implementations/autoloading/"],  
