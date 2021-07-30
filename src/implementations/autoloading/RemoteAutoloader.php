@@ -3,6 +3,7 @@ namespace frdl\implementation\psr4;
 
 $sourcesRaces=[
 	'https://cdn.frdl.io/@webfan3/stubs-and-fixtures/classes/frdl/implementation/psr4/RemoteAutoloader',
+	'https://cdn.webfan.de/@webfan3/stubs-and-fixtures/classes/frdl/implementation/psr4/RemoteAutoloader',
 	'https://03.webfan.de/install/?salt='.sha1(mt_rand(1000,9999)).'&source=\frdl\implementation\psr4\RemoteAutoloader',
 	__FILE__
 ];
@@ -13,7 +14,7 @@ call_user_func(function($SourcesRaces){
    $links_hint=[];
    $trys=[];
    $code=false;
-	while($code===false && count($SourcesRaces) > 0){
+	while(($code===false || empty($code) ) && count($SourcesRaces) > 0){
 		array_push($trys, array_shift($SourcesRaces) );
 		$current=$trys[count($trys)-1];
 		   try{
