@@ -46,7 +46,6 @@ call_user_func(function($SourcesRaces){
 
 
 
-
 class RemoteAutoloader
 {
 	
@@ -189,43 +188,64 @@ class RemoteAutoloader
   public static function getInstance($server = '03.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = false,
 									 $classMap = null, $cacheDirOrAccessLevel = self::ACCESS_LEVEL_SHARED,       $cacheLimit = null, $password = null){
 	  	
-
-	  $key = static::ik();
+	   if(!is_array($classMap)){
+		  $classMap = self::CLASSMAP_DEFAULTS;  
+	   }
+	 
+	 
 	  
 	  if(is_array($server)){
-	     // $arr = [];
-	      foreach($server as $s){
-		   //  $arr[]= 
-				 self::getInstance($s['server'], $s['register'], $s['version'], $s['allowFromSelfOrigin'], $s['salted'], $s['classmap'], $s['cacheDirOrAccessLevel'], $s['cacheLimit'], $s['password']);      
+	      $instance = [];
+	      foreach($server as $indexOrServer => $_s){ 
+			     $s=array_merge($_s, [
+					     'server' => (is_string($indexOrServer))?$indexOrServer:$server,
+					     'register'=>$register,
+					     'version'=>$version,
+					     'allowFromSelfOrigin'=>$allowFromSelfOrigin,
+					     'salted'=>$salted,
+					     'classmap'=>(is_string($indexOrServer)&&is_string($_s))?[$indexOrServer=>$_s]:$classmap,
+					     'cacheDirOrAccessLevel'=>$cacheDirOrAccessLevel,
+					     'cacheLimit'=>$cacheLimit,
+					     'password'=>$password,
+					 ]);
+				$instance[(is_string($indexOrServer))?$indexOrServer:$_s] = self::getInstance($s['server'], $s['register'], $s['version'], $s['allowFromSelfOrigin'], $s['salted'], $s['classmap'], $s['cacheDirOrAccessLevel'], $s['cacheLimit'], $s['password']);      
 	      }
 
-	//	if(2 > count(func_get_args()) ){
-		//	return self::$instances[count(self::$instances)-1];
-	//	}
 		  
-		$server = 'file://'.getcwd().\DIRECTORY_SEPARATOR;
-		///$key = sha1(getcwd()).'.localhost';
-	  }//elseif(is_callable($server)){
-	//	$key = \spl_object_id($server);  
-	//  }elseif(is_string($server)){
-	//	$key = $server;  
-	//  }
-	  	
-	  if(!isset(self::$instances[static::ik()])){
-		 // self::$instances[$key] = 
-			  new self($server, $register, $version, $allowFromSelfOrigin, $salted, $classMap, $cacheDirOrAccessLevel, $cacheLimit, $password);
+		//$server = 'file://'.getcwd().\DIRECTORY_SEPARATOR;
+		
+	  }else{
+		   $key = static::ik($server, $classMap);
+	         if(!isset(self::$instances[$key])){
+		
+			    self::$instances[$key] = new self($server, 
+					   $register,
+					   $version,
+					   $allowFromSelfOrigin,
+					   $salted,
+					   $classMap, 
+					   $cacheDirOrAccessLevel,
+					   $cacheLimit,
+					   $password);
+	        }		  
+		   $instance = self::$instances[$key];
 	  }
+	  	
+
 	  
-	 return self::$instances[static::ik()];
+	 return $instance;
   }		
 	
 	
-   public static function ik(){
-	  return \getmypid();  
+   public static function ik($server, $classMap){
+	   if(is_array($classMap)){
+		   ksort($classMap);
+	   }
+	  return sha1(serialize([$server, $classMap])); 
    }
 	
 	
-   public function __construct($server = 'frdl.webfan.de', 
+   protected function __construct($server = '03.webfan.de', 
 							   $register = true,
 							   $version = 'latest',
 							   $allowFromSelfOrigin = false,
