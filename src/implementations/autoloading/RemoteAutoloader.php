@@ -525,7 +525,25 @@ class RemoteAutoloader
 
 	return $out;
   }
+	
+	
+public function url($class, $salt = null){
+  if(true===$salt){
+     $salt = sha1(mt_rand(1000,99999999).time());	  
+  }
+  return $this->replaceUrlVars($this->urlTemplate($class, null), $salt, $class, $this->version);
+}	
+	
+public function urlTemplate($class, $salt = null){	
+  $url = $this->loadClass($class, $salt);
 
+  if(is_bool($url)){
+    return $url;  
+  }
+  return $url;
+}
+	
+	
    public function getUrl($class, $server, $salt = null, $parseVars = false){
 	   if(!is_string($salt))$salt=mt_rand(1000,9999);
 	  $url = false; 
