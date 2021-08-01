@@ -45,7 +45,6 @@ call_user_func(function($SourcesRaces){
 }, $sourcesRaces);
 
 
-
 class RemoteAutoloader
 {
 	
@@ -165,6 +164,13 @@ class RemoteAutoloader
 		
 		//https://raw.githubusercontent.com/elastic/elasticsearch-php/v7.12.0/src/autoload.php
 	'Elasticsearch\\' => 'https://raw.githubusercontent.com/elastic/elasticsearch-php/v7.12.0/src/${class}.php?cache_bust=${salt}',
+		
+		\WeidDnsConverter::class =>
+		'https://raw.githubusercontent.com/frdl/oid2weid/master/src/WeidDnsConverter.php?cache_bust=${salt}',
+		\WeidHelper::class =>
+		'https://raw.githubusercontent.com/frdl/oid2weid/master/src/WeidHelper.php?cache_bust=${salt}',
+		\WeidOidConverter::class =>
+		'https://raw.githubusercontent.com/frdl/oid2weid/master/src/WeidOidConverter.php?cache_bust=${salt}',
 	];
 	
 	
@@ -214,7 +220,7 @@ class RemoteAutoloader
 		  
 		//$server = 'file://'.getcwd().\DIRECTORY_SEPARATOR;
 		
-	  }else{
+	  }elseif(is_string($server)){
 		   $key = static::ik($server, $classMap);
 	         if(!isset(self::$instances[$key])){
 		
@@ -229,6 +235,8 @@ class RemoteAutoloader
 					   $password);
 	        }		  
 		   $instance = self::$instances[$key];
+	  }elseif(0===count(func_get_args())){
+		  return self::$instances;
 	  }
 	  	
 
@@ -256,7 +264,7 @@ class RemoteAutoloader
 							    $password = null){
 	    
 	  
-	 
+	   
 	   
 	    $defauoltcacheLimit = -1;
 	    $bucketHash = $this->generateHash([
