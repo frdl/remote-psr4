@@ -256,8 +256,7 @@ class RemoteAutoloader
 							    $password = null){
 	    
 	  
-	   $key = static::ik();
-	   self::$instances[static::ik()] = &$this;
+	 
 	   
 	    $defauoltcacheLimit = -1;
 	    $bucketHash = $this->generateHash([
