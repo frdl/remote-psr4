@@ -51,6 +51,13 @@ call_user_func(function($SourcesRaces){
 
 
 
+<?php 
+
+
+
+
+
+
 namespace Webfan\Autoupdate {
 if (!interface_exists(SVLClassInterface::class)) {
 	///Single Version Line   
@@ -417,7 +424,16 @@ class RemoteAutoloader implements ContainerInterface, SVLClassInterface
 					     'cacheLimit'=>$cacheLimit,
 					     'password'=>$password,
 					 ]);
-				$instance[(is_string($indexOrServer))?$indexOrServer:$_s] = self::getInstance($s['server'], $s['register'], $s['version'], $s['allowFromSelfOrigin'], $s['salted'], $s['classmap'], $s['cacheDirOrAccessLevel'], $s['cacheLimit'], $s['password']);      
+				$instance[(is_string($indexOrServer))?$indexOrServer:$_s] = self::getInstance(
+				$s['server'],
+				$s['register'], 
+				$s['version'],
+				$s['allowFromSelfOrigin'], 
+				$s['salted'],
+				$s['classmap'], 
+				$s['cacheDirOrAccessLevel'],
+				$s['cacheLimit'], 
+				$s['password']);      
 	      }
 
 		  
@@ -438,6 +454,7 @@ class RemoteAutoloader implements ContainerInterface, SVLClassInterface
 					   $password);
 	        }		  
 		   $instance = self::$instances[$key];
+		   //$instance::__FRDL_SVLC_UPDATE();
 	  }elseif(0===count(func_get_args())){
 		  return self::$instances;
 	  }
