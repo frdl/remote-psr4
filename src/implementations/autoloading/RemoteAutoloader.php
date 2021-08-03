@@ -50,14 +50,6 @@ call_user_func(function($SourcesRaces){
 
 
 
-
-<?php 
-
-
-
-
-
-
 namespace Webfan\Autoupdate {
 if (!interface_exists(SVLClassInterface::class)) {
 	///Single Version Line   
@@ -709,7 +701,8 @@ class RemoteAutoloader implements ContainerInterface, SVLClassInterface
 	   if(is_array($classMap)){
 		   ksort($classMap);
 	   }
-	  return sha1(serialize([$server, $classMap])); 
+	   $hashingData=[$server, $classMap];
+	  return sha1(var_export( $hashingData , true)); 
    }
 	
 	
@@ -1293,7 +1286,7 @@ class RemoteAutoloader implements ContainerInterface, SVLClassInterface
     $code = @file_get_contents($url, false, $context);
 	    $statusCode = 0;  
 	  //$code = file_get_contents($url);
-   if(is_array($http_response_header)){
+   if(isset(http_response_header) && is_array($http_response_header)){
 	foreach($http_response_header as $i => $header){
 				
 		if(0===$i){
