@@ -45,6 +45,28 @@ call_user_func(function($SourcesRaces){
 }, $sourcesRaces);
 
 
+/*
+ $loader = \frdl\implementation\psr4\RemoteAutoloader::getInstance('frdl.webfan.de', true, 'latest', true);
+ 
+ 
+\frdl\implementation\psr4\RemoteAutoloader::getInstance($server = '03.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = false, $classMap = null, $cacheDirOrAccessLevel = self::ACCESS_LEVEL_SHARED, $cacheLimit = null, $password = null)
+									 
+									 
+\frdl\implementation\psr4\RemoteAutoloader::getInstance()->url(\frdl\Proxy\Proxy::class, false, false) 	
+https://raw.githubusercontent.com/frdl/proxy/master/src/frdl\Proxy\Proxy.php?cache_bust=123
+
+\frdl\implementation\psr4\RemoteAutoloader::getInstance()->urlTemplate(\frdl\Proxy\Proxy::class)
+https://03.webfan.de/install/?salt=${salt}&source=${class}&version=${version}
+
+\frdl\implementation\psr4\RemoteAutoloader::getInstance()->url(\WeidDnsConverter::class)
+https://raw.githubusercontent.com/frdl/oid2weid/master/src/WeidDnsConverter.php?cache_bust=123
+
+\frdl\implementation\psr4\RemoteAutoloader::getInstance()->urlTemplate(\WeidDnsConverter::class)
+https://raw.githubusercontent.com/frdl/oid2weid/master/src/WeidDnsConverter.php?cache_bust=${salt}
+
+\frdl\implementation\psr4\RemoteAutoloader::getInstance()->resolve(\frdl\Proxy\Proxy::class, 123)
+https://raw.githubusercontent.com/frdl/proxy/master/src/frdl\Proxy\Proxy.php?cache_bust=123
+*/
 class RemoteAutoloader
 {
 	
@@ -189,7 +211,7 @@ class RemoteAutoloader
 	protected $alias = [];
 	protected static $classmap = [];
 
-	
+	protected $_currentClassToAutoload = null;
 	
   public static function getInstance($server = '03.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = false,
 									 $classMap = null, $cacheDirOrAccessLevel = self::ACCESS_LEVEL_SHARED,       $cacheLimit = null, $password = null){
@@ -554,21 +576,23 @@ class RemoteAutoloader
   }
 	
 	
-public function url($class, $salt = null){
-  if(true===$salt){
-     $salt = sha1(mt_rand(1000,99999999).time());	  
-  }
-  return $this->replaceUrlVars($this->urlTemplate($class, null), $salt, $class, $this->version);
-}	
+   public function resolve($class, $salt = null){
+     return $this->url($class, $salt, false);
+   }		
 	
-public function urlTemplate($class, $salt = null){	
-  $url = $this->loadClass($class, $salt);
-
-  if(is_bool($url)){
-    return $url;  
-  }
-  return $url;
-}
+   public function url($class, $salt = null, $skipCheck = true){
+    if(true===$salt){
+       $salt = sha1(mt_rand(1000,99999999).time());	  
+    }
+	   
+	   $url =  $this->replaceUrlVars($this->urlTemplate($class, null, $skipCheck), $salt, $class, $this->version);
+ 
+     return $url;
+   }	
+	
+   public function urlTemplate($class, $salt = null, $skipCheck = true){	
+      return $this->loadClass($class, $salt, $skipCheck);
+   }
 	
 	
    public function getUrl($class, $server, $salt = null, $parseVars = false){
@@ -615,8 +639,15 @@ public function urlTemplate($class, $salt = null){
 	
 	
 	
-	public function replaceUrlVars($url, $salt, $class, $version){
-		return str_replace(['${salt}', '${class}', '${version}'], [$salt, $class, $version], $url);
+	public function replaceUrlVars($_url, $salt, $class, $version){
+		
+		 $url = str_replace(['${salt}', '${class}', '${version}'], [$salt, $class, $version], $_url);
+		
+		 if(substr($_url,0, strlen('http'))==='http' && !preg_match("/".preg_quote('=${class}')."/",$_url)){
+		  $url = preg_replace('/\\\\/',  '/', $url);
+	    }
+		
+		return $url;
 	}
 	
 	
@@ -627,7 +658,7 @@ public function urlTemplate($class, $salt = null){
      * @return mixed The mapped file name on success, or boolean false on
      * failure.
      */
-    public function loadClass($class, $salt = null)
+    public function loadClass($class, $salt = null, $skipCheck = false)
     {
 		
         // the current namespace prefix
@@ -645,9 +676,11 @@ public function urlTemplate($class, $salt = null){
             // the rest is the relative class name
             $relative_class = substr($class, $pos + 1);
 
-		 
+	
             // try to load a mapped file for the prefix and relative class
-            $mapped_file = $this->loadMappedSource($prefix, $relative_class, $salt);
+            $mapped_file = $this->loadMappedSource($prefix, $relative_class, $salt, $skipCheck);
+			
+				 
             if ($mapped_file) {		
                 return $mapped_file;
             }
@@ -659,7 +692,7 @@ public function urlTemplate($class, $salt = null){
 		
 		
         // never found a mapped file
-        return $this->loadMappedSource('', $class, $salt);
+        return $this->loadMappedSource('', $class, $salt, $skipCheck);
     }
 
     /**
@@ -670,7 +703,7 @@ public function urlTemplate($class, $salt = null){
      * @return mixed Boolean false if no mapped file can be loaded, or the
      * name of the mapped file that was loaded.
      */
-    protected function loadMappedSource($prefix, $relative_class, $salt = null)
+    protected function loadMappedSource($prefix, $relative_class, $salt = null, $skipCheck = false)
     {
 		
 	    $url = false;
@@ -707,24 +740,37 @@ public function urlTemplate($class, $salt = null){
 		}	
 		
 		
-		if(isset(self::$classmap[$class]) && is_string(self::$classmap[$class]) && '\\' !== substr($class, -1)  && '\\' !== substr(self::$classmap[$class], -1) ){
+	if (isset($this->prefixes[$prefix]) ) {
+		
+        // look through base directories for this namespace prefix
+        foreach ($this->prefixes[$prefix] as $server) {
+			
+			$url = $this->getUrl($relative_class, $server, $salt);	
+		 
+			if(is_string($url) 
+			   && (false === $skipCheck || $this->exists($url) )
+			   //  && '\\' !== substr($class, -1) 
+			   && '\\' !== substr(self::$classmap[$class], -1)
+			  ){
+				
+					$url =  $this->replaceUrlVars($url, $salt, $relative_class, $this->version);
+				
+			    return $url;
+			}
+        }
+	 }		
+		if(
+			isset(self::$classmap[$class])
+			&& is_string(self::$classmap[$class]) 		 
+		  // && '\\' !== substr($class, -1)  
+			&& '\\' !== substr(self::$classmap[$class], -1)
+		  ){
+						
 			return $this->getUrl($class, self::$classmap[$class], $salt);
 		//	return self::$classmap[$class];
 		}
 
-	 if (isset($this->prefixes[$prefix]) ) {
-        // look through base directories for this namespace prefix
-        foreach ($this->prefixes[$prefix] as $server) {
 
-			$url = $this->getUrl($relative_class, $server, $salt);
-			
-			if(is_string($url) 
-			   && $this->exists($url)
-			  ){
-			    return $url;
-			}
-        }
-	 }
         // never found it
        return $this->getUrl($class, $this->server, $salt);
    }
@@ -826,15 +872,17 @@ public function urlTemplate($class, $salt = null){
 	}
 	  
 
-	  $url = $this->loadClass($class, $salt);
+	 // $url = $this->loadClass($class, $salt, false);
+	  $url = $this->resolve($class, $salt);
 	
 	  if(is_bool($url)){
 		 return $url;  
 	  }
 	  
-	  $withSaltedUrl = (true === $this->str_contains($url, '${salt}', false)) ? true : false;
-	  $url =  $this->replaceUrlVars($url, $salt, $class, $this->version);
+	  //$withSaltedUrl = (true === $this->str_contains($url, '${salt}', false)) ? true : false;
+	 // $url =  $this->replaceUrlVars($url, $salt, $class, $this->version);
 	  
+ // print_r($url.'<br />');
 	  
 	$options = [
 		'https' => [
@@ -847,6 +895,7 @@ public function urlTemplate($class, $salt = null){
     $code = @file_get_contents($url, false, $context);
 	    $statusCode = 0;  
 	  //$code = file_get_contents($url);
+   if(is_array($http_response_header)){
 	foreach($http_response_header as $i => $header){
 				
 		if(0===$i){
@@ -862,7 +911,9 @@ public function urlTemplate($class, $salt = null){
 			$userHash = trim($h[1]);
 		}		
 	}	  
-	  
+   }  else{
+	   
+   }
 	  
    
 	  if(   200!==$statusCode
@@ -940,25 +991,32 @@ public function urlTemplate($class, $salt = null){
 	}
 	
 	
+  protected function _getShutdowner(){
+	  $load = $this->_currentClassToAutoload !== \frdlweb\Thread\ShutdownTasks::class;
+	  
+		 return (class_exists(\frdlweb\Thread\ShutdownTasks::class, $load ))
+					  ? \frdlweb\Thread\ShutdownTasks::mutex()
+					  : function(){
+						   call_user_func_array('register_shutdown_function', func_get_args());
+						   register_shutdown_function(function(){
+							   $t = class_exists(\frdlweb\Thread\ShutdownTasks::class, $load);
+						   });
+					  };
+  }	
+  public function onShutdown(){
+	  return call_user_func_array($this->_getShutdowner(), func_get_args()); 
+  }
+	
   public function pruneCache(){
 	
 	 if($this->cacheLimit !== 0
 		   && $this->cacheLimit !== -1){
 					 
-                              
-		 $ShutdownTasks = (class_exists(\frdlweb\Thread\ShutdownTasks::class))
-					  ? \frdlweb\Thread\ShutdownTasks::mutex()
-					  : function(){
-						  call_user_func_array('register_shutdown_function', func_get_args());
-					  };
-		 
-		 
-                  $ShutdownTasks(function($CacheDir, $maxCacheTime){		
+            $this->onShutdown(function($CacheDir, $maxCacheTime){		
                    
 						  \webfan\hps\patch\Fs::pruneDir($CacheDir, $maxCacheTime, true,  'tmp' !== basename($CacheDir));		
       
-				  }, $this->cacheDir, $this->cacheLimit);			
-	  
+				  }, $this->cacheDir, $this->cacheLimit);                  	  
     }
   }
 	
@@ -966,11 +1024,15 @@ public function urlTemplate($class, $salt = null){
   public function getCacheDir(){
 	 return $this->cacheDir;  
   }
-	
+  public function file($class){
+	 return rtrim($this->getCacheDir(),\DIRECTORY_SEPARATOR.'/\\ '). \DIRECTORY_SEPARATOR
+		 . str_replace('\\', \DIRECTORY_SEPARATOR, $class). '.php';
+  }
+		
 	
   public function Autoload($class){
-
-	$cacheFile = rtrim($this->cacheDir, \DIRECTORY_SEPARATOR.'/\\ '). \DIRECTORY_SEPARATOR. str_replace('\\', \DIRECTORY_SEPARATOR, $class). '.php';
+    $this->_currentClassToAutoload=$class;
+	$cacheFile =$this->file($class);
 	//$cacheFile = realpath($cacheFile);
  	
 	 if(file_exists($cacheFile) 
@@ -978,8 +1040,17 @@ public function urlTemplate($class, $salt = null){
 		   && $this->cacheLimit !== -1
 		   && (filemtime($cacheFile) < time() - $this->cacheLimit)
 		  )){
-		     unlink($cacheFile);
-		     clearstatcache(true, $cacheFile); 
+		         if($class!==\frdlweb\Thread\ShutdownTasks::class){
+                  $this->onShutdown(function($cacheFile){		
+					 if(file_exists($cacheFile)){
+						unlink($cacheFile); 
+						clearstatcache(true, $cacheFile); 
+					 }
+				  }, $cacheFile);		
+				 }else{
+		             unlink($cacheFile);
+		             clearstatcache(true, $cacheFile); 
+		         }
       }	
 	  
 	  
@@ -1016,11 +1087,16 @@ public function urlTemplate($class, $salt = null){
 	  
 	  
 	if(file_exists($cacheFile) ){
+		try{
 	    if(false === ($this->requireFile($cacheFile)) ){
 			if(file_exists($cacheFile)){
 				unlink($cacheFile);
 			}
 			return false;	
+		}
+		}catch(\Exception $e){
+			unlink($cacheFile);
+			   throw new \Exception($e->getMessage());
 		}
 	  	//return true;	
 		return class_exists($class, false);
@@ -1032,23 +1108,19 @@ public function urlTemplate($class, $salt = null){
 		*/
 		//$tmpfile = tmpfile();
 		$tmpfile = tempnam($this->cacheDir, 'autoloaded-file.'.sha1($code)); 	      
+		file_put_contents($tmpfile, $code);
 		
-		
-		          $ShutdownTasks = \frdlweb\Thread\ShutdownTasks::mutex();
-                  $ShutdownTasks(function($tmpfile){		
+		         if($class!==\frdlweb\Thread\ShutdownTasks::class){
+                  $this->onShutdown(function($tmpfile){		
 					 if(file_exists($tmpfile)){
 						unlink($tmpfile); 
 					 }
 				  }, $tmpfile);		
-		
+				 }
 			
 		if(false === ($this->requireFile($tmpfile)) ){
-			if(file_exists($tmpfile)){
-				unlink($tmpfile);
-			}
 			return false;	
-		}else{	
-			unlink($tmpfile);		
+		}else{   
 			return class_exists($class, false);
 		}
 	}else{
