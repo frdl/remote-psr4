@@ -1270,7 +1270,7 @@ class RemoteAutoloader implements ContainerInterface, SVLClassInterface
 		 return $url;  
 	  }
 	  
-	  //$withSaltedUrl = (true === $this->str_contains($url, '${salt}', false)) ? true : false;
+	  $withSaltedUrl = (true === $this->str_contains($url, '${salt}', false)) ? true : false;
 	 // $url =  $this->replaceUrlVars($url, $salt, $class, $this->version);
 	  
  // print_r($url.'<br />');
