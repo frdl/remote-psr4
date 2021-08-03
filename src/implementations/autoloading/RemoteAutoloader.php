@@ -1,5 +1,5 @@
 <?php
-namespace frdl\implementation\psr4;
+namespace frdl\implementation\firstRunThisFileBootstrap{
 
 $sourcesRaces=[
 	'https://cdn.frdl.io/@webfan3/stubs-and-fixtures/classes/frdl/implementation/psr4/RemoteAutoloader',
@@ -45,6 +45,161 @@ call_user_func(function($SourcesRaces){
 }, $sourcesRaces);
 
 
+}
+
+
+
+
+
+namespace Webfan\Autoupdate {
+if (!interface_exists(SVLClassInterface::class)) {
+	///Single Version Line   
+  interface SVLClassInterface
+  {
+	  public static  function __FRDL_SVLC_INTERVAL(int $interval = null) :int;
+	  public static  function __FRDL_SVLC_RACE(array $race = null):array;
+	  public static  function __FRDL_SVLC_UPDATE();
+  }
+	
+}
+
+if ( !trait_exists( SVLClassTrait::class ) ) {
+	
+ trait SVLClassTrait// implements SVLClassInterface
+ {
+ 
+	// public static $__SVLCCLASS_UPDATE_INTERVAL__ = 86400;
+	// public static $__SVLCCLASS_UPDATE_RACE__ = null;
+ 
+	 
+	  public static function __FRDL_SVLC_INTERVAL(int $interval = null) :int{
+		  if(is_int($interval)){
+			 static::$__SVLCCLASS_UPDATE_INTERVAL__=  $interval;
+		  }
+		  return static::$__SVLCCLASS_UPDATE_INTERVAL__;
+	  }
+	  public static function __FRDL_SVLC_RACE( $race = null):array{
+	      if(!is_array(static::$__SVLCCLASS_UPDATE_RACE__)){
+			 static::$__SVLCCLASS_UPDATE_RACE__=  [
+			   'https://cdn.frdl.io/@webfan3/stubs-and-fixtures/classes/${class}?salt=${salt}&version=${version}',
+			   'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=${class}',
+			 ];
+			 
+			 array_unshift(static::$__SVLCCLASS_UPDATE_RACE__,
+			   \frdl\implementation\psr4\RemoteAutoloader::getInstance()->resolve(static::class)			 
+			 );
+		  }
+	  
+	      if(is_string($race)){
+			 array_unshift(static::$__SVLCCLASS_UPDATE_RACE__,
+			   $race			 
+			 );		  
+		  }elseif(is_array($race)){
+			 static::$__SVLCCLASS_UPDATE_RACE__=  array_merge(static::$__SVLCCLASS_UPDATE_RACE__,$race);
+		  }
+		  return static::$__SVLCCLASS_UPDATE_RACE__;	  
+	  }
+	  
+	  
+	  
+    public static function __FRDL_SVLC_UPDATE($force = false){
+	  if(true!==$force 
+	  && file_exists(\frdl\implementation\psr4\RemoteAutoloader::getInstance()->file(static::class) )
+	  && filemtime(\frdl\implementation\psr4\RemoteAutoloader::getInstance()->file(static::class) )
+	             > time() - static::__FRDL_SVLC_INTERVAL() ){
+				   return false;
+				 }
+		  $SourcesRaces=static::__FRDL_SVLC_RACE();		 
+		  $loader =  \frdl\implementation\psr4\RemoteAutoloader::getInstance();
+		  $loader->withClassmap($SourcesRaces);
+		 
+          $oldc = \frdl\implementation\psr4\RemoteAutoloader::getInstance()->file(static::class);
+        $links_hint=[];
+    $trys=[];
+   $code=false;
+	while(($code===false || empty($code) ) && count($SourcesRaces) > 0){
+		array_push($trys, array_shift($SourcesRaces) );
+		$current=$trys[count($trys)-1];
+		   try{
+	                  $code =    @file_get_contents($current);		
+		   }catch(\Exception $e){		   
+			   $code=false; 
+		   }
+		if($code === false && $current!==__FILE__){
+			array_push($links_hint,  $current );
+		}
+	}
+  
+   try{
+	 
+ if(false === $code){
+     throw new \Exception(sprintf('Could not load %s from %s', \frdl\implementation\psr4\RemoteAutoloader::class, print_r($links_hint,true)));
+ }else{
+        file_put_contents( \frdl\implementation\psr4\RemoteAutoloader::getInstance()->file(static::class), $code);
+      //  return require  \frdl\implementation\psr4\RemoteAutoloader::getInstance()->file(static::class);
+ }
+	   
+// return require __FILE__;
+
+}catch(\Exception $e){
+     file_put_contents(\frdl\implementation\psr4\RemoteAutoloader::getInstance()->file(static::class), $oldc);
+     throw $e;
+  }
+
+
+
+	  }
+ }
+}
+}
+
+
+
+
+
+namespace Psr\Container{
+if (!interface_exists(ContainerInterface::class)) {
+/**
+ * Describes the interface of a container that exposes methods to read its entries.
+ */
+interface ContainerInterface
+{
+    /**
+     * Finds an entry of the container by its identifier and returns it.
+     *
+     * @param string $id Identifier of the entry to look for.
+     *
+     * @throws NotFoundExceptionInterface  No entry was found for **this** identifier.
+     * @throws ContainerExceptionInterface Error while retrieving the entry.
+     *
+     * @return mixed Entry.
+     */
+    public function get(string $id);
+
+    /**
+     * Returns true if the container can return an entry for the given identifier.
+     * Returns false otherwise.
+     *
+     * `has($id)` returning true does not mean that `get($id)` will not throw an exception.
+     * It does however mean that `get($id)` will not throw a `NotFoundExceptionInterface`.
+     *
+     * @param string $id Identifier of the entry to look for.
+     *
+     * @return bool
+     */
+    public function has(string $id): bool;
+}
+}	
+}
+
+
+
+
+namespace frdl\implementation\psr4{
+ 
+use Psr\Container\ContainerInterface;
+use Webfan\Autoupdate\SVLClassTrait as SVLClassTrait;
+use Webfan\Autoupdate\SVLClassInterface;
 /*
  $loader = \frdl\implementation\psr4\RemoteAutoloader::getInstance('frdl.webfan.de', true, 'latest', true);
  
@@ -67,9 +222,17 @@ https://raw.githubusercontent.com/frdl/oid2weid/master/src/WeidDnsConverter.php?
 \frdl\implementation\psr4\RemoteAutoloader::getInstance()->resolve(\frdl\Proxy\Proxy::class, 123)
 https://raw.githubusercontent.com/frdl/proxy/master/src/frdl\Proxy\Proxy.php?cache_bust=123
 */
-class RemoteAutoloader
+class RemoteAutoloader implements ContainerInterface, SVLClassInterface
 {
-	
+	use SVLClassTrait;
+			 
+	public static $__SVLCCLASS_UPDATE_RACE__=  [
+	           'https://cdn.frdl.io/@webfan3/stubs-and-fixtures/classes/frdl/implementation/psr4/RemoteAutoloader',
+			   'https://raw.githubusercontent.com/frdl/remote-psr4/master/src/implementations/autoloading/RemoteAutoloader.php',
+			   'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=${class}',
+			   'https://cdn.frdl.io/@webfan3/stubs-and-fixtures/classes/${class}?salt=${salt}&version=${version}',
+	];
+			 
 	const HASH_ALGO = 'sha1';
 	const ACCESS_LEVEL_SHARED = 0;
 	const ACCESS_LEVEL_PUBLIC = 1;
@@ -105,6 +268,11 @@ class RemoteAutoloader
 
 		
 		'Fusio\\Adapter\\Webfantize\\' => 'https://raw.githubusercontent.com/frdl/fusio-adapter-webfantize/master/src/${class}.php?cache_bust=${salt}',
+		
+		//frdl\implementation\psr4 
+		//Nette\Loaders\FrdlRobotLoader
+		'@frdl\\implementation\\Load\\ClassMap' => 'Nette\\Loaders\\FrdlRobotLoader',
+		'@frdl\\implementation\\Load\\RemoteClass' => __CLASS__,
 		
 		
     // NAMESPACES
@@ -213,12 +381,25 @@ class RemoteAutoloader
 
 	protected $_currentClassToAutoload = null;
 	
-  public static function getInstance($server = '03.webfan.de', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = false,
+  public static function getInstance($server = 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=${class}', $register = true, $version = 'latest', $allowFromSelfOrigin = false, $salted = false,
 									 $classMap = null, $cacheDirOrAccessLevel = self::ACCESS_LEVEL_SHARED,       $cacheLimit = null, $password = null){
 	  	
 	   if(!is_array($classMap)){
 		  $classMap = self::CLASSMAP_DEFAULTS;  
+	   }else{
+	      $classMap = array_merge(self::CLASSMAP_DEFAULTS, $classMap);  
 	   }
+	  
+	  $classMap = array_merge([
+	    '@frdl\\implementation\\Load\\ClassMap' => 'Nette\\Loaders\\FrdlRobotLoader',
+		'@frdl\\implementation\\Load\\RemoteClass' => static::class,
+		 \Webfan\Autoupdate\SVLClassInterface::class=>
+		    'https://cdn.frdl.io/@webfan3/stubs-and-fixtures/classes/frdl/implementation/psr4/RemoteAutoloader',
+		  \Webfan\Autoupdate\SVLClassTrait::class =>  
+		     'https://cdn.frdl.io/@webfan3/stubs-and-fixtures/classes/frdl/implementation/psr4/RemoteAutoloader',
+		  
+	  ], $classMap);  
+	   	
 	 
 	 
 	  
@@ -266,6 +447,246 @@ class RemoteAutoloader
 	 return $instance;
   }		
 	
+	  public function onShutdown(){
+	  return call_user_func_array($this->_getShutdowner(), func_get_args()); 
+  }
+	
+  public function pruneCache(){
+	
+	 if($this->cacheLimit !== 0
+		   && $this->cacheLimit !== -1){
+					 
+            $this->onShutdown(function($CacheDir, $maxCacheTime){		
+                   
+						  \webfan\hps\patch\Fs::pruneDir($CacheDir, $maxCacheTime, true,  'tmp' !== basename($CacheDir));		
+      
+				  }, $this->cacheDir, $this->cacheLimit);                  	  
+    }
+  }
+	
+  public function get(string $class){
+      $that = &$this;
+      $r = new \stdclass;
+	  $r->name = $class;
+	  $r->class = [
+		  'aliasOf'=>isset($this->alias[$class]) ? $this->alias[$class] : null,
+		  'loaded'=>class_exists($class, false),
+	  ];
+	  $r->remote = (isset($that->alias[$class]) ) ? false :[
+		  'link' => $that->resolve($class),
+		  'exists' => $that->exists($this->resolve($class)),
+	  ];
+	  
+	  $r->local = (isset($that->alias[$class]) ) ? false :[		  
+		  'link' =>$that->file($class),
+		  'cache' => (object)[
+		        'hit'=>  file_exists($this->file($class)),
+		        'expired'=> !file_exists($this->file($class))
+				      || ($interval >= 0 &&  (false === filemtime($this->file($class)) > time() - $interval)), 
+					  'filemtime' => (!file_exists($this->file($class))) ? 0 : filemtime($this->file($class)),
+					  ]
+	  ];
+	  
+	 $make = function(array $options = null) use (&$that, &$make, &$r, $class){ 
+	  if(!is_array($options))$options=[];
+	  $options['class']=$class;
+	  if(!isset($options['interval'])){
+	      $options['interval']=-1;
+	  }
+	  extract($options);
+	  if(isset($classMap)){
+	     $that->withClassmap($classMap);
+	  }
+	  $r->class = array_merge($r->class, [
+		  'autoload' => $that->Autoload($class),
+		  'aliasOf'=>isset($that->alias[$class]) ? $that->alias[$class] : null,
+		  'loaded'=>class_exists($class, true),
+	  ]);
+	  $r->remote = (isset($that->alias[$class]) ) ? false : [
+		  'link' => $that->resolve($class),
+		  'exists' => $that->exists($this->resolve($class)),
+	  ];
+	  
+	  $r->local = (isset($that->alias[$class]) ) ? false :[		  
+		  'link' =>$that->file($class),
+		  'cache' => (object)[
+		        'hit'=>  file_exists($this->file($class)),
+		        'expired'=> !file_exists($this->file($class))
+				      || ($interval >= 0 &&  (false === filemtime($this->file($class)) > time() - $interval)), 
+					  'filemtime' => (!file_exists($this->file($class))) ? 0 : filemtime($this->file($class)),
+				 
+		  ],
+		
+		  
+	  ];
+	 return $r;
+	};
+	
+	 $r->load = $make;
+	 $r->__construct = function() use (&$r){
+	      return call_user_func_array($r->name().'::__construct', func_get_args());
+	 };
+	 return $r;
+  }
+	
+  public function has(string $class):bool{
+	 return isset($this->alias[$class]) || file_exists($this->file($class)) || is_string($this->urlTemplate($class));
+  }	
+  public function getCacheDir(){
+	 return $this->cacheDir;  
+  }
+  public function file($class){
+	 return rtrim($this->getCacheDir(),\DIRECTORY_SEPARATOR.'/\\ '). \DIRECTORY_SEPARATOR
+		 . str_replace('\\', \DIRECTORY_SEPARATOR, $class). '.php';
+  }
+		
+		
+   public function str_contains($haystack, $needle, $ignoreCase = false) {
+    if ($ignoreCase) {
+        $haystack = strtolower($haystack);
+        $needle   = strtolower($needle);
+    }
+    $needlePos = strpos($haystack, $needle);
+    return ($needlePos === false ? false : ($needlePos+1));
+  }
+	
+
+   public function str_parse_vars($string,$start = '[',$end = '/]', $variableDelimiter = '='){
+     preg_match_all('/' . preg_quote($start, '/') . '(.*?)'. preg_quote($end, '/').'/i', $string, $m);
+     $out = [];
+     foreach($m[1] as $key => $value){
+       $type = explode($variableDelimiter,$value);
+       if(sizeof($type)>1){
+          if(!is_array($out[$type[0]]))
+             $out[$type[0]] = [];
+             $out[$type[0]][] = $type[1];
+       } else {
+          $out[] = $value;
+       }
+     }
+
+	return $out;
+  }
+	
+	
+   public function resolve($class, $salt = null){
+     return $this->url($class, $salt, false);
+   }		
+	
+   public function url($class, $salt = null, $skipCheck = true){
+    if(true===$salt){
+       $salt = sha1(mt_rand(1000,99999999).time());	  
+    }
+	   
+	   $url =  $this->replaceUrlVars($this->urlTemplate($class, null, $skipCheck), $salt, $class, $this->version);
+ 
+     return $url;
+   }	
+	
+   public function urlTemplate($class, $salt = null, $skipCheck = true){	
+      return $this->loadClass($class, $salt, $skipCheck);
+   }
+	
+	
+  public function Autoload($class){
+    $this->_currentClassToAutoload=$class;
+	$cacheFile =$this->file($class);
+	//$cacheFile = realpath($cacheFile);
+ 	
+	 if(file_exists($cacheFile) 
+	   && ($this->cacheLimit !== 0
+		   && $this->cacheLimit !== -1
+		   && (filemtime($cacheFile) < time() - $this->cacheLimit)
+		  )){
+		         if($class!==\frdlweb\Thread\ShutdownTasks::class){
+                  $this->onShutdown(function($cacheFile){		
+					 if(file_exists($cacheFile)){
+						unlink($cacheFile); 
+						clearstatcache(true, $cacheFile); 
+					 }
+				  }, $cacheFile);		
+				 }else{
+		             unlink($cacheFile);
+		             clearstatcache(true, $cacheFile); 
+		         }
+      }	
+	  
+	  
+	if(!file_exists($cacheFile) 
+	   || (
+		   $this->cacheLimit !== 0
+		   && $this->cacheLimit !== -1
+		   && (filemtime($cacheFile) < time() - $this->cacheLimit)
+		  )
+	  ){
+	  
+
+
+	$code = $this->fetchCode($class, null);
+    if(true === $code){
+		return true;
+	}elseif(false !==$code){			
+		if(!is_dir(dirname($cacheFile))){			
+		  mkdir(dirname($cacheFile), 0775, true);
+		}
+		
+    	if(!file_put_contents($cacheFile, $code)){
+	      throw new \Exception('Cannot write source for class '.$class.' to '.$cacheFile);
+	   }
+	  		
+   }else/*if(false ===$code || !file_exists($cacheFile))*/{
+		 // die($cacheFile);
+	  return false;	
+	}	
+  
+  }
+	
+	  
+	  
+	  
+	if(file_exists($cacheFile) ){
+		try{
+	    if(false === ($this->requireFile($cacheFile)) ){
+			if(file_exists($cacheFile)){
+				unlink($cacheFile);
+			}
+			return false;	
+		}
+		}catch(\Exception $e){
+			unlink($cacheFile);
+			   throw new \Exception($e->getMessage());
+		}
+	  	//return true;	
+		return class_exists($class, false);
+	}elseif(isset($code) && is_string($code)){
+		/*
+		$code =ltrim($code, '<?php');
+		$code =rtrim($code, '?php>');	
+		eval($code);
+		*/
+		//$tmpfile = tmpfile();
+		$tmpfile = tempnam($this->cacheDir, 'autoloaded-file.'.sha1($code)); 	      
+		file_put_contents($tmpfile, $code);
+		
+		         if($class!==\frdlweb\Thread\ShutdownTasks::class){
+                  $this->onShutdown(function($tmpfile){		
+					 if(file_exists($tmpfile)){
+						unlink($tmpfile); 
+					 }
+				  }, $tmpfile);		
+				 }
+			
+		if(false === ($this->requireFile($tmpfile)) ){
+			return false;	
+		}else{   
+			return class_exists($class, false);
+		}
+	}else{
+	      throw new \Exception('Cannot write/load source for class '.$class.' in '.$cacheFile);
+	   }
+			
+  }
+	
 	
    public static function ik($server, $classMap){
 	   if(is_array($classMap)){
@@ -275,7 +696,7 @@ class RemoteAutoloader
    }
 	
 	
-   protected function __construct($server = '03.webfan.de', 
+   protected function __construct($server = 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=${class}', 
 							   $register = true,
 							   $version = 'latest',
 							   $allowFromSelfOrigin = false,
@@ -547,53 +968,7 @@ class RemoteAutoloader
         }
     }
 
-	
-   public function str_contains($haystack, $needle, $ignoreCase = false) {
-    if ($ignoreCase) {
-        $haystack = strtolower($haystack);
-        $needle   = strtolower($needle);
-    }
-    $needlePos = strpos($haystack, $needle);
-    return ($needlePos === false ? false : ($needlePos+1));
-  }
-	
 
-   public function str_parse_vars($string,$start = '[',$end = '/]', $variableDelimiter = '='){
-     preg_match_all('/' . preg_quote($start, '/') . '(.*?)'. preg_quote($end, '/').'/i', $string, $m);
-     $out = [];
-     foreach($m[1] as $key => $value){
-       $type = explode($variableDelimiter,$value);
-       if(sizeof($type)>1){
-          if(!is_array($out[$type[0]]))
-             $out[$type[0]] = [];
-             $out[$type[0]][] = $type[1];
-       } else {
-          $out[] = $value;
-       }
-     }
-
-	return $out;
-  }
-	
-	
-   public function resolve($class, $salt = null){
-     return $this->url($class, $salt, false);
-   }		
-	
-   public function url($class, $salt = null, $skipCheck = true){
-    if(true===$salt){
-       $salt = sha1(mt_rand(1000,99999999).time());	  
-    }
-	   
-	   $url =  $this->replaceUrlVars($this->urlTemplate($class, null, $skipCheck), $salt, $class, $this->version);
- 
-     return $url;
-   }	
-	
-   public function urlTemplate($class, $salt = null, $skipCheck = true){	
-      return $this->loadClass($class, $salt, $skipCheck);
-   }
-	
 	
    public function getUrl($class, $server, $salt = null, $parseVars = false){
 	   if(!is_string($salt))$salt=mt_rand(1000,9999);
@@ -610,7 +985,7 @@ class RemoteAutoloader
 												 getcwd() .str_replace(['file://', '~'/*, '${salt}', '${class}', '${version}'*/],
 																	   ['', (!empty(getenv('FRDL_HOME'))) ? getenv('FRDL_HOME') : getenv('HOME')/*, $salt, $class, $this->version*/],
 																	   $server). '.php');   
-     }elseif(preg_match("/^([a-z0-9]+)\.webfan\.de$/", $server, $m) && false !== strpos($server, '.') ){
+     }elseif(preg_match("/^([a-z0-9]+)\.webfan\.de$/", $server, $m) && false === strpos($server, '/') ){
 		 $url = 'https://'.$m[1].'.webfan.de/install/?salt=${salt}&source=${class}&version=${version}';
 	 }elseif(preg_match("/^([\w\.^\/]+)(\/[.*]+)?$/", $server, $m) && false !== strpos($server, '.') ){
 		 $url = 'https://'.$m[1].((isset($m[2])) ? $m[2] : '/');
@@ -643,7 +1018,13 @@ class RemoteAutoloader
 		
 		 $url = str_replace(['${salt}', '${class}', '${version}'], [$salt, $class, $version], $_url);
 		
-		 if(substr($_url,0, strlen('http'))==='http' && !preg_match("/".preg_quote('=${class}')."/",$_url)){
+		 if(substr($_url,0, strlen('http'))==='http' 
+			&& (
+				   !$this->str_contains($_url, '=${class}', false)
+			   || !preg_match("/".preg_quote('=${class}')."/",$_url)
+			)
+		   
+		   ){
 		  $url = preg_replace('/\\\\/',  '/', $url);
 	    }
 		
@@ -840,7 +1221,7 @@ class RemoteAutoloader
 	  return call_user_func_array([$this, 'fetchCode'], func_get_args());	
   }
 	
-  public function exists($source){
+  protected function exists($source){
 	if('http://'!==substr($source, 0, strlen('http://'))
 	   && 'https://'!==substr($source, 0, strlen('https://'))
 	   && is_file($source) && file_exists($source) && is_readable($source)){
@@ -1003,130 +1384,9 @@ class RemoteAutoloader
 						   });
 					  };
   }	
-  public function onShutdown(){
-	  return call_user_func_array($this->_getShutdowner(), func_get_args()); 
-  }
-	
-  public function pruneCache(){
-	
-	 if($this->cacheLimit !== 0
-		   && $this->cacheLimit !== -1){
-					 
-            $this->onShutdown(function($CacheDir, $maxCacheTime){		
-                   
-						  \webfan\hps\patch\Fs::pruneDir($CacheDir, $maxCacheTime, true,  'tmp' !== basename($CacheDir));		
-      
-				  }, $this->cacheDir, $this->cacheLimit);                  	  
-    }
-  }
-	
 
-  public function getCacheDir(){
-	 return $this->cacheDir;  
-  }
-  public function file($class){
-	 return rtrim($this->getCacheDir(),\DIRECTORY_SEPARATOR.'/\\ '). \DIRECTORY_SEPARATOR
-		 . str_replace('\\', \DIRECTORY_SEPARATOR, $class). '.php';
-  }
-		
-	
-  public function Autoload($class){
-    $this->_currentClassToAutoload=$class;
-	$cacheFile =$this->file($class);
-	//$cacheFile = realpath($cacheFile);
- 	
-	 if(file_exists($cacheFile) 
-	   && ($this->cacheLimit !== 0
-		   && $this->cacheLimit !== -1
-		   && (filemtime($cacheFile) < time() - $this->cacheLimit)
-		  )){
-		         if($class!==\frdlweb\Thread\ShutdownTasks::class){
-                  $this->onShutdown(function($cacheFile){		
-					 if(file_exists($cacheFile)){
-						unlink($cacheFile); 
-						clearstatcache(true, $cacheFile); 
-					 }
-				  }, $cacheFile);		
-				 }else{
-		             unlink($cacheFile);
-		             clearstatcache(true, $cacheFile); 
-		         }
-      }	
-	  
-	  
-	if(!file_exists($cacheFile) 
-	   || (
-		   $this->cacheLimit !== 0
-		   && $this->cacheLimit !== -1
-		   && (filemtime($cacheFile) < time() - $this->cacheLimit)
-		  )
-	  ){
-	  
-
-
-	$code = $this->fetchCode($class, null);
-    if(true === $code){
-		return true;
-	}elseif(false !==$code){			
-		if(!is_dir(dirname($cacheFile))){			
-		  mkdir(dirname($cacheFile), 0775, true);
-		}
-		
-    	if(!file_put_contents($cacheFile, $code)){
-	      throw new \Exception('Cannot write source for class '.$class.' to '.$cacheFile);
-	   }
-	  		
-   }else/*if(false ===$code || !file_exists($cacheFile))*/{
-		 // die($cacheFile);
-	  return false;	
-	}	
-  
-  }
-	
-	  
-	  
-	  
-	if(file_exists($cacheFile) ){
-		try{
-	    if(false === ($this->requireFile($cacheFile)) ){
-			if(file_exists($cacheFile)){
-				unlink($cacheFile);
-			}
-			return false;	
-		}
-		}catch(\Exception $e){
-			unlink($cacheFile);
-			   throw new \Exception($e->getMessage());
-		}
-	  	//return true;	
-		return class_exists($class, false);
-	}elseif(isset($code) && is_string($code)){
-		/*
-		$code =ltrim($code, '<?php');
-		$code =rtrim($code, '?php>');	
-		eval($code);
-		*/
-		//$tmpfile = tmpfile();
-		$tmpfile = tempnam($this->cacheDir, 'autoloaded-file.'.sha1($code)); 	      
-		file_put_contents($tmpfile, $code);
-		
-		         if($class!==\frdlweb\Thread\ShutdownTasks::class){
-                  $this->onShutdown(function($tmpfile){		
-					 if(file_exists($tmpfile)){
-						unlink($tmpfile); 
-					 }
-				  }, $tmpfile);		
-				 }
-			
-		if(false === ($this->requireFile($tmpfile)) ){
-			return false;	
-		}else{   
-			return class_exists($class, false);
-		}
-	}else{
-	      throw new \Exception('Cannot write/load source for class '.$class.' in '.$cacheFile);
-	   }
-			
-  }
 	
 }
+
+}
+
