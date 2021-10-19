@@ -2,7 +2,13 @@
   "name" : "frdl/remote-psr4",
   "type" : "library",
   "description": "An php psr4 Autoloader which is autoloading from a remote server.",	  
-  "license": ["MIT"],	  
+  "license": ["MIT"],	 
+  "authors":[
+	  {
+	    "name" : "Till Wehowski",
+	    "email" : "software@frdl.de"
+	  }
+	  ],
   "require" : {
 	    "php": ">=7.2"
   },	  
