@@ -11,5 +11,9 @@
     "psr-4": {
         "Webfan\\Psr4Loader\\": "src/Webfan/Psr4Loader/"
      }
-  }  
+  },
+ "suggest" : {
+   "frdl/codebase" : "More autoloading strategy...",
+   "frdlweb/recommendations" : "Interfaces"
+ }
 }
