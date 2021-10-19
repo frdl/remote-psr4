@@ -2,8 +2,8 @@
 namespace frdl\implementation\firstRunThisFileBootstrap{
 
 $sourcesRaces=[
-	//'https://cdn.frdl.io/@webfan3/stubs-and-fixtures/classes/frdl/implementation/psr4/RemoteAutoloader',
-	'https://cdn.webfan.de/@webfan3/stubs-and-fixtures/classes/frdl/implementation/psr4/RemoteAutoloader',
+	'https://startdir.de/install/?bundle=frdl\implementation\psr4\RemoteAutoloader',
+	'https://cdn.frdl.de/@webfan3/stubs-and-fixtures/classes/frdl/implementation/psr4/RemoteAutoloader',
 	'https://03.webfan.de/install/?salt='.sha1(mt_rand(1000,9999)).'&source=\frdl\implementation\psr4\RemoteAutoloader',
 //	__FILE__
 ];
