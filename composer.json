@@ -19,7 +19,6 @@
      }
   },
  "suggest" : {
-   "frdl/codebase" : "More autoloading strategy...",
-   "frdlweb/recommendations" : "Interfaces"
+   "frdl/codebase" : "More autoloading strategy..."
  }
 }
