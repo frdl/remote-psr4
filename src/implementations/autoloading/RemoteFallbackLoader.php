@@ -34,7 +34,7 @@ class RemoteFallbackLoader {
 			       $prependPrefix = false
 			      ){
 	   if(null===$server){
-		 $server  = 'https://startdir.de/install/?salt=${salt}&bundle=${class}';   
+		 $server  = 'https://startdir.de/install/?salt=${salt}&source=${class}';   
 	   }
 	   
 	        $this->withSalt($salted);
