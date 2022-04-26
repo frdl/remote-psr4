@@ -81,6 +81,7 @@ class RemoteFallbackLoader {
     '@ZendDeveloperTools' => 'Laminas\\DeveloperTools',
     '@Zend\\Di' => 'Laminas\\Di',
     '@Zend\\Diactoros' => 'Laminas\\Diactoros',
+    '@Zend\\Diactoros\\Uri' => 'Laminas\\Diactoros\\Uri',
     '@ZendDiagnostics\\Check' => 'Laminas\\Diagnostics\\Check',
     '@ZendDiagnostics\\Result' => 'Laminas\\Diagnostics\\Result',
     '@ZendDiagnostics\\Runner' => 'Laminas\\Diagnostics\\Runner',
