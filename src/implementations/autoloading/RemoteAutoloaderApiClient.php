@@ -751,7 +751,7 @@ class RemoteAutoloaderApiClient
 
            if(true === $json){
               $code = json_decode($code);
-              $code=array($code);
+              $code=array()$code;
               $code = $code['contents'];
            }
 
