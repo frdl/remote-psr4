@@ -502,7 +502,7 @@ class RemoteAutoloaderApiClient
 
     public function replaceUrlVars($url, $salt, $class, $version)
     {
-        return str_replace(['${salt}', '${class}', '${version}'], [$salt, $class, $version], $url);
+        return str_replace(['${salt}', '${class}', '${version}'], [$salt, urlencode($class), $version], $url);
     }
 
     /**
@@ -714,7 +714,7 @@ class RemoteAutoloaderApiClient
           $url = $this->loadClass($class, $salt);
 
           if(is_bool($url)){
-         return $url;
+             return $url;
           }
 
           $withSaltedUrl = (true === $this->str_contains($url, '${salt}', false)) ? true : false;
@@ -724,15 +724,20 @@ class RemoteAutoloaderApiClient
         $options = [
         'https' => [
            'method'  => 'GET',
-            'ignore_errors' => true,
+            'ignore_errors' => false,
 
            ]
         ];
         $context  = stream_context_create($options);
-        $code = @file_get_contents($url, false, $context);
+        $code = file_get_contents($url, false, $context);
           //$code = file_get_contents($url);
           $json = false;
           $base64 = false;
+		
+		
+			   echo '<pre>';
+			   print_r($code);
+		
         foreach($http_response_header as $i => $header){
            $h = explode(':', $header);
            $k = strtolower(trim($h[0]));
@@ -751,7 +756,7 @@ class RemoteAutoloaderApiClient
 
            if(true === $json){
               $code = json_decode($code);
-              $code=array()$code;
+              $code=(array)$code;
               $code = $code['contents'];
            }
 
