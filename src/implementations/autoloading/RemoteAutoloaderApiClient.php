@@ -502,7 +502,15 @@ class RemoteAutoloaderApiClient
 
     public function replaceUrlVars($url, $salt, $class, $version)
     {
-        return str_replace(['${salt}', '${class}', '${version}'], [$salt, urlencode($class), $version], $url);
+		if(empty($salt)){
+		  $salt = sha1(mt_rand(10, 100000000));	
+		}
+		
+		       $url = preg_replace('/(\$\{class\})/',$class, $url);
+		    $url = preg_replace('/(\$\{salt\})/', $salt, $url);
+		  $url = preg_replace( '/(\$\{version\})/',$version, $url);
+	 
+		return $url; 
     }
 
     /**
@@ -719,29 +727,37 @@ class RemoteAutoloaderApiClient
 
           $withSaltedUrl = (true === $this->str_contains($url, '${salt}', false)) ? true : false;
           $url =  $this->replaceUrlVars($url, $salt, $class, $this->version);
-
+	
 
         $options = [
         'https' => [
            'method'  => 'GET',
-            'ignore_errors' => false,
+            'ignore_errors' => true,
 
            ]
         ];
         $context  = stream_context_create($options);
-        $code = file_get_contents($url, false, $context);
+        $code = @file_get_contents($url, false, $context);
           //$code = file_get_contents($url);
+		
+		if(false === $code || '<?' !== substr($code, 0, 2)){
+		     $url=preg_replace('/(\/stable\/)/', '/', $url);
+		     $url=preg_replace('/(\/latest\/)/', '/', $url);	
+			 
+			 $code = @file_get_contents($url, false, $context);
+		}
+		
           $json = false;
           $base64 = false;
 		
-		
-			   echo '<pre>';
-			   print_r($code);
-		
+	
+			//   echo '<pre>';
+			 	//    print_r( file_get_contents($url) );
+	// if($http_response_header){
         foreach($http_response_header as $i => $header){
            $h = explode(':', $header);
            $k = strtolower(trim($h[0]));
-           $v =  trim($h[1]);
+           $v =  (isset($h[1])) ? trim($h[1]) : $header;
            
             if('x-content-hash' === $k){
                $hash = $v;
@@ -753,12 +769,27 @@ class RemoteAutoloaderApiClient
                $base64 = true;
            }
         }
-
-           if(true === $json){
-              $code = json_decode($code);
+	// }
+		
+		
+		
+        
+		if(true === $json){
+              $theJson =json_decode($code);
+			  $code = $theJson;
               $code=(array)$code;
               $code = $code['contents'];
-           }
+			  
+		if(isset($theJson['X-Content-Hash'])){
+			 $hash = $theJson['X-Content-Hash'];
+		}
+	
+		if(isset($theJson['X-User-Hash'])){
+			 $userHash = $theJson['X-User-Hash'];
+		}						  
+	    
+     }
+
 
            if(true === $base64){
               $code = base64_decode($code);
@@ -789,7 +820,9 @@ class RemoteAutoloaderApiClient
           $code = trim($code);
 
         if(!$this->str_contains($code, '<?', false)){
-          throw new \Exception('Invalid source code for '.$class.' from '.$url.': '.base64_encode($code));
+          throw new \Exception('Invalid source code for '.$class.' from '.$url.': '
+							   .htmlentities($code)
+							  );
         }
 
 
