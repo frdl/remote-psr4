@@ -341,10 +341,11 @@ class RemoteAutoloaderApiClient
         $dns = array_reverse($h);
         $this->selfDomain = $dns[1].'.'.$dns[0];
 
+    if(is_string($this->server)){
         $h = explode('.', $this->server);
         $dns = array_reverse($h);
         $this->domain = $dns[1].'.'.$dns[0];
-
+    }
 
         if(!$this->allowFromSelfOrigin && $this->domain === $this->selfDomain){
           $register = false;
