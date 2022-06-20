@@ -113,7 +113,7 @@ class RemoteAutoloaderApiClient
     protected static $classmap = [];
 
     public static function getInstance(
-        $server = '03.webfan.de',
+        $server =  'https://webfan.de/install/stable/?source={{class}}&salt={{salt}}',
         $register = true,
         $version = 'latest',
         $allowFromSelfOrigin = false,
@@ -158,7 +158,7 @@ class RemoteAutoloaderApiClient
     }
 
     public function __construct(
-        $server = 'frdl.webfan.de',
+        $server = 'https://webfan.de/install/stable/?source={{class}}&salt={{salt}}',
         $register = true,
         $version = 'latest',
         $allowFromSelfOrigin = false,
@@ -473,15 +473,12 @@ class RemoteAutoloaderApiClient
                                                  getcwd() .str_replace(['file://', '~'/*, '${salt}', '${class}', '${version}'*/],
                                                                        ['', (!empty(getenv('FRDL_HOME'))) ? getenv('FRDL_HOME') : getenv('HOME')/*, $salt, $class, $this->version*/],
                                                                        $server). '.php');
-         }elseif(preg_match("/^([a-z0-9]+)\.webfan\.de$/", $server, $m) && false !== strpos($server, '.') ){
+         }/*elseif(preg_match("/^([a-z0-9]+)\.webfan\.de$/", $server, $m) && false !== strpos($server, '.') ){
          $url = 'https://'.$m[1].'.webfan.de/install/?salt=${salt}&source=${class}&version=${version}';
-         }elseif(preg_match("/^([\w\.^\/]+)(\/[.*]+)?$/", $server, $m) && false !== strpos($server, '.') ){
+         }*/elseif(preg_match("/^([\w\.^\/]+)(\/[.*]+)?$/", $server, $m) && false !== strpos($server, '.') ){
          $url = 'https://'.$m[1].((isset($m[2])) ? $m[2] : '/');
          }//else{
-          //  $url = 'https://'.$server.'/install/?salt='.$salt.'&source='. $class.'&version='.$this->version;
-
-         //$url = 'https://'.$server.'/install/?salt=${salt}&source=${class}&version=${version}';
-           //  }
+          
         if(!$this->str_contains($url, '${class}', false) && '.php' !== substr(explode('?', $url)[0], -4)){
             $url = rtrim($url, '/').'/${class}';
         }
