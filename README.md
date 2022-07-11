@@ -15,4 +15,4 @@ If you are developing a Frdlweb-Project you should use ~~<s>`webfan3/frdl-module
 ````
 
 ## PHP CDN
-To use the the package `frdl/remote-psr4` in a project, you can use [*php CDN*](https://webfan.de/install/) and autoload php classes on demand from one or more remote servers. Further you can map namespaces to remote-folders, etc... .
+To use the the package `frdl/remote-psr4` in a project, you can use e.g. [*php CDN*](https://webfan.de/install/) and autoload php classes on demand from one or more remote servers. Further you can map namespaces to remote-folders, etc... .
