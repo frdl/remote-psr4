@@ -731,7 +731,9 @@ class RemoteAutoloaderApiClient
         'https' => [
            'method'  => 'GET',
             'ignore_errors' => true,
-
+            'header'=> "X-Source-Encoding: b64\r\n"
+               // . "Content-Length: " . strlen($data) . "\r\n"
+				,
            ]
         ];
         $context  = stream_context_create($options);
@@ -815,7 +817,11 @@ class RemoteAutoloaderApiClient
            throw new \Exception('Invalid checksums while fetching source code for '.$class.' from '.$url);
            }
          }
-
+ 
+	    if($this->is_base64($code) ){  
+		    $code = base64_decode($code); 
+	    }
+	    
           $code = trim($code);
 
         if(!$this->str_contains($code, '<?', false)){
@@ -838,7 +844,21 @@ class RemoteAutoloaderApiClient
     {
         return call_user_func_array($this->getLoader(), func_get_args());
     }
+ 
+    public function is_base64($s){
+      // Check if there are valid base64 characters
+      if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s)) return false;
 
+      // Decode the string in strict mode and check the results
+      $decoded = base64_decode($s, true);
+      if(false === $decoded) return false;
+
+      // Encode the string again
+      if(base64_encode($decoded) != $s) return false;
+
+      return true;
+   }
+	
     public function register($throw = true, $prepend = false)
     {
         $res = false;
