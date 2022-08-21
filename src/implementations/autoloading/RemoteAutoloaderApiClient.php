@@ -738,13 +738,13 @@ class RemoteAutoloaderApiClient
         ];
         $context  = stream_context_create($options);
         $code = @file_get_contents($url, false, $context);
-          //$code = file_get_contents($url);
 		
-		if(false === $code || '<?' !== substr($code, 0, 2)){
+		if(false === $code
+		  // || '<?' !== substr($code, 0, 2)
+		  ){
 		     $url=preg_replace('/(\/stable\/)/', '/', $url);
 		     $url=preg_replace('/(\/latest\/)/', '/', $url);	
-			 
-			 $code = @file_get_contents($url, false, $context);
+		     $code = @file_get_contents($url, false, $context);
 		}
 		
           $json = false;
