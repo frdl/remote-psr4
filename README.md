@@ -5,13 +5,13 @@ If you are developing a Frdlweb-Project you should use ~~<s>`webfan3/frdl-module
 
 ## Usage
 ````php
-   $loader = \Webfan\Psr4Loader\RemoteFromWebfan::getInstance('startdir.de', true, 'latest', true);
+   $loader = \Webfan\Psr4Loader\RemoteFromWebfan::getInstance('03.webfan.de', true, 'latest', true);
 ````
 
 ...or...
 
 ````php
-  $loader = \frdl\implementation\psr4\RemoteAutoloader::getInstance('startdir.de', true, 'latest', true);
+  $loader = \frdl\implementation\psr4\RemoteAutoloader::getInstance('03.webfan.de', true, 'latest', true);
 ````
 
 ...or...
