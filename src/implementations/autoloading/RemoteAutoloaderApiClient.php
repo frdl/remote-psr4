@@ -337,7 +337,8 @@ class RemoteAutoloaderApiClient
         $this->allowFromSelfOrigin = $allowFromSelfOrigin;
         $this->version=$version;
         $this->server = $server;
-        $_self = (isset($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST'];
+        $_self = (isset($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] 
+	       : ( (isset($_SERVER['HTTP_HOST']) && \php_sapi_name() !== 'cli' ) ? $_SERVER['HTTP_HOST'] : 'localhost');
         $h = explode('.', $_self);
         $dns = array_reverse($h);
         $this->selfDomain = $dns[1].'.'.$dns[0];
