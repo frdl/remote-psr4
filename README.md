@@ -1,9 +1,15 @@
 # remote-psr4
-An php psr4 Autoloader which is autoloading from a remote server.
+An php **PSR4** Autoloader `Client` which is autoloading from a remote server.
+With remote **Classmap** and **Aliases**.
 
-If you are developing a Frdlweb-Project you should use ~~<s>`webfan3/frdl-module-remote-psr4` instead</s>~~ ...[`frdl/codebase`](https://github.com/frdl/codebase)
+### Server?
+If you want to build an `API Server` for this client, you can install my Package [`frdl/codebase`](https://github.com/frdl/codebase).
 
-## Usage
+This is recommended for larger projects, **please use my API Server only for testing, 
+if want to use it productionaly or need a larger amount of load, please contact me!**
+You can also [contact me](https://startforum.de/u/till.wehowski/about) if you need any help with my packages, or if you need a webhosting plan!
+
+# Usage
 ````php
    $loader = \Webfan\Psr4Loader\RemoteFromWebfan::getInstance('03.webfan.de', true, 'latest', true);
 ````
