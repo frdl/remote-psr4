@@ -12,19 +12,29 @@ class RemoteAutoloaderApiClient
     public const ACCESS_LEVEL_BUCKET = 8;
     public const ACCESS_LEVEL_CONTEXT = 16;
 
-    public const CLASSMAP_DEFAULTS = [
-        'GuzzleHttp\choose_handler' => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
-    \GuzzleHttp\LoadGuzzleFunctionsForFrdl::class => 'https://03.webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\LoadGuzzleFunctionsForFrdl',
+    public const CLASSMAP_DEFAULTS = [   
+	    
+      //Concrete Classes:     
+        \frdlweb\Thread\ShutdownTasks::class => 'https://raw.githubusercontent.com/frdl/shutdown-helper/master/src/ShutdownTasks.php',
+        \Webfan\Webfat\Jeytill::class => 'https://raw.githubusercontent.com/frdl/webfat-jeytill/main/src/Jeytill.php',	  
+	    
+      // NAMESPACES   = \\ at the end:
+      'frdl\\Proxy\\' => 'https://raw.githubusercontent.com/frdl/proxy/master/src/${class}.php?cache_bust=${salt}',    	    
+    
+      // ALIAS = @ as first char:
+      '@Webfan\\Autoloader\\Remote' => __CLASS__,	    
+	    
+      //Versions at Webfan:
+	  // Default/Fallback Versions Server:
+	\webfan\hps\Format\DataUri::class => 'https://webfan.de/install/?salt=${salt}&source=webfan\hps\Format\DataUri',	    
+	 // Stable/Current Versions Server:   
+        //\webfan\hps\Format\DataUri::class => 'https://webfan.de/install/stable/?salt=${salt}&source=webfan\hps\Format\DataUri',	    
+	// Latest/Beta Versions Server:    
+	// \webfan\hps\Format\DataUri::class => 'https://webfan.de/install/latest/?salt=${salt}&source=webfan\hps\Format\DataUri',
 
-     \Wehowski\Gist\Http\Response\Helper::class =>
-    'https://gist.githubusercontent.com/wehowski/d762cc34d5aa2b388f3ebbfe7c87d822/raw/5c3acdab92e9c149082caee3714f0cf6a7a9fe0b/Wehowski%255CGist%255CHttp%255CResponse%255CHelper.php?cache_bust=${salt}',
-    \webfan\hps\Format\DataUri::class => 'https://03.webfan.de/install/?salt=${salt}&source=webfan\hps\Format\DataUri',
-    'frdl\\Proxy\\' => 'https://raw.githubusercontent.com/frdl/proxy/master/src/${class}.php?cache_bust=${salt}',
-     \frdlweb\Thread\ShutdownTasks::class => 'https://raw.githubusercontent.com/frdl/shutdown-helper/master/src/ShutdownTasks.php',
-     \Webfan\Webfat\Jeytill::class => 'https://raw.githubusercontent.com/frdl/webfat-jeytill/main/src/Jeytill.php',
-
-    // NAMESPACES
-    // Zend Framework components
+	    
+	    
+    // Zend Framework components    	    
     '@Zend\\AuraDi\\Config' => 'Laminas\\AuraDi\\Config',
     '@Zend\\Authentication' => 'Laminas\\Authentication',
     '@Zend\\Barcode' => 'Laminas\\Barcode',
@@ -98,6 +108,21 @@ class RemoteAutoloaderApiClient
     '@Zend\\Xml2Json' => 'Laminas\\Xml2Json',
     '@Zend\\XmlRpc' => 'Laminas\\XmlRpc',
     '@ZendOAuth' => 'Laminas\\OAuth',
+	    
+    //Concrete Classes	    
+    \Webfan\cta\HashType\HashTypeInterface::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/HashTypeInterface.php',	
+    \Webfan\cta\HashType\XHashSha1::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/XHashSha1.php',	
+    \Webfan\cta\Storage\StorageConfigInterface::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/StorageConfigInterface.php',
+	    
+     //misc...
+     //You can have functions autoloading
+        'GuzzleHttp\choose_handler' => 'https://webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+    \GuzzleHttp\LoadGuzzleFunctionsForFrdl::class => 'https://webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\LoadGuzzleFunctionsForFrdl',
+
+     \Wehowski\Gist\Http\Response\Helper::class =>
+    'https://gist.githubusercontent.com/wehowski/d762cc34d5aa2b388f3ebbfe7c87d822/raw/5c3acdab92e9c149082caee3714f0cf6a7a9fe0b/Wehowski%255CGist%255CHttp%255CResponse%255CHelper.php?cache_bust=${salt}',
+    
+	    
     ];
 
     protected $salted = false;
