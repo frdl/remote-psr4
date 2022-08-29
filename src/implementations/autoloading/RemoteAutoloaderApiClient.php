@@ -112,7 +112,7 @@ class RemoteAutoloaderApiClient
     //Concrete Classes	    
     \Webfan\cta\HashType\HashTypeInterface::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/HashTypeInterface.php',	
     \Webfan\cta\HashType\XHashSha1::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/XHashSha1.php',	
-    \Webfan\cta\Storage\StorageConfigInterface::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/StorageConfigInterface.php',
+    \Webfan\cta\Storage\StorageInterface::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/StorageInterface.php',
 	    
      //misc...
      //You can have functions autoloading
