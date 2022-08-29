@@ -26,10 +26,30 @@ $config = [
 ];
 
  $loader =  call_user_func(function($config,$workspace){
-    return \frdl\implementation\psr4\RemoteAutoloaderApiClient::class::getInstance($workspace, false, $config['FRDL_UPDATE_CHANNEL'],
-                                                                                    false, false, null/*Classmap:[]*/,
-                                                                                    $config['FRDL_REMOTE_PSR4_CACHE_DIR'],
-                                                                                    $config['FRDL_REMOTE_PSR4_CACHE_LIMIT']);
+    return \frdl\implementation\psr4\RemoteAutoloaderApiClient::class::getInstance($workspace, false, $config['FRDL_UPDATE_CHANNEL'], false, false, 
+	/*Classmap (with PSR4 and Alias)*/
+       [
+	 //Concrete Classes:     
+        \frdlweb\Thread\ShutdownTasks::class => 'https://raw.githubusercontent.com/frdl/shutdown-helper/master/src/ShutdownTasks.php',
+        \Webfan\Webfat\Jeytill::class => 'https://raw.githubusercontent.com/frdl/webfat-jeytill/main/src/Jeytill.php',	  
+	    
+      // NAMESPACES   = \\ at the end:
+      'frdl\\Proxy\\' => 'https://raw.githubusercontent.com/frdl/proxy/master/src/${class}.php?cache_bust=${salt}',    	    
+    
+      // ALIAS = @ as first char:
+      '@Webfan\\Autoloader\\Remote' => __CLASS__,	    
+	    
+      //Versions at Webfan:
+	  // Default/Fallback Versions Server:
+	\webfan\hps\Format\DataUri::class => 'https://webfan.de/install/?salt=${salt}&source=webfan\hps\Format\DataUri',	    
+	 // Stable/Current Versions Server:   
+        //\webfan\hps\Format\DataUri::class => 'https://webfan.de/install/stable/?salt=${salt}&source=webfan\hps\Format\DataUri',	    
+	// Latest/Beta Versions Server:    
+	// \webfan\hps\Format\DataUri::class => 'https://webfan.de/install/latest/?salt=${salt}&source=webfan\hps\Format\DataUri',
+   ],
+    $config['FRDL_REMOTE_PSR4_CACHE_DIR'],
+    $config['FRDL_REMOTE_PSR4_CACHE_LIMIT']
+  );
  }, $config,'https://webfan.de/install/'. $config['FRDL_UPDATE_CHANNEL'].'/?source=${class}&salt=${salt}&source-encoding=b64');
  
  $loader->register();
