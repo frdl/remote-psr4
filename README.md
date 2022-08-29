@@ -5,7 +5,7 @@ With remote **Classmap** and **Aliases**.
 ### Server?
 If you want to build an `API Server` for this client, you can install my Package [`frdl/codebase`](https://github.com/frdl/codebase).
 
-This is recommended for larger projects, **please use my API Server only for testing, 
+This is recommended for larger projects, **please use [my API Server](https://webfan.de/install/) only for testing, 
 if want to use it productionaly or need a larger amount of load, please contact me!**
 You can also [contact me](https://startforum.de/u/till.wehowski/about) if you need any help with my packages, or if you need a webhosting plan!
 
@@ -62,6 +62,3 @@ $config = [
  $loader->register();
  ````
 
-
-## PHP CDN
-To use the the package `frdl/remote-psr4` in a project, you can use e.g. [*php CDN*](https://webfan.de/install/) and autoload php classes on demand from one or more remote servers. Further you can map namespaces to remote-folders, etc... .
