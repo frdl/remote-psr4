@@ -25,6 +25,7 @@ $config = [
      'FRDL_REMOTE_PSR4_CACHE_LIMIT'=>	24 * 60 * 60,                                
 ];
 
+ // $workspace is the DEFAULT Psr4 Server
  $loader =  call_user_func(function($config,$workspace){
     return \frdl\implementation\psr4\RemoteAutoloaderApiClient::class::getInstance($workspace, false, $config['FRDL_UPDATE_CHANNEL'], false, false, 
 	/*Classmap (with PSR4 and Alias)*/
