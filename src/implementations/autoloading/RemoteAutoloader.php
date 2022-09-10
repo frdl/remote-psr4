@@ -2,7 +2,7 @@
 namespace frdl\implementation\firstRunThisFileBootstrap{
 
 $sourcesRaces=[
-	'https://startdir.de/install/?bundle=frdl\implementation\psr4\RemoteAutoloader', 
+	'https://webfan.de/install/?bundle=frdl\implementation\psr4\RemoteAutoloader', 
 	'https://webfan.de/install/stable/?bundle=frdl\implementation\psr4\RemoteAutoloader', 
 	'https://webfan.de/install/latest/?bundle=frdl\implementation\psr4\RemoteAutoloader', 
 //	__FILE__
