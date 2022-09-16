@@ -830,7 +830,7 @@ class RemoteAutoloaderApiClient
 
         ){
           //  throw new \Exception('Missing checksums while fetching source code for '.$class.' from '.$url);
-		   error_log('Missing checksums while fetching source code for '.$class.' from '.$url, \E_USER_WARNING);
+		   error_log('Missing checksums while fetching source code for '.$class.' from '.$url, \E_USER_NOTICE);
 		   return false;
           }
 
@@ -843,7 +843,7 @@ class RemoteAutoloaderApiClient
 
            if($hash_check !== $hash || $userHash_check !== $userHash){
          //  throw new \Exception('Invalid checksums while fetching source code for '.$class.' from '.$url);
-		   error_log('Invalid checksums while fetching source code for '.$class.' from '.$url, \E_USER_WARNING);
+		   error_log('Invalid checksums while fetching source code for '.$class.' from '.$url, \E_USER_NOTICE);
 		   return false;
            }
          }
@@ -855,9 +855,9 @@ class RemoteAutoloaderApiClient
           $code = trim($code);
 
         if(!$this->str_contains($code, '<?', false)){
-          throw new \Exception('Invalid source code for '.$class.' from '.$url.': '
-							   .htmlentities($code)
-							  );
+          //    throw new \Exception('Invalid source code for '.$class.' from '.$url.': ' .htmlentities($code)  );
+		   error_log('Invalid source code for '.$class.' from '.$url.': ' .htmlentities($code) , \E_USER_NOTICE);
+		   return false;
         }
 
 
