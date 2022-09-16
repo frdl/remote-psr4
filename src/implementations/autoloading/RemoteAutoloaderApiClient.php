@@ -829,8 +829,9 @@ class RemoteAutoloaderApiClient
          || (true === $withSaltedUrl && true === $this->withSalt() && (!isset($hash) || !isset($userHash)))
 
         ){
-          throw new \Exception('Missing checksums while fetching source code for '.$class.' from '.$url);
-          return false;
+          //  throw new \Exception('Missing checksums while fetching source code for '.$class.' from '.$url);
+		   error_log('Missing checksums while fetching source code for '.$class.' from '.$url, \E_USER_WARNING);
+		   return false;
           }
 
 
@@ -841,7 +842,9 @@ class RemoteAutoloaderApiClient
            $userHash_check = sha1($salt .$hash_check);
 
            if($hash_check !== $hash || $userHash_check !== $userHash){
-           throw new \Exception('Invalid checksums while fetching source code for '.$class.' from '.$url);
+         //  throw new \Exception('Invalid checksums while fetching source code for '.$class.' from '.$url);
+		   error_log('Invalid checksums while fetching source code for '.$class.' from '.$url, \E_USER_WARNING);
+		   return false;
            }
          }
  
@@ -958,7 +961,9 @@ class RemoteAutoloaderApiClient
 
 
         $code = $this->fetchCode($class, null);
-        if(true === $code){
+	if(false===$code){
+	   return false;
+	}else if(true === $code){
               return true;
         }elseif(false !==$code){
         if(!is_dir(dirname($cacheFile))){
