@@ -928,7 +928,7 @@ class RemoteAutoloaderApiClient
                  $ShutdownTasks = \frdlweb\Thread\ShutdownTasks::mutex();
                   $ShutdownTasks(function($CacheDir, $maxCacheTime){
 
-                          \webfan\hps\patch\Fs::pruneDir($CacheDir, $maxCacheTime, true,  'tmp' !== basename($CacheDir));
+                          @\webfan\hps\patch\Fs::pruneDir($CacheDir, $maxCacheTime, true,  'tmp' !== basename($CacheDir));
 
                   }, $this->cacheDir, $this->cacheLimit);
 
