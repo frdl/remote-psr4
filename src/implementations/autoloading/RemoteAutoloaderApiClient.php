@@ -132,12 +132,40 @@ class RemoteAutoloaderApiClient
     protected $version;
     protected $allowFromSelfOrigin = false;
     protected $prefixes = [];
+
+    /**
+      $afterMiddleware = [
+        "/(example\.com)/",
+	function($code){
+	   //....
+	   
+	   return $code;
+	}
+      ];
+      $afterMiddleware = [
+	function($url){
+	   //....
+	   
+	   return true; //or false
+	},
+	function($code){
+	   //....
+	   
+	   return $code;
+	}
+      ];
+    */
+    protected $afterMiddlewares = [];
     protected $cacheDir;
     protected $cacheLimit = 0;
     protected static $instances = [];
     protected $alias = [];
     protected static $classmap = [];
 
+    public function withAfterMiddleware(\callable | \closure | string $condition, \callable | \closure $filter){
+	    $this->afterMiddlewares[]= [$condition, $filter];	   
+	return $this;
+    }
     public static function getInstance(
         $server =  'https://webfan.de/install/stable/?source={{class}}&salt={{salt}}',
         $register = true,
@@ -766,6 +794,19 @@ class RemoteAutoloaderApiClient
         $context  = stream_context_create($options);
         $code = @file_get_contents($url, false, $context);
 		
+	foreach($this->afterMiddlewares as $middleware){
+		if(is_callable($middleware[0]) && true !== call_user_func_array($middleware[0], [$url]) ){
+		   continue;	
+		}elseif(!preg_match($middleware[0], $url)){
+		   continue;	
+		}
+		$code = call_user_func_array($middleware[1], [$code]);
+		if(!is_string($code)){
+		    return false;	
+		}
+	}
+	    
+	    
 		if(false === $code
 		  // || '<?' !== substr($code, 0, 2)
 		  ){
