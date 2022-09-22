@@ -793,6 +793,16 @@ class RemoteAutoloaderApiClient
         ];
         $context  = stream_context_create($options);
         $code = @file_get_contents($url, false, $context);
+
+	    
+		if(false === $code
+		  // || '<?' !== substr($code, 0, 2)
+		  ){
+		     $url=preg_replace('/(\/stable\/)/', '/', $url);
+		     $url=preg_replace('/(\/latest\/)/', '/', $url);	
+		     $code = @file_get_contents($url, false, $context);
+		}
+		
 		
 	foreach($this->afterMiddlewares as $middleware){
 		if(is_callable($middleware[0]) && true !== call_user_func_array($middleware[0], [$url]) ){
@@ -805,16 +815,9 @@ class RemoteAutoloaderApiClient
 		    return false;	
 		}
 	}
+	    	    
 	    
 	    
-		if(false === $code
-		  // || '<?' !== substr($code, 0, 2)
-		  ){
-		     $url=preg_replace('/(\/stable\/)/', '/', $url);
-		     $url=preg_replace('/(\/latest\/)/', '/', $url);	
-		     $code = @file_get_contents($url, false, $context);
-		}
-		
           $json = false;
           $base64 = false;
 		
