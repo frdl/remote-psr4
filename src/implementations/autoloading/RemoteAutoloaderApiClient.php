@@ -805,9 +805,10 @@ class RemoteAutoloaderApiClient
 		
 		
 	foreach($this->afterMiddlewares as $middleware){
-		if(is_callable($middleware[0]) && true !== call_user_func_array($middleware[0], [$url]) ){
+		if(( \is_callable($middleware[0]) || ('object' === gettype($middleware[0]) && $middleware[0] instanceof \Closure) ) 
+		   && true !== \call_user_func_array($middleware[0], [$url]) ){
 		   continue;	
-		}elseif(!preg_match($middleware[0], $url)){
+		}elseif(is_string($middleware[0]) && !preg_match($middleware[0], $url)){
 		   continue;	
 		}
 		$code = call_user_func_array($middleware[1], [$code]);
