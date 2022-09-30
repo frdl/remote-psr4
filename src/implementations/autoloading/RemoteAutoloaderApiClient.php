@@ -186,22 +186,38 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	function($url){
 	   //....
 	   
-	   return true; //or false
+	   return true; //or false to en-/disable middleware
 	},
 	function($code){
 	   //....
 	   
-	   return $code;
+	   return $code; /* validated/transformed code, invalidate with not string (e.g. bool or Excpetion) */
 	}
       ];
+      
+      ->withAfterMiddleware($afterMiddleware[0], $afterMiddleware[1])
+      
+      $beforeMiddleware = function($class, &$loader){
+	   //....
+	   
+	   return false; /* return false to skip this autoloader, return any/VOID to continue */
+      };     
+	
+	->withBeforeMiddleware($beforeMiddleware)
     */
     protected $afterMiddlewares = [];
+    protected $beforeMiddlewares = [];
     protected $cacheDir;
     protected $cacheLimit = 0;
     protected static $instances = [];
     protected $alias = [];
     protected static $classmap = [];
-
+	
+    public function withBeforeMiddleware( \callable | \closure $filter){
+	    $this->beforeMiddlewares[]= $filter;	   
+	return $this;
+    }
+	
     public function withAfterMiddleware(\callable | \closure | string $condition, \callable | \closure $filter){
 	    $this->afterMiddlewares[]= [$condition, $filter];	   
 	return $this;
@@ -1071,6 +1087,13 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	
     public function Autoload(string $class):bool|string
     {
+	    
+	foreach($this->beforeMiddlewares as $middleware){
+	    if(false === call_user_func_array($middleware, [$class]) ){
+	      return false;	
+	    }
+        }	    
+	    
         $cacheFile = $this->file($class);
         //$cacheFile = realpath($cacheFile);
 
