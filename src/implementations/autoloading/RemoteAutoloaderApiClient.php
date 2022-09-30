@@ -1,8 +1,48 @@
 <?php
+/**
+* Bundled from https://github.com/frdl/codebase/tree/main/src/Frdlweb/Contract/Autoload
+* @ToDo: How could I "preload" this better/from github-sources?
+**/
+namespace Frdlweb\Contract\Autoload{
+ if (!interface_exists(Psr4GeneratorInterface::class)) {	
+	interface Psr4GeneratorInterface {		
+		public function addNamespace($prefix, $resourceOrLocation, $prepend = false);
+	}
+ }
+}//ns Frdlweb\Contract\Autoload
 
-namespace frdl\implementation\psr4;
+namespace Frdlweb\Contract\Autoload{
+if (!interface_exists(ClassLoaderInterface::class)) {		
+	interface ClassLoaderInterface {
+		public function Autoload(string $class):bool|string;
+	}	
+}
+}//ns Frdlweb\Contract\Autoload
 
-class RemoteAutoloaderApiClient
+namespace Frdlweb\Contract\Autoload{	
+if (!interface_exists(ResolverInterface::class)) {		
+     interface ResolverInterface {
+        public function resolve(string $class):bool|string;
+        public function file(string $class):bool|string; //local or cache
+        public function url(string $class):bool|string;  //remote or ...?
+     }
+}
+}//ns Frdlweb\Contract\Autoload
+
+namespace Frdlweb\Contract\Autoload{ 
+ if (!interface_exists(LoaderInterface::class)) {		
+	interface LoaderInterface {
+	   public function register(bool $prepend = false);
+	}
+ }
+}//ns Frdlweb\Contract\Autoload
+
+namespace frdl\implementation\psr4{
+
+class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInterface, 
+	\Frdlweb\Contract\Autoload\ResolverInterface,
+	\Frdlweb\Contract\Autoload\ClassLoaderInterface,
+	\Frdlweb\Contract\Autoload\Psr4GeneratorInterface 
 {
     public const HASH_ALGO = 'sha1';
     public const ACCESS_LEVEL_SHARED = 0;
@@ -465,6 +505,9 @@ class RemoteAutoloaderApiClient
                                 $h2]);
     }
 
+    public function addNamespace($prefix, $resourceOrLocation, $prepend = false){
+	return $this->withNamespace($prefix, $resourceOrLocation, $prepend);	
+    }
     public function withNamespace($prefix, $server, $prepend = false)
     {
         $prefix = trim($prefix, '\\') . '\\';
@@ -763,22 +806,24 @@ class RemoteAutoloaderApiClient
         return false !== $res;
     }
 
+	
+
+	
     protected function fetchCode($class, $salt = null)
     {
+	    /*
         if(!is_string($salt)){
            $salt = mt_rand(10000000,99999999);
         }
-
-
           $url = $this->loadClass($class, $salt);
-
           if(is_bool($url)){
              return $url;
           }
-
           $withSaltedUrl = (true === $this->str_contains($url, '${salt}', false)) ? true : false;
           $url =  $this->replaceUrlVars($url, $salt, $class, $this->version);
-	
+	*/
+	     $url =  $this->url( $class );
+	    
 
         $options = [
         'https' => [
@@ -943,8 +988,12 @@ class RemoteAutoloaderApiClient
       return true;
    }
 	
-    public function register($throw = true, $prepend = false)
+    public function register(/* $throw = true,*/bool $prepend = false)
     {
+	$args = func_get_args();
+	if(count($args)>=2 && is_bool($args[1])){
+	  $prepend = $args[1];	
+	}
         $res = false;
 
 
@@ -988,10 +1037,40 @@ class RemoteAutoloaderApiClient
 
         }
     }
+       
+	public function resolve(string $class):bool|string{
+	    $cacheFile = $this->file($class);
+	    $url =  $this->url( $class );
+	    if($this->exists($cacheFile)){
+		return $cacheFile;    
+	    }elseif($this->exists($url)){
+		return $url;    
+	    }else{
+		return false;    
+	    }		
+	}
+        public function file(string $class):bool|string{
+	  return rtrim($this->cacheDir, \DIRECTORY_SEPARATOR.'/\\ '). \DIRECTORY_SEPARATOR. str_replace('\\', \DIRECTORY_SEPARATOR, $class). '.php';
+	}
+        public function url(string $class):bool|string{
+        
+           $salt = mt_rand(10000000,99999999);         
 
-    public function Autoload($class)
+          $url = $this->loadClass($class, $salt);
+
+          if(is_bool($url)){
+             return $url;
+          }
+
+        //  $withSaltedUrl = (true === $this->str_contains($url, '${salt}', false)) ? true : false;
+          $url =  $this->replaceUrlVars($url, $salt, $class, $this->version);		
+	  return $url;
+	}	
+	
+	
+    public function Autoload(string $class):bool|string
     {
-        $cacheFile = rtrim($this->cacheDir, \DIRECTORY_SEPARATOR.'/\\ '). \DIRECTORY_SEPARATOR. str_replace('\\', \DIRECTORY_SEPARATOR, $class). '.php';
+        $cacheFile = $this->file($class);
         //$cacheFile = realpath($cacheFile);
 
          if(file_exists($cacheFile)
@@ -1074,3 +1153,5 @@ class RemoteAutoloaderApiClient
            }
     }
 }
+
+}//ns frdl\implementation\psr4
