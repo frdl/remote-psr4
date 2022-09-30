@@ -55,7 +55,7 @@ $config = [
   );
  }, $config,'https://webfan.de/install/'. $config['FRDL_UPDATE_CHANNEL'].'/?source=${class}&salt=${salt}&source-encoding=b64');
  
- $loader->register(true, false);
+ $loader->register(false);
  ````
 
 ## With (custom) validators
