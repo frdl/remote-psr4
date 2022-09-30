@@ -899,9 +899,12 @@ class RemoteAutoloaderApiClient
 		$code = call_user_func_array($middleware[1], [$code]);
 		if(!is_string($code)){
 		    error_log('Untrusted source code for '.$class.' from '.$url.': INVALID SIGNATURE FOR: ' .htmlentities($code) , \E_USER_WARNING);
+		    if('object'===gettype($code) && $code instanceof \Exception){
+			throw $code;    
+		    }
 		    return false;	
 		}
-    }	
+       }	
 		
 		
 		
