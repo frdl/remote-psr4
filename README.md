@@ -122,7 +122,9 @@ See methods:
 	
 	 
 	 
-     $filter = function($code) use($baseUrl, $expFile, $pubKeyFile, $setPublicKey, &$publicKeyChanged) {
+     $cb = null; 
+     $filter = function($code, $c = 0) use(&$cb, $baseUrl, $expFile, $pubKeyFile, $setPublicKey, &$publicKeyChanged) {
+	        $c++;
 		$sep = 'X19oYWx0X2NvbXBpbGVyKCk7'; 
         $my_signed_data=$code;
         $public_key = file_get_contents($pubKeyFile);
@@ -140,15 +142,17 @@ See methods:
     if($decrypted_sig === $data_hash && strlen($data_hash)>0){
         return $plain_data;
 	}else{
-		if(!$publicKeyChanged){
-			$publicKeyChanged = true;
+		if(!$publicKeyChanged && $c <= 1){
+		   $publicKeyChanged = true;
 		   unlink($pubKeyFile);
 		   unlink($expFile);
 		   $setPublicKey($baseUrl, $expFile, $pubKeyFile);
+		   return $cb($code, $c);	
 		}
         return new \Exception("ERROR -- untrusted signature");
 	}
   };
+    $cb = $filter;
 	 
    return [$condition, $filter];
  };
