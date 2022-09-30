@@ -11,17 +11,12 @@ You can also [contact me](https://startforum.de/u/till.wehowski/about) if you ne
 
 # Usage
 ````php
-   $loader = \Webfan\Psr4Loader\RemoteFromWebfan::getInstance('03.webfan.de', true, 'latest', true);
-````
-
-...or...
-
-````php
   $loader = \frdl\implementation\psr4\RemoteAutoloader::getInstance('03.webfan.de', true, 'latest', true);
 ````
-
 ...or...
-
+## With (custom) configuration
+* Classmap (with PSR4 and Alias)
+* Cache Settings
 ````php
 $config = [
     'FRDL_UPDATE_CHANNEL' => 'latest',  // stable | latest
@@ -60,6 +55,114 @@ $config = [
   );
  }, $config,'https://webfan.de/install/'. $config['FRDL_UPDATE_CHANNEL'].'/?source=${class}&salt=${salt}&source-encoding=b64');
  
- $loader->register();
+ $loader->register(true, false);
  ````
 
+## With (custom) validators
+* ->withAfterMiddleware()
+````PHP
+//...
+
+  $publicKeyChanged = false;
+  $increaseTimelimit = true;
+
+ $setPublicKey = function($expFile, $pubKeyFile){
+	 if(file_exists($expFile)){
+          $expires = intval(file_get_contents($expFile));
+	 }else{
+           $expires = 0;
+	 }
+	
+	   if($expires > 0 && ($expires === time() || ($expires > time() - 3 && $expires < time() + 3))){
+		   sleep(3);
+	   }
+      if($expires <= time()  || !file_exists($pubKeyFile) ){
+		  	$opts =[
+        'http'=>[
+            'method'=>'GET',
+            //'header'=>"Accept-Encoding: deflate, gzip\r\n",
+            ],
+	
+			];
+		  $context = stream_context_create($opts);
+		  $key = file_get_contents($baseUrl.'source=@server.key', false, $context);
+		  foreach($http_response_header as $i => $header){				
+                   $h = explode(':', $header);
+			if('x-frdlweb-source-expires' === strtolower(trim($h[0]))){
+				file_put_contents($expFile, trim($h[1]) );
+				break;
+			}           
+         }
+		  
+		  file_put_contents($pubKeyFile, $key);
+	  }
+	 
+ };
+
+ $getDefaultValidatorForUrl = function($baseUrl, $cacheDir, $increaseTimelimit = true) use($setPublicKey, &$publicKeyChanged) {
+     $expFile =  rtrim($cacheDir, '\\/ ') .	\DIRECTORY_SEPARATOR.'validator-'.sha1($baseUrl).strlen($baseUrl).'.expires.txt';
+	 $pubKeyFile =  rtrim($cacheDir, '\\/ ') .	\DIRECTORY_SEPARATOR.'validator-'.sha1($baseUrl).strlen($baseUrl).'.public-key.txt';
+	 
+     $setPublicKey($expFile, $pubKeyFile);
+
+	 $condition = function($url) use($baseUrl, $increaseTimelimit){
+		if($increaseTimelimit){
+			set_time_limit(min(180, intval(ini_get('max_execution_time')) + 90));
+		}
+
+		if($baseUrl === substr($url, 0, strlen($baseUrl) ) ){
+			return true;	  
+		}else{
+		  return false;	
+		}
+	 };
+	
+	 
+	 
+     $filter = function($code) use($expFile, $pubKeyFile, $setPublicKey, &$publicKeyChanged) {
+		$sep = 'X19oYWx0X2NvbXBpbGVyKCk7'; 
+        $my_signed_data=$code;
+        $public_key = file_get_contents($pubKeyFile);
+		 
+    list($plain_data,$sigdata) = explode(base64_decode($sep), $my_signed_data, 2);
+    list($nullVoid,$old_sig_1) = explode("----SIGNATURE:----", $sigdata, 2);
+    list($old_sig,$ATTACHMENT) = explode("----ATTACHMENT:----", $old_sig_1, 2);
+	 $old_sig = base64_decode($old_sig);	 
+	 $ATTACHMENT = base64_decode($ATTACHMENT);
+    if(empty($old_sig)){
+      return new \Exception("ERROR -- unsigned data");
+    }
+    \openssl_public_decrypt($old_sig, $decrypted_sig, $public_key);
+    $data_hash = sha1($plain_data.$ATTACHMENT).substr(str_pad(strlen($plain_data.$ATTACHMENT).'', 128, strlen($plain_data.$ATTACHMENT) % 10, \STR_PAD_LEFT), 0, 128);
+    if($decrypted_sig === $data_hash && strlen($data_hash)>0){
+        return $plain_data;
+	}else{
+		if(!$publicKeyChanged){
+			$publicKeyChanged = true;
+		   unlink($pubKeyFile);
+		   unlink($expFile);
+		   $setPublicKey($expFile, $pubKeyFile);
+		}
+        return new \Exception("ERROR -- untrusted signature");
+	}
+  };
+	 
+   return [$condition, $filter];
+ };
+
+
+ $getDefaultValidators = function($cacheDir, $increaseTimelimit = true) use($getDefaultValidatorForUrl) {
+    return [
+         $getDefaultValidatorForUrl('https://webfan.de/install/stable/?', $cacheDir, $increaseTimelimit),
+         $getDefaultValidatorForUrl('https://webfan.de/install/latest/?', $cacheDir, $increaseTimelimit),
+  	 $getDefaultValidatorForUrl('https://webfan.de/install/?', $cacheDir, $increaseTimelimit),
+    ];
+ };
+
+
+     foreach($getDefaultValidators($cacheDir, $increaseTimelimit) as $validator){
+	    $loader->withAfterMiddleware($validator[0], $validator[1]);
+     }		
+     
+//...     
+````
