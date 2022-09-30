@@ -1089,7 +1089,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
     {
 	    
 	foreach($this->beforeMiddlewares as $middleware){
-	    if(false === call_user_func_array($middleware, [$class]) ){
+	    if(false === call_user_func_array($middleware, [$class, $this]) ){
 	      return false;	
 	    }
         }	    
