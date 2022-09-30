@@ -329,6 +329,29 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		    $this->withAfterMiddleware($validator[0], $validator[1]);   
 	    }			
 	    
+	    
+	  /* some dirty workaround patches... */
+	  $this->withBeforeMiddleware(function($class, &$loader){
+	       switch($class){
+		       case \DI\Compiler\Compiler::class :
+			       $aDir = dirname($loader->file($class));
+			       if(!is_dir($aDir)){
+				  mkdir($aDir, 0755, true);       
+			       }
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Template.php';
+			       if(!file_exists($aFile)){
+				  file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/master/src/Compiler/Template.php'));       
+			       }
+			       return true;
+			   break;
+		       default:
+			    return true;
+			  break;
+	       }
+	   
+	    /*   return true;  return false to skip this autoloader, return any/VOID to continue */
+          });     
+	    
 	return $this;
     }
    //end default-patches
