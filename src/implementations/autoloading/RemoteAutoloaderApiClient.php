@@ -765,10 +765,8 @@ class RemoteAutoloaderApiClient
 
     protected function fetchCode($class, $salt = null)
     {
-        if(!is_string($salt)
-           //&& true === $this->withSalt()
-          ){
-        $salt = mt_rand(10000000,99999999);
+        if(!is_string($salt)){
+           $salt = mt_rand(10000000,99999999);
         }
 
 
@@ -795,25 +793,24 @@ class RemoteAutoloaderApiClient
         $code = @file_get_contents($url, false, $context);
 
 	    
-		if(false === $code
-		  // || '<?' !== substr($code, 0, 2)
-		  ){
+		if(false === $code){
+		     $urlOld = $url;
 		     $url=preg_replace('/(\/stable\/)/', '/', $url);
 		     $url=preg_replace('/(\/latest\/)/', '/', $url);	
-		     $code = @file_get_contents($url, false, $context);
+		     if($urlOld !== $url){
+		        $context  = stream_context_create($options);
+		        $code = @file_get_contents($url, false, $context);
+		     }
+			if(false===$code){
+			 return false;	
+			}
 		}
 		
-		
-    
-	    
-	    
+			    
           $json = false;
           $base64 = false;
-		
-	
-			//   echo '<pre>';
-			 	//    print_r( file_get_contents($url) );
-	// if($http_response_header){
+			
+			
         foreach($http_response_header as $i => $header){
            $h = explode(':', $header);
            $k = strtolower(trim($h[0]));
@@ -829,7 +826,7 @@ class RemoteAutoloaderApiClient
                $base64 = true;
            }
         }
-	// }
+	
 		
 		
 		
@@ -888,7 +885,7 @@ class RemoteAutoloaderApiClient
 		    $code = base64_decode($code); 
 	    }
 	    
-          $code = trim($code);
+      //    $code = trim($code);
 
 		
 		
