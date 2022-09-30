@@ -9,7 +9,7 @@ This is recommended for larger projects, **please use [my API Server](https://we
 if want to use it productionaly or need a larger amount of load, please contact me!**
 You can also [contact me](https://startforum.de/u/till.wehowski/about) if you need any help with my packages, or if you need a webhosting plan!
 
-# Usage
+## Usage
 ````php
   $loader = \frdl\implementation\psr4\RemoteAutoloader::getInstance('03.webfan.de', true, 'latest', true);
 ````
@@ -59,7 +59,10 @@ $config = [
  ````
 
 ## With (custom) validators
+See methods:
+* ->withBeforeMiddleware()
 * ->withAfterMiddleware()
+* ->withWebfanWebfatDefaultSettings()
 ````PHP
 //...
 
@@ -164,5 +167,25 @@ $config = [
 	    $loader->withAfterMiddleware($validator[0], $validator[1]);
      }		
      
+     	  $loader->withBeforeMiddleware(function($class, &$loader){
+	       switch($class){
+		       case \DI\Compiler\Compiler::class :
+			       $aDir = dirname($loader->file($class));
+			       if(!is_dir($aDir)){
+				  mkdir($aDir, 0755, true);       
+			       }
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Template.php';
+			       if(!file_exists($aFile)){
+				  file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/master/src/Compiler/Template.php'));     
+			       }
+			       return true;
+			   break;
+		       default:
+			    return true;
+			  break;
+	       }
+	   
+	    /*   return true;  return false to skip this autoloader, return any/VOID to continue */
+          });     
 //...     
 ````
