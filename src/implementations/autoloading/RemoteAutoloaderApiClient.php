@@ -1238,11 +1238,12 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
     public function Autoload(string $class):bool|string
     {
 	    
+		
 	foreach($this->beforeMiddlewares as $middleware){
-	    if(false === call_user_func_array($middleware, [$class, $this]) ){
+	    if(false === call_user_func_array($middleware, [$class, &$this]) ){
 	      return false;	
-	    }
-        }	    
+	    }        
+	}	    
 	    
         $cacheFile = $this->file($class);
         //$cacheFile = realpath($cacheFile);
