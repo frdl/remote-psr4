@@ -340,7 +340,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Template.php';
 			       if(!file_exists($aFile)){
-				  file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/master/src/Compiler/Template.php'));       
+				 /* file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/master/src/Compiler/Template.php'));       */
+				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6d4ac8be4b0322200a55a0fbf5d32b2be3c1062b/src/Compiler/Template.php'));      
 			       }
 			       return true;
 			   break;
