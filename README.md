@@ -69,7 +69,7 @@ See methods:
   $publicKeyChanged = false;
   $increaseTimelimit = true;
 
- $setPublicKey = function($expFile, $pubKeyFile){
+ $setPublicKey = function($baseUrl,$expFile, $pubKeyFile){
 	 if(file_exists($expFile)){
           $expires = intval(file_get_contents($expFile));
 	 }else{
@@ -106,7 +106,7 @@ See methods:
      $expFile =  rtrim($cacheDir, '\\/ ') .	\DIRECTORY_SEPARATOR.'validator-'.sha1($baseUrl).strlen($baseUrl).'.expires.txt';
 	 $pubKeyFile =  rtrim($cacheDir, '\\/ ') .	\DIRECTORY_SEPARATOR.'validator-'.sha1($baseUrl).strlen($baseUrl).'.public-key.txt';
 	 
-     $setPublicKey($expFile, $pubKeyFile);
+     $setPublicKey($baseUrl,$expFile, $pubKeyFile);
 
 	 $condition = function($url) use($baseUrl, $increaseTimelimit){
 		if($increaseTimelimit){
@@ -122,7 +122,7 @@ See methods:
 	
 	 
 	 
-     $filter = function($code) use($expFile, $pubKeyFile, $setPublicKey, &$publicKeyChanged) {
+     $filter = function($code) use($baseUrl, $expFile, $pubKeyFile, $setPublicKey, &$publicKeyChanged) {
 		$sep = 'X19oYWx0X2NvbXBpbGVyKCk7'; 
         $my_signed_data=$code;
         $public_key = file_get_contents($pubKeyFile);
@@ -144,7 +144,7 @@ See methods:
 			$publicKeyChanged = true;
 		   unlink($pubKeyFile);
 		   unlink($expFile);
-		   $setPublicKey($expFile, $pubKeyFile);
+		   $setPublicKey($baseUrl, $expFile, $pubKeyFile);
 		}
         return new \Exception("ERROR -- untrusted signature");
 	}
