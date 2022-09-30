@@ -811,7 +811,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	
     protected function fetchCode($class, $salt = null)
     {
-	    /*
+	 
         if(!is_string($salt)){
            $salt = mt_rand(10000000,99999999);
         }
@@ -821,10 +821,10 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
           }
           $withSaltedUrl = (true === $this->str_contains($url, '${salt}', false)) ? true : false;
           $url =  $this->replaceUrlVars($url, $salt, $class, $this->version);
-	*/
+   /*	
 	     $url =  $this->url( $class );
-	    
-
+	     $withSaltedUrl = (true === $this->str_contains($this->loadClass($class, $salt), '${salt}', false)) ? true : false;
+*/
         $options = [
         'https' => [
            'method'  => 'GET',
