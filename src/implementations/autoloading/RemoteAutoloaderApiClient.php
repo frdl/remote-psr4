@@ -1060,7 +1060,9 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    $url =  $this->url( $class );
 	    if($this->exists($cacheFile)){
 		return $cacheFile;    
-	    }elseif($this->exists($url)){
+	    }elseif(!is_bool($url) && $this->exists($url)){
+		return $url;    
+	    }elseif( is_bool($url) ){
 		return $url;    
 	    }else{
 		return false;    
