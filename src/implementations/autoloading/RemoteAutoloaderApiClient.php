@@ -283,8 +283,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	 };
 	
 	 
-	 
-     $filter = function($code, $c = 0) use($filter, $baseUrl, $expFile, $pubKeyFile, $setPublicKey, &$publicKeyChanged) {
+     $cb = null; 
+     $filter = function($code, $c = 0) use(&$cb, $baseUrl, $expFile, $pubKeyFile, $setPublicKey, &$publicKeyChanged) {
 	        $c++;
 		$sep = 'X19oYWx0X2NvbXBpbGVyKCk7'; 
         $my_signed_data=$code;
@@ -308,12 +308,12 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		   unlink($pubKeyFile);
 		   unlink($expFile);
 		   $setPublicKey($baseUrl, $expFile, $pubKeyFile);
-		   return $filter($code, $c);	
+		   return $cb($code, $c);	
 		}
         return new \Exception("ERROR -- untrusted signature");
 	}
   };
-	 
+    $cb = $filter;	 
    return [$condition, $filter];
  };
 
