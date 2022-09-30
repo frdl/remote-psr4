@@ -191,7 +191,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	function($code){
 	   //....
 	   
-	   return $code; /* validated/transformed code, invalidate with not string (e.g. bool or Excpetion) */
+	   return $code; /  * validated/transformed code, invalidate with not string (e.g. bool or Excpetion) *  /
 	}
       ];
       
@@ -200,7 +200,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
       $beforeMiddleware = function($class, &$loader){
 	   //....
 	   
-	   return false; /* return false to skip this autoloader, return any/VOID to continue */
+	   return false; /  * return false to skip this autoloader, return any/VOID to continue *  /
       };     
 	
 	->withBeforeMiddleware($beforeMiddleware)
