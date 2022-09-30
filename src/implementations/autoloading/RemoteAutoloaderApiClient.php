@@ -804,19 +804,7 @@ class RemoteAutoloaderApiClient
 		}
 		
 		
-	foreach($this->afterMiddlewares as $middleware){
-		if(( \is_callable($middleware[0]) || ('object' === gettype($middleware[0]) && $middleware[0] instanceof \Closure) ) 
-		   && true !== \call_user_func_array($middleware[0], [$url]) ){
-		   continue;	
-		}elseif(is_string($middleware[0]) && !preg_match($middleware[0], $url)){
-		   continue;	
-		}
-		$code = call_user_func_array($middleware[1], [$code]);
-		if(!is_string($code)){
-		    return false;	
-		}
-	}
-	    	    
+    
 	    
 	    
           $json = false;
@@ -868,7 +856,10 @@ class RemoteAutoloaderApiClient
               $code = base64_decode($code);
            }
      
-     
+     	
+
+	    	
+		
      if(false===$code
          || !is_string($code)
          || (true === $withSaltedUrl && true === $this->withSalt() && (!isset($hash) || !isset($userHash)))
@@ -899,6 +890,23 @@ class RemoteAutoloaderApiClient
 	    
           $code = trim($code);
 
+		
+		
+	foreach($this->afterMiddlewares as $middleware){
+		  if(( \is_callable($middleware[0]) || ('object' === gettype($middleware[0]) && $middleware[0] instanceof \Closure) ) 
+		   && true !== \call_user_func_array($middleware[0], [$url]) ){
+		   continue;	
+		}elseif(is_string($middleware[0]) && !preg_match($middleware[0], $url)){
+		   continue;	
+		}
+		$code = call_user_func_array($middleware[1], [$code]);
+		if(!is_string($code)){
+		    return false;	
+		}
+    }	
+		
+		
+		
         if(!$this->str_contains($code, '<?', false)){
           //    throw new \Exception('Invalid source code for '.$class.' from '.$url.': ' .htmlentities($code)  );
 		   error_log('Invalid source code for '.$class.' from '.$url.': ' .htmlentities($code) , \E_USER_NOTICE);
