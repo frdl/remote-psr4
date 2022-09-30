@@ -994,6 +994,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	if(count($args)>=2 && is_bool($args[1])){
 	  $prepend = $args[1];	
 	}
+	$throw = true; //Always true as false is deprecated in SPL!        
         $res = false;
 
 
