@@ -1103,12 +1103,12 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		
 	foreach($this->afterMiddlewares as $middleware){
 		  if(( \is_callable($middleware[0]) || ('object' === gettype($middleware[0]) && $middleware[0] instanceof \Closure) ) 
-		   && true !== \call_user_func_array($middleware[0], [$url]) ){
+		   && true !== \call_user_func_array($middleware[0], [$url, &$this, $class]) ){
 		   continue;	
 		}elseif(is_string($middleware[0]) && !preg_match($middleware[0], $url)){
 		   continue;	
 		}
-		$code = call_user_func_array($middleware[1], [$code]);
+		$code = call_user_func_array($middleware[1], [$code, &$this, $class]);
 		if(!is_string($code)){
 		    error_log('Untrusted source code for '.$class.' from '.$url.': INVALID SIGNATURE FOR: ' .htmlentities($code) , \E_USER_WARNING);
 		    if('object'===gettype($code) && $code instanceof \Exception){
@@ -1198,7 +1198,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
                  $ShutdownTasks = \frdlweb\Thread\ShutdownTasks::mutex();
                   $ShutdownTasks(function($CacheDir, $maxCacheTime){
-
+                          @\ignore_user_abort(true);
                           @\webfan\hps\patch\Fs::pruneDir($CacheDir, $maxCacheTime, true,  'tmp' !== basename($CacheDir));
 
                   }, $this->cacheDir, $this->cacheLimit);
