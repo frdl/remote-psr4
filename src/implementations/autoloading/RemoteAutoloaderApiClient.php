@@ -1004,7 +1004,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         $options = [
         'http' => [
            'method'  => 'HEAD',
-            'ignore_errors' => true,
+            'ignore_errors' => false,
 
            ]
         ];
@@ -1038,7 +1038,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         $options = [
         'http' => [
            'method'  => 'GET',
-            'ignore_errors' => true,
+            'ignore_errors' => false,
             'header'=> "X-Source-Encoding: b64\r\n"
                // . "Content-Length: " . strlen($data) . "\r\n"
 				,
@@ -1088,8 +1088,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         
 	
 	if(true === $json){
-              $theJson =json_decode($code);
-			  $code = $theJson;
+              $theJson =json_decode($code);			  
+		$code = $theJson;
               $code=(array)$code;
               $code = $code['contents'];
 			  
