@@ -792,8 +792,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		  $salt = $this->salt;	
 		}
 		
-		       $url = preg_replace('/(\$\{class\})/',$class, $url);
-		    $url = preg_replace('/(\$\{salt\})/', $salt, $url);
+		  $url = preg_replace('/(\$\{class\})/',str_replace('\\', '/', $class), $url);
+		  $url = preg_replace('/(\$\{salt\})/', $salt, $url);
 		  $url = preg_replace( '/(\$\{version\})/',$version, $url);
 	 
 		return $url; 
