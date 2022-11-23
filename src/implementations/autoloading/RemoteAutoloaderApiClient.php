@@ -59,7 +59,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         \Webfan\Webfat\Jeytill::class => 'https://raw.githubusercontent.com/frdl/webfat-jeytill/main/src/Jeytill.php',	  
 	    
       // NAMESPACES   = \\ at the end:
-      'frdl\\Proxy\\' => 'https://raw.githubusercontent.com/frdl/proxy/master/src/${class}.php?cache_bust=${salt}',    	    
+      'frdl\\Proxy\\' => 'https://raw.githubusercontent.com/frdl/proxy/master/src/${class}.php?cache_bust=${salt}',   
+      'DI\\Definition\\' => 'https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/Definition/${class}.php?cache_bust=${salt}',    	    
     
       // ALIAS = @ as first char:
       '@Webfan\\Autoloader\\Remote' => __CLASS__,	    
@@ -212,6 +213,9 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
     protected static $instances = [];
     protected $alias = [];
     protected static $classmap = [];
+    protected static $existsCache = [];
+		
+    protected $salt;
 	
 	
     public function withWebfanWebfatDefaultSettings(string $dir = null){
@@ -346,9 +350,10 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6d4ac8be4b0322200a55a0fbf5d32b2be3c1062b/src/Compiler/Template.php'));      
 			       }
 			       return true;
-			   break;
+			   break;			
 		       case \Webfan\Webfat\App\ContainerAppKernel::class :       
 		       case \DI\ContainerBuilder::class :
+		       case '\DI\' === substr($class, 4) : 
 			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'php-di';
 			       if(!is_dir($aDir)){
 				  mkdir($aDir, 0775, true);       
@@ -445,6 +450,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         $cacheLimit = null,
         $password = null
     ) {
+	  
+	$this->salt = mt_rand(10000000,99999999);       
         $key = static::ik();
            self::$instances[static::ik()] = &$this;
 
@@ -741,7 +748,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
     public function getUrl($class, $server, $salt = null, $parseVars = false)
     {
-        if(!is_string($salt))$salt=mt_rand(1000,9999);
+        if(!is_string($salt))$salt=$this->salt;
           $url = false;
 
 
@@ -782,7 +789,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
     public function replaceUrlVars($url, $salt, $class, $version)
     {
 		if(empty($salt)){
-		  $salt = sha1(mt_rand(10, 100000000));	
+		  $salt = $this->salt;	
 		}
 		
 		       $url = preg_replace('/(\$\{class\})/',$class, $url);
@@ -801,6 +808,9 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
      */
     public function loadClass($class, $salt = null)
     {
+       if(!is_string($salt)){
+           $salt = $this->salt;
+        }	    
         $prefix = $class;
 
 
@@ -842,6 +852,10 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
      */
     protected function loadMappedSource($prefix, $relative_class, $salt = null)
     {
+        if(!is_string($salt)){
+           $salt = $this->salt;
+        }	    
+	    
         $url = false;
         $class = $prefix.$relative_class;
 
@@ -877,8 +891,12 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
 
         if(isset(self::$classmap[$class]) && is_string(self::$classmap[$class]) && '\\' !== substr($class, -1)  && '\\' !== substr(self::$classmap[$class], -1) ){
-            return $this->getUrl($class, self::$classmap[$class], $salt);
-        //    return self::$classmap[$class];
+             $url = $this->getUrl($class, self::$classmap[$class], $salt);
+             $urlResolved =  $this->replaceUrlVars($url, $salt, $class, $this->version); 
+		         
+		if(is_string($url) && $this->exists($urlResolved) ){              
+			return $url;           
+		}
         }
 
          if (isset($this->prefixes[$prefix]) ) {
@@ -886,10 +904,9 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         foreach ($this->prefixes[$prefix] as $server) {
 
             $url = $this->getUrl($relative_class, $server, $salt);
-
-            if(is_string($url)
-               && $this->exists($url)
-              ){
+            $urlResolved =  $this->replaceUrlVars($url, $salt, $relative_class, $this->version); 
+		
+            if(is_string($url) && $this->exists($urlResolved) ){
                 return $url;
             }
         }
@@ -971,10 +988,17 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
     public function exists($source)
     {
+	    
+	if(isset(self::$existsCache[$source])){
+	   return self::$existsCache[$source];	
+	}
+	    
+	    
         if('http://'!==substr($source, 0, strlen('http://'))
            && 'https://'!==substr($source, 0, strlen('https://'))
-           && is_file($source) && file_exists($source) && is_readable($source)){
-        return true;
+	  ){
+		self::$existsCache[$source] = is_file($source) && file_exists($source) && is_readable($source);
+             return self::$existsCache[$source];
         }
 
         $options = [
@@ -986,7 +1010,10 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         ];
         $context  = stream_context_create($options);
         $res = @file_get_contents($source, false, $context);
-        return false !== $res;
+        $exists = false !== $res;
+	    
+	self::$existsCache[$source] = $exists;
+      return $exists;
     }
 
 	
@@ -996,7 +1023,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
     {
 	 
         if(!is_string($salt)){
-           $salt = mt_rand(10000000,99999999);
+           $salt = $this->salt;
         }
           $url = $this->loadClass($class, $salt);
           if(is_bool($url)){
@@ -1030,7 +1057,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		        $code = @file_get_contents($url, false, $context);
 		     }
 			if(false===$code){
-			 return false;	
+			   return false;	
 			}
 		}
 		
@@ -1240,7 +1267,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	}
         public function url(string $class):bool|string{
         
-           $salt = mt_rand(10000000,99999999);         
+           $salt = $this->salt;         
 
           $url = $this->loadClass($class, $salt);
 
@@ -1287,7 +1314,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
 
 
-        $code = $this->fetchCode($class, null);
+        $code = $this->fetchCode($class, $this->salt);
 	if(false===$code){
 	   return false;
 	}else if(true === $code){
