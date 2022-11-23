@@ -1002,7 +1002,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         }
 
         $options = [
-        'https' => [
+        'http' => [
            'method'  => 'HEAD',
             'ignore_errors' => true,
 
@@ -1036,7 +1036,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	     $withSaltedUrl = (true === $this->str_contains($this->loadClass($class, $salt), '${salt}', false)) ? true : false;
 */
         $options = [
-        'https' => [
+        'http' => [
            'method'  => 'GET',
             'ignore_errors' => true,
             'header'=> "X-Source-Encoding: b64\r\n"
