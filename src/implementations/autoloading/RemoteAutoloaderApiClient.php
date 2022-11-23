@@ -320,6 +320,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
  $getDefaultValidators = function($cacheDir, $increaseTimelimit = true) use($getDefaultValidatorForUrl) {
     return [
+         $getDefaultValidatorForUrl('https://startdir.de/install/?', $cacheDir, $increaseTimelimit),
          $getDefaultValidatorForUrl('https://webfan.de/install/stable/?', $cacheDir, $increaseTimelimit),
          $getDefaultValidatorForUrl('https://webfan.de/install/latest/?', $cacheDir, $increaseTimelimit),
 	 $getDefaultValidatorForUrl('https://webfan.de/install/?', $cacheDir, $increaseTimelimit),
@@ -333,7 +334,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
 	    
 	  /* some dirty workaround patches... */
-	  $this->withBeforeMiddleware(function($class, &$loader){
+	  $this->withBeforeMiddleware(function($class, &$loader) use ($dir) {
 	       switch($class){
 		       case \DI\Compiler\Compiler::class :
 			       $aDir = dirname($loader->file($class));
@@ -342,9 +343,24 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Template.php';
 			       if(!file_exists($aFile)){
-				 /* file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/master/src/Compiler/Template.php'));       */
 				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6d4ac8be4b0322200a55a0fbf5d32b2be3c1062b/src/Compiler/Template.php'));      
 			       }
+			       return true;
+			   break;
+		       case \Webfan\Webfat\App\ContainerAppKernel::class :       
+		       case \DI\ContainerBuilder::class :
+			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'php-di';
+			       if(!is_dir($aDir)){
+				  mkdir($aDir, 0775, true);       
+			       }
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/functions.php'));      
+			       }
+			       if (!in_array($aFile, get_included_files())) {
+			           require $aFile;
+			       }
+			       
 			       return true;
 			   break;
 		       default:
