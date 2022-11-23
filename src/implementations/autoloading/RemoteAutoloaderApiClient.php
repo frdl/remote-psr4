@@ -997,8 +997,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         if('http://'!==substr($source, 0, strlen('http://'))
            && 'https://'!==substr($source, 0, strlen('https://'))
 	  ){
-		self::$existsCache[$source] = is_file($source) && file_exists($source) && is_readable($source);
-             return self::$existsCache[$source];
+		$exists =  is_file($source) && file_exists($source) && is_readable($source);
+             return $exists;
         }
 
         $options = [
