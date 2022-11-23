@@ -353,7 +353,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			   break;			
 		       case \Webfan\Webfat\App\ContainerAppKernel::class :       
 		       case \DI\ContainerBuilder::class :
-		       case '\DI\' === substr($class, 4) : 
+		       case '\DI\\' === substr($class, 4) : 
 			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'php-di';
 			       if(!is_dir($aDir)){
 				  mkdir($aDir, 0775, true);       
