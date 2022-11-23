@@ -828,7 +828,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
             // try to load a mapped file for the prefix and relative class
             $mapped_file = $this->loadMappedSource($prefix, $relative_class, $salt);
-            if ($mapped_file) {
+            if ($mapped_file && $this->exists($mapped_file) ) {
                 return $mapped_file;
             }
 
