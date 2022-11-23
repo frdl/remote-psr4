@@ -892,10 +892,10 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
         if(isset(self::$classmap[$class]) && is_string(self::$classmap[$class]) && '\\' !== substr($class, -1)  && '\\' !== substr(self::$classmap[$class], -1) ){
              $url = $this->getUrl($class, self::$classmap[$class], $salt);
-             $urlResolved =  $this->replaceUrlVars($url, $salt, $class, $this->version); 
+             $url =  $this->replaceUrlVars($url, $salt, $class, $this->version); 
 		         
-		if(is_string($url) && $this->exists($urlResolved) ){              
-			return $url;           
+		if(is_string($url) && $this->exists($url) ){              
+		   return $url;           
 		}
         }
 
@@ -904,9 +904,9 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         foreach ($this->prefixes[$prefix] as $server) {
 
             $url = $this->getUrl($relative_class, $server, $salt);
-            $urlResolved =  $this->replaceUrlVars($url, $salt, $relative_class, $this->version); 
+            $url =  $this->replaceUrlVars($url, $salt, $relative_class, $this->version); 
 		
-            if(is_string($url) && $this->exists($urlResolved) ){
+            if(is_string($url) && $this->exists($url) ){
                 return $url;
             }
         }
