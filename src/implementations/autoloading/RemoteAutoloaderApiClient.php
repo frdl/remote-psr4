@@ -157,7 +157,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
      //misc...
      //You can have functions autoloading
-        'GuzzleHttp\choose_handler' => 'https://webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
+    'GuzzleHttp\choose_handler' => 'https://webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\choose_handler',
     \GuzzleHttp\LoadGuzzleFunctionsForFrdl::class => 'https://webfan.de/install/?salt=${salt}&version=${version}&source=GuzzleHttp\LoadGuzzleFunctionsForFrdl',
 
      \Wehowski\Gist\Http\Response\Helper::class =>
@@ -376,6 +376,15 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    /*   return true;  return false to skip this autoloader, return any/VOID to continue */
           });     
 	    
+	    
+	    
+	    $this->withClassmap([		    
+		\Webfan\Webfat\Module::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module.php?cache_bust=${salt}',
+		'Webfan\Webfat\Module\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module/${class}.php?cache_bust=${salt}', 
+		'Webfan\Webfat\Intent\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Intent/${class}.php?cache_bust=${salt}',    
+	    ]);
+	    
+	    
 	return $this;
     }
    //end default-patches
@@ -394,6 +403,65 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    $this->afterMiddlewares[]= [$condition, $filter];	   
 	return $this;
     }
+		
+    public function addNamespace($prefix, $resourceOrLocation, $prepend = false){
+	return $this->withNamespace($prefix, $resourceOrLocation, $prepend);	
+    }
+    public function withNamespace($prefix, $server, $prepend = false)
+    {
+        $prefix = trim($prefix, '\\') . '\\';
+
+        // normalize the base directory with a trailing separator
+         //   $base_dir = rtrim($base_dir, DIRECTORY_SEPARATOR) . '/';
+
+        // initialize the namespace prefix array
+        if (isset($this->prefixes[$prefix]) === false) {
+            $this->prefixes[$prefix] = [];
+        }
+
+        // retain the base directory for the namespace prefix
+        if ($prepend) {
+            array_unshift($this->prefixes[$prefix], $server);
+        } else {
+            array_push($this->prefixes[$prefix], $server);
+        }
+    }
+
+		
+
+    public function withClassmap(array $classMap = null)
+    {
+        if(null !== $classMap){
+           foreach($classMap as $class => $server){
+           if('@' === substr($class, 0, 1) && is_string($server)){
+               $this->withAlias($class, $server);
+           }elseif('\\' === substr($class, -1)){
+               $this->withNamespace($class, $server, false); // is_string($server));
+           }else{
+                self::$classmap[$class] = $server;
+           }
+
+           }
+         }
+
+        return self::$classmap;
+    }
+
+    public function withAlias(string $alias, string $rewrite)
+    {
+        $this->alias[ltrim($alias, '@')] = $rewrite;
+    }
+
+    public function withSalt(bool $salted = null)
+    {
+        if(null !== $salted){
+         $this->salted = $salted;
+         }
+
+        return $this->salted;
+    }		
+		
+		
     public static function getInstance(
         $server =  'https://webfan.de/install/stable/?source={{class}}&salt={{salt}}',
         $register = true,
@@ -695,29 +763,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
                                 $h2]);
     }
 
-    public function addNamespace($prefix, $resourceOrLocation, $prepend = false){
-	return $this->withNamespace($prefix, $resourceOrLocation, $prepend);	
-    }
-    public function withNamespace($prefix, $server, $prepend = false)
-    {
-        $prefix = trim($prefix, '\\') . '\\';
 
-        // normalize the base directory with a trailing separator
-         //   $base_dir = rtrim($base_dir, DIRECTORY_SEPARATOR) . '/';
-
-        // initialize the namespace prefix array
-        if (isset($this->prefixes[$prefix]) === false) {
-            $this->prefixes[$prefix] = [];
-        }
-
-        // retain the base directory for the namespace prefix
-        if ($prepend) {
-            array_unshift($this->prefixes[$prefix], $server);
-        } else {
-            array_push($this->prefixes[$prefix], $server);
-        }
-    }
-
+		
     public function str_contains($haystack, $needle, $ignoreCase = false)
     {
         if ($ignoreCase) {
@@ -933,38 +980,6 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
             return true;
         }
         return false;
-    }
-
-    public function withClassmap(array $classMap = null)
-    {
-        if(null !== $classMap){
-           foreach($classMap as $class => $server){
-           if('@' === substr($class, 0, 1) && is_string($server)){
-               $this->withAlias($class, $server);
-           }elseif('\\' === substr($class, -1)){
-               $this->withNamespace($class, $server, is_string($server));
-           }else{
-                self::$classmap[$class] = $server;
-           }
-
-           }
-         }
-
-        return self::$classmap;
-    }
-
-    public function withAlias(string $alias, string $rewrite)
-    {
-        $this->alias[ltrim($alias, '@')] = $rewrite;
-    }
-
-    public function withSalt(bool $salted = null)
-    {
-        if(null !== $salted){
-         $this->salted = $salted;
-         }
-
-        return $this->salted;
     }
 
     public static function __callStatic($name, $arguments)
