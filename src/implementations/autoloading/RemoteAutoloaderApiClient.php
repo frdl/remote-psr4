@@ -379,6 +379,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
 	    
 	    $this->withClassmap([		    
+		\Webfan\Webfat\MainModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/MainModule.php?cache_bust=${salt}',
 		\Webfan\Webfat\Module::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module.php?cache_bust=${salt}',
 		'Webfan\Webfat\Module\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module/${class}.php?cache_bust=${salt}', 
 		'Webfan\Webfat\Intent\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Intent/${class}.php?cache_bust=${salt}',    
@@ -1013,6 +1014,9 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
            && 'https://'!==substr($source, 0, strlen('https://'))
 	  ){
 		$exists =  is_file($source) && file_exists($source) && is_readable($source);
+		if(true === $exists){
+		   self::$existsCache[$source] = $exists;	
+		}
              return $exists;
         }
 
@@ -1146,7 +1150,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
            if($hash_check !== $hash || $userHash_check !== $userHash){
          //  throw new \Exception('Invalid checksums while fetching source code for '.$class.' from '.$url);
-		   error_log('Invalid checksums while fetching source code for '.$class.' from '.$url, \E_USER_NOTICE);
+		   error_log('Invalid checksums while fetching source code for '.$class.' from '.$url
+			     .' However: ->withSalt() is DEPRECTATED, use ->withAfterMiddleware validators instead!', \E_USER_NOTICE);
 		   return false;
            }
          }
