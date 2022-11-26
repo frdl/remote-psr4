@@ -32,16 +32,18 @@ $config = [
     return \frdl\implementation\psr4\RemoteAutoloaderApiClient::class::getInstance($workspace, false, $config['FRDL_UPDATE_CHANNEL'], false, false, 
 	/*Classmap (with PSR4 and Alias)*/
        [
-	 //Concrete Classes:     
+       // (CLASSMAP) Concrete Classes:     
         \frdlweb\Thread\ShutdownTasks::class => 'https://raw.githubusercontent.com/frdl/shutdown-helper/master/src/ShutdownTasks.php',
         \Webfan\Webfat\Jeytill::class => 'https://raw.githubusercontent.com/frdl/webfat-jeytill/main/src/Jeytill.php',	  
 	    
-      // NAMESPACES   = \\ at the end:
+       // (PSR4) NAMESPACES   = \\ at the end:
       'frdl\\Proxy\\' => 'https://raw.githubusercontent.com/frdl/proxy/master/src/${class}.php?cache_bust=${salt}',    	    
     
       // ALIAS = @ as first char:
-      '@Webfan\\Autoloader\\Remote' => __CLASS__,	    
-	    
+      '@Webfan\\Autoloader\\Remote' => __CLASS__,	 
+      // ALIAS works with PSR4-Namespace too:   
+      '@BetterReflection\\'=>'Roave\BetterReflection\\',  
+      
       //Versions at Webfan:
 	  // Default/Fallback Versions Server:
 	\webfan\hps\Format\DataUri::class => 'https://webfan.de/install/?salt=${salt}&source=webfan\hps\Format\DataUri',	    
@@ -54,8 +56,30 @@ $config = [
     $config['FRDL_REMOTE_PSR4_CACHE_LIMIT']
   );
  }, $config,'https://webfan.de/install/'. $config['FRDL_UPDATE_CHANNEL'].'/?source=${class}&salt=${salt}&source-encoding=b64');
+ ````
+ *more examples...*
+ ````php
+ /** More Examples: */
+ $loader->withClassmap([
+		'@'.\BetterReflection\Reflection\ReflectionFunction::class => \Roave\BetterReflection\BetterReflection::class,   
+		'@'.\BetterReflection\SourceLocator\Exception\TwoClosuresOneLine::class => 
+		    \Roave\BetterReflection\SourceLocator\Exception\TwoClosuresOnSameLine::class,   		    
+   	        \Webfan\Webfat\MainModule::class => 
+		    'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/MainModule.php?cache_bust=${salt}',
+		\Webfan\Webfat\Module::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module.php?cache_bust=${salt}',
+		'Webfan\Webfat\Module\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module/${class}.php?cache_bust=${salt}', 
+		'Webfan\Webfat\Intent\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Intent/${class}.php?cache_bust=${salt}',    		 \Pimple::class => 'https://raw.githubusercontent.com/silexphp/Pimple/1.1/lib/Pimple.php',
+		'Task\\' => 'https://raw.githubusercontent.com/taskphp/task/7618739308ba484b5f90a83d5e1a44e1d90968d2/src/${class}.php?cache_bust=${salt}',
+		'Task\Plugin\Console\\' => 'https://github.com/taskphp/console/blob/00bfa982c4502938ca0110d2f23c5cd04ffcbcc3/src/${class}.php?cache_bust=${salt}',
+		'@BetterReflection\\'=>'Roave\BetterReflection\\',    
+	    ]); 
+ ````
  
- $loader->register(false);
+### Register Autoloader
+````php
+$loader->register(false);
+// Prepend autoloader to autoloader-stack:
+// $loader->register(true);
  ````
 
 ## With (custom) validators
