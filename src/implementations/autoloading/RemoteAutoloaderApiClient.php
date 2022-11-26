@@ -163,7 +163,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
      \Wehowski\Gist\Http\Response\Helper::class =>
     'https://gist.githubusercontent.com/wehowski/d762cc34d5aa2b388f3ebbfe7c87d822/raw/5c3acdab92e9c149082caee3714f0cf6a7a9fe0b/Wehowski%255CGist%255CHttp%255CResponse%255CHelper.php?cache_bust=${salt}',
     
-	    
+  
     ];
 
     protected $salted = false;
@@ -378,14 +378,16 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
 	    
 	    
-	    $this->withClassmap([		    
-		\Webfan\Webfat\MainModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/MainModule.php?cache_bust=${salt}',
+	    $this->withClassmap([
+		'@'.\BetterReflection\Reflection\ReflectionFunction::class => \Roave\BetterReflection\BetterReflection::class,   
+		'@'.\BetterReflection\SourceLocator\Exception\TwoClosuresOneLine::class => \Roave\BetterReflection\SourceLocator\Exception\TwoClosuresOnSameLine::class,   		    
+   	        \Webfan\Webfat\MainModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/MainModule.php?cache_bust=${salt}',
 		\Webfan\Webfat\Module::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module.php?cache_bust=${salt}',
 		'Webfan\Webfat\Module\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module/${class}.php?cache_bust=${salt}', 
 		'Webfan\Webfat\Intent\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Intent/${class}.php?cache_bust=${salt}',    
 		\Pimple::class => 'https://raw.githubusercontent.com/silexphp/Pimple/1.1/lib/Pimple.php',
 		'Task\\' => 'https://raw.githubusercontent.com/taskphp/task/7618739308ba484b5f90a83d5e1a44e1d90968d2/src/${class}.php?cache_bust=${salt}',
-		'Task\Plugin\Console\\' => 'https://github.com/taskphp/console/blob/00bfa982c4502938ca0110d2f23c5cd04ffcbcc3/src/${class}.php?cache_bust=${salt}',
+		'Task\Plugin\Console\\' => 'https://github.com/taskphp/console/blob/00bfa982c4502938ca0110d2f23c5cd04ffcbcc3/src/${class}.php?cache_bust=${salt}',		    
 	    ]);
 	    
 	    
