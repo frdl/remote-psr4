@@ -389,6 +389,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		'Task\Plugin\Console\\' => 'https://github.com/taskphp/console/blob/00bfa982c4502938ca0110d2f23c5cd04ffcbcc3/src/${class}.php?cache_bust=${salt}',
 		'Task\\' => 'https://raw.githubusercontent.com/taskphp/task/7618739308ba484b5f90a83d5e1a44e1d90968d2/src/${class}.php?cache_bust=${salt}',
 		'@BetterReflection\\'=>'Roave\BetterReflection\\',    
+		\Frdlweb\AdvancedWebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/AdvancedWebAppInterface.php?cache_bust=${salt}',
 	    ]);
 	    
 	    
