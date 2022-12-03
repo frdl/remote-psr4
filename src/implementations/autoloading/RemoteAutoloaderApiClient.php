@@ -316,7 +316,10 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		'Monolog\\' => 'https://raw.githubusercontent.com/Seldaek/monolog/e68c00670e310e276da9624d75965f5d2f28aa80/src/Monolog/${class}.php?cache_bust=${salt}',    
 		
 		'@BetterReflection\\'=>'Roave\BetterReflection\\',    
-		\Frdlweb\AdvancedWebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/AdvancedWebAppInterface.php?cache_bust=${salt}',
+		    
+		\Frdlweb\AdvancedWebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/AdvancedWebAppInterface.php?cache_bust=${salt}',		
+		\Frdlweb\KernelHelperInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/KernelHelperInterface.php?cache_bust=${salt}',
+		    
 	        'DI\\Definition\\' => 'https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/Definition/${class}.php?cache_bust=${salt}', 		      
 	      
 		\Webfan\cta\HashType\HashTypeInterface::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/HashTypeInterface.php',	  
