@@ -308,6 +308,24 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			       
 			       return true;
 			   break;
+		       case \Amp\Loop::class : 
+		       case 'Amp\\' === substr($class, strlen('Amp\\') ) && 'Amp\\Dns\\' !== substr($class, strlen('Amp\\Dns\\') ) : 
+			      foreach(['functions.php', 'Internal/functions.php'] as $file){
+			         $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'amp-amp'
+					 .\DIRECTORY_SEPARATOR. dirname(str_replace('/', \DIRECTORY_SEPARATOR, $file));
+			         if(!is_dir($aDir)){
+				     mkdir($aDir, 0775, true);       
+			          }
+			          $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
+			           if(!file_exists($aFile)){
+				       file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/'.$file.'?cache_bust='.time()));      
+			          }
+			          if (!in_array($aFile, get_included_files())) {
+			             require $aFile;
+			          }
+			      }
+			       return true;
+			   break;
 		       default:
 			    return true;
 			  break;
@@ -337,7 +355,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		\Frdlweb\AdvancedWebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/AdvancedWebAppInterface.php?cache_bust=${salt}',		
 		\Frdlweb\KernelHelperInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/KernelHelperInterface.php?cache_bust=${salt}',
 		    
-	        'DI\\Definition\\' => 'https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/Definition/${class}.php?cache_bust=${salt}', 		      
+	        'DI\Definition\\' => 'https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/Definition/${class}.php?cache_bust=${salt}', 		      
 	      
 		\Webfan\cta\HashType\HashTypeInterface::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/HashTypeInterface.php',	  
 		\Webfan\cta\HashType\XHashSha1::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/XHashSha1.php',	  
@@ -345,7 +363,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	        
 		\Webfan\Webfat\Jeytill::class => 'https://raw.githubusercontent.com/frdl/webfat-jeytill/main/src/Jeytill.php',	 
 		    
-		 'Amp\\Dns\\' => 'https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/${class}.php?cache_bust=${salt}',
+		 'Amp\Dns\\' => 'https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/${class}.php?cache_bust=${salt}',
+		 'Amp\\' => 'https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/${class}.php?cache_bust=${salt}',
 		    	    
     // Zend Framework components    	    
     '@Zend\\AuraDi\\Config' => 'Laminas\\AuraDi\\Config',
