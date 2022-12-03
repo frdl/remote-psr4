@@ -270,7 +270,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Template.php';
 			       if(!file_exists($aFile)){
-				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6d4ac8be4b0322200a55a0fbf5d32b2be3c1062b/src/Compiler/Template.php'));      
+				    file_put_contents($aFile, 
+					file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6d4ac8be4b0322200a55a0fbf5d32b2be3c1062b/src/Compiler/Template.php?cache_bust='.time()));      
 			       }
 			       return true;
 			   break;			
@@ -283,7 +284,23 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       if(!file_exists($aFile)){
-				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/functions.php'));      
+				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/functions.php?cache_bust='.time()));      
+			       }
+			       if (!in_array($aFile, get_included_files())) {
+			           require $aFile;
+			       }
+			       
+			       return true;
+			   break;
+		       case \Amp\Dns\Resolver::class : 
+		       case 'Amp\\Dns\\' === substr($class, strlen('Amp\\Dns\\') ) : 
+			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'amp-dns';
+			       if(!is_dir($aDir)){
+				  mkdir($aDir, 0775, true);       
+			       }
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/functions.php?cache_bust='.time()));      
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
@@ -328,6 +345,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	        
 		\Webfan\Webfat\Jeytill::class => 'https://raw.githubusercontent.com/frdl/webfat-jeytill/main/src/Jeytill.php',	 
 		    
+		 'Amp\\Dns\\' => 'https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/${class}.php?cache_bust=${salt}',
 		    	    
     // Zend Framework components    	    
     '@Zend\\AuraDi\\Config' => 'Laminas\\AuraDi\\Config',
