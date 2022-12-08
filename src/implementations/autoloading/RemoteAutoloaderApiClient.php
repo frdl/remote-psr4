@@ -293,7 +293,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			       return true;
 			   break;
 		       case \Amp\Dns\Resolver::class : 
-		       case 'Amp\\Dns\\' === substr($class, strlen('Amp\\Dns\\') ) : 
+		       case 'Amp\Dns\\' === substr($class, strlen('Amp\Dns\\') ) : 
 			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'amp-dns';
 			       if(!is_dir($aDir)){
 				  mkdir($aDir, 0775, true);       
@@ -309,7 +309,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			       return true;
 			   break;
 		       case \Amp\Loop::class : 
-		       case 'Amp\\' === substr($class, strlen('Amp\\') ) && 'Amp\\Dns\\' !== substr($class, strlen('Amp\\Dns\\') ) : 
+		       case 'Amp\\' === substr($class, strlen('Amp\\') ) && 'Amp\Dns\\' !== substr($class, strlen('Amp\Dns\\') ) : 
 			      foreach(['functions.php', 'Internal/functions.php'] as $file){
 			         $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'amp-amp'
 					 .\DIRECTORY_SEPARATOR. dirname(str_replace('/', \DIRECTORY_SEPARATOR, $file));
@@ -326,6 +326,24 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			      }
 			       return true;
 			   break;
+			       
+		       case \Webfan\Webfat\App\Router::class : 
+		       case 'Opis\Closure\\' === substr($class, strlen('Opis\Closure\\') ) : 
+			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'opis-closure';
+			       if(!is_dir($aDir)){
+				  mkdir($aDir, 0775, true);       
+			       }
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/opis/closure/3d81e4309d2a927abbe66df935f4bb60082805ad/functions.php?cache_bust='.time()));      
+			       }
+			       if (!in_array($aFile, get_included_files())) {
+			           require $aFile;
+			       }
+			       
+			       return true;
+			   break;
+			       
 		       default:
 			    return true;
 			  break;
