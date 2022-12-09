@@ -342,7 +342,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       if(!file_exists($aFile)){
-				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/opis/closure/3.6.3/functions.php?cache_bust='.time()));      
+				    //file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/opis/closure/3.6.3/functions.php?cache_bust='.time()));   
+				       file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/opis/closure/3.5.5/functions.php?cache_bust='.time()));   
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
@@ -362,7 +363,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
 	    
 	    $this->withClassmap([
-		'Opis\Closure\\ '=> 'https://raw.githubusercontent.com/opis/closure/3.6.3/src/${class}.php?cache_bust=${salt}',
+	//	'Opis\Closure\\ '=> 'https://raw.githubusercontent.com/opis/closure/3.6.3/src/${class}.php?cache_bust=${salt}',
+		'Opis\Closure\\ '=> 'https://raw.githubusercontent.com/opis/closure/3.5.5/src/${class}.php?cache_bust=${salt}',
 		'@'.\Webfan\Webfat\Filesystems\Local::class => \Webfan\Webfat\Filesystems\PathResolvingFilesystem::class,
 		'@'.\BetterReflection\Reflection\ReflectionFunction::class => \Roave\BetterReflection\BetterReflection::class,   
 		'@'.\BetterReflection\SourceLocator\Exception\TwoClosuresOneLine::class => \Roave\BetterReflection\SourceLocator\Exception\TwoClosuresOnSameLine::class,   		    
