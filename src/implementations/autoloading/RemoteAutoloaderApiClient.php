@@ -277,6 +277,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			   break;			
 		       case \Webfan\Webfat\App\ContainerAppKernel::class :       
 		       case \DI\ContainerBuilder::class :
+		       case 'DI\\' === substr($class, 3) : 
 		       case '\DI\\' === substr($class, 4) : 
 			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'php-di';
 			       if(!is_dir($aDir)){
@@ -294,6 +295,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			   break;
 		       case \Amp\Dns\Resolver::class : 
 		       case 'Amp\Dns\\' === substr($class, strlen('Amp\Dns\\') ) : 
+		       case '\Amp\Dns\\' === substr($class, strlen('\Amp\Dns\\') ) : 
+		       case '\Amp\\Dns\\' === substr($class, strlen('\Amp\\Dns\\') ) : 
 			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'amp-dns';
 			       if(!is_dir($aDir)){
 				  mkdir($aDir, 0775, true);       
@@ -310,6 +313,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			   break;
 		       case \Amp\Loop::class : 
 		       case 'Amp\\' === substr($class, strlen('Amp\\') ) && 'Amp\Dns\\' !== substr($class, strlen('Amp\Dns\\') ) : 
+		       case '\Amp\\' === substr($class, strlen('\Amp\\') ) && '\Amp\Dns\\' !== substr($class, strlen('\Amp\Dns\\') ) : 
+		       case '\Amp\\' === substr($class, strlen('\Amp\\') ) && '\Amp\\Dns\\' !== substr($class, strlen('\Amp\\Dns\\') ) : 
 			      foreach(['functions.php', 'Internal/functions.php'] as $file){
 			         $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'amp-amp'
 					 .\DIRECTORY_SEPARATOR. dirname(str_replace('/', \DIRECTORY_SEPARATOR, $file));
@@ -329,6 +334,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			       
 		       case \Webfan\Webfat\App\Router::class : 
 		       case 'Opis\Closure\\' === substr($class, strlen('Opis\Closure\\') ) : 
+		       case '\Opis\Closure\\' === substr($class, strlen('\Opis\Closure\\') ) : 
+		       case '\Opis\\Closure\\' === substr($class, strlen('\Opis\\Closure\\') ) :
 			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'opis-closure';
 			       if(!is_dir($aDir)){
 				  mkdir($aDir, 0775, true);       
@@ -355,6 +362,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
 	    
 	    $this->withClassmap([
+		'Opis\Closure\\ '=> 'https://raw.githubusercontent.com/opis/closure/3d81e4309d2a927abbe66df935f4bb60082805ad/src/${class}.php?cache_bust=${salt}',
 		'@'.\Webfan\Webfat\Filesystems\Local::class => \Webfan\Webfat\Filesystems\PathResolvingFilesystem::class,
 		'@'.\BetterReflection\Reflection\ReflectionFunction::class => \Roave\BetterReflection\BetterReflection::class,   
 		'@'.\BetterReflection\SourceLocator\Exception\TwoClosuresOneLine::class => \Roave\BetterReflection\SourceLocator\Exception\TwoClosuresOnSameLine::class,   		    
