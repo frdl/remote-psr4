@@ -355,6 +355,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
 	    
 	    $this->withClassmap([
+		'@'.\Webfan\Webfat\Filesystems\Local::class => \Webfan\Webfat\Filesystems\PathResolvingFilesystem::class,
 		'@'.\BetterReflection\Reflection\ReflectionFunction::class => \Roave\BetterReflection\BetterReflection::class,   
 		'@'.\BetterReflection\SourceLocator\Exception\TwoClosuresOneLine::class => \Roave\BetterReflection\SourceLocator\Exception\TwoClosuresOnSameLine::class,   		    
    	        \Webfan\Webfat\MainModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/MainModule.php?cache_bust=${salt}',
