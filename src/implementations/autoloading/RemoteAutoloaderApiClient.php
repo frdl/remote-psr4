@@ -394,6 +394,10 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		    
 		 'Amp\Dns\\' => 'https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/${class}.php?cache_bust=${salt}',
 		 'Amp\\' => 'https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/${class}.php?cache_bust=${salt}',
+		    
+		  'Laminas\Stdlib\\' => 'https://raw.githubusercontent.com/laminas/laminas-stdlib/3.16.1/src/${class}.php?cache_bust=${salt',      
+		  'Laminas\Config\\' => 'https://raw.githubusercontent.com/laminas/laminas-config/3.8.0/src/${class}.php?cache_bust=${salt',  
+		    
 		    	    
     // Zend Framework components    	    
     '@Zend\\AuraDi\\Config' => 'Laminas\\AuraDi\\Config',
