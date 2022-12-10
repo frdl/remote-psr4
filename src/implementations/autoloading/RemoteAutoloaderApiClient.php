@@ -373,7 +373,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		'@'.\BetterReflection\SourceLocator\Exception\TwoClosuresOneLine::class => \Roave\BetterReflection\SourceLocator\Exception\TwoClosuresOnSameLine::class,   		    
    	        \Webfan\Webfat\MainModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/MainModule.php?cache_bust=${salt}',
 		\Webfan\Webfat\Module::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module.php?cache_bust=${salt}',
-		\Webfan\Webfat\CoreModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/${class}.php?cache_bust=${salt}',
+		\Webfan\Webfat\CoreModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/CoreModule.php?cache_bust=${salt}',
 		'Webfan\Webfat\Module\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module/${class}.php?cache_bust=${salt}', 
 		'Webfan\Webfat\Intent\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Intent/${class}.php?cache_bust=${salt}',    
 		\Pimple::class => 'https://raw.githubusercontent.com/silexphp/Pimple/1.1/lib/Pimple.php',
