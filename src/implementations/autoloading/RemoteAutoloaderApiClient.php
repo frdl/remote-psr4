@@ -366,6 +366,9 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    $this->withClassmap([	
 		'Lechimp\PHP2JS\\' => 'https://raw.githubusercontent.com/lechimp-p/php2js/0.1.0/src/${class}.php?cache_bust=${salt}',
 		'@'.\Minicli\Command\CommandCall::class => \Webfan\Webfat\Console\CommandCall::class,  
+		'@'.\Minicli\Command\CommandNamespace::class => \Webfan\Webfat\Console\CommandNamespace::class,  
+		'@'.\Minicli\Command\CommandRegistry::class => \Webfan\Webfat\Console\CommandRegistry::class,   
+		'@'.\Minicli\App::class => \Webfan\Webfat\Console\App::class,  
 	//	'Opis\Closure\\ '=> 'https://raw.githubusercontent.com/opis/closure/3.6.3/src/${class}.php?cache_bust=${salt}',
 		'Opis\Closure\\ '=> 'https://raw.githubusercontent.com/opis/closure/3.5.5/src/${class}.php?cache_bust=${salt}',
 		'@'.\Webfan\Webfat\Filesystems\Local::class => \Webfan\Webfat\Filesystems\PathResolvingFilesystem::class,
