@@ -56,7 +56,6 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
       //Concrete Classes:     
         \frdlweb\Thread\ShutdownTasks::class => 'https://raw.githubusercontent.com/frdl/shutdown-helper/master/src/ShutdownTasks.php',
-        \Wehowski\Helpers\ArrayHelper::class => 'https://webfan.de/install/?salt=${salt}&source=Wehowski\Helpers\ArrayHelper',
 	    
       // NAMESPACES   = \\ at the end:
       'frdl\\Proxy\\' => 'https://raw.githubusercontent.com/frdl/proxy/master/src/${class}.php?cache_bust=${salt}',   	    
@@ -365,7 +364,9 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
 
 	    
-	    $this->withClassmap([	
+	    $this->withClassmap([	      
+		'Jobby\\' => 'https://raw.githubusercontent.com/jobbyphp/jobby/v3.5.0/src/${class}.php?cache_bust=${salt}',
+		 \Wehowski\Helpers\ArrayHelper::class => 'https://webfan.de/install/?salt=${salt}&source=Wehowski\Helpers\ArrayHelper',    
 		'Lechimp\PHP2JS\\' => 'https://raw.githubusercontent.com/lechimp-p/php2js/0.1.0/src/${class}.php?cache_bust=${salt}',
 		'@'.\Minicli\Command\CommandCall::class => \Webfan\Webfat\Console\CommandCall::class,  
 		'@'.\Minicli\Command\CommandNamespace::class => \Webfan\Webfat\Console\CommandNamespace::class,  
