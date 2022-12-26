@@ -203,7 +203,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			set_time_limit(min(180, intval(ini_get('max_execution_time')) + 90));
 		}
 
-		if($baseUrl === substr($url, 0, strlen($baseUrl) ) ){
+		if($baseUrl === substr($url, 0, strlen($baseUrl) ) && $class !== \PhpParser\PrettyPrinter\Standard::class ){
 			return true;	  
 		}else{
 		  return false;	
