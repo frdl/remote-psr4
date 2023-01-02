@@ -264,6 +264,21 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	  /* some dirty workaround patches... */
 	  $this->withBeforeMiddleware(function($class, &$loader) use ($dir) {
 	       switch($class){
+		       case \Smarty::class :
+			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'smarty-php';
+			       if(!is_dir($aDir)){
+				  mkdir($aDir, 0775, true);       
+			       }
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/smarty-php/smarty/v4.3.0/libs/functions.php?cache_bust='.time()));      
+			       }
+			       if (!in_array($aFile, get_included_files())) {
+			           require $aFile;
+			       }
+			       
+			       return true;
+			   break;	
 		       case \DI\Compiler\Compiler::class :
 			       $aDir = dirname($loader->file($class));
 			       if(!is_dir($aDir)){
