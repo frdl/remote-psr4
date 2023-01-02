@@ -332,7 +332,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			      }
 			       return true;
 			   break;
-			       
+		       case \Webfan\Webfat\EventModule::class :       
 		       case \Webfan\Webfat\App\Router::class : 
 		       case 'Opis\Closure\\' === substr($class, strlen('Opis\Closure\\') ) : 
 		       case '\Opis\Closure\\' === substr($class, strlen('\Opis\Closure\\') ) : 
