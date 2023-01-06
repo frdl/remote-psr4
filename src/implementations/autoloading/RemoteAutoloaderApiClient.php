@@ -416,7 +416,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		\Webfan\cta\Storage\StorageInterface::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/StorageInterface.php?cache_bust=${salt}',
 	        \frdl\cta\Server::class => 'https://webfan.de/install/?source=frdl\cta\Server&salt=${salt}',
 		\Webfan\Webfat\Jeytill::class => 'https://raw.githubusercontent.com/frdl/webfat-jeytill/main/src/Jeytill.php?cache_bust=${salt}',	 
-		    
+	         \frdl\common\Stream::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/frdl/common/Stream.php?cache_bust=${salt}',    
 		 'Amp\Dns\\' => 'https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/${class}.php?cache_bust=${salt}',
 		 'Amp\\' => 'https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/${class}.php?cache_bust=${salt}',
 		    
