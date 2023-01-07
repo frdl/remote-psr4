@@ -62,7 +62,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
      // 'DI\\Definition\\' => 'https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/Definition/${class}.php?cache_bust=${salt}',    	    
     
       // ALIAS = @ as first char:
-      '@Webfan\\Autoloader\\Remote' => __CLASS__,	    
+      '@Webfan\\Autoloader\\Remote' => __CLASS__,
+      '@'.\Webfat\Keychain::class => \Webfan\KeychainOld::class,    	    
 	    
       //Versions at Webfan:
 	  // Default/Fallback Versions Server:
@@ -379,7 +380,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
 
 	    
-	    $this->withClassmap([	      
+	    $this->withClassmap([	 
+	            
 		'Jobby\\' => 'https://raw.githubusercontent.com/jobbyphp/jobby/v3.5.0/src/${class}.php?cache_bust=${salt}',
 		 \Wehowski\Helpers\ArrayHelper::class => 'https://webfan.de/install/?salt=${salt}&source=Wehowski\Helpers\ArrayHelper',    
 		'Lechimp\PHP2JS\\' => 'https://raw.githubusercontent.com/lechimp-p/php2js/0.1.0/src/${class}.php?cache_bust=${salt}',
