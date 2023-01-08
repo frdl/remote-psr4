@@ -381,7 +381,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
 	    
 	    $this->withClassmap([	 
-	            
+	        'ActivityPhp\\' => 'https://raw.githubusercontent.com/vendor-patch/activitypub/patch-1/src/ActivityPhp/${class}.php?cache_bust=${salt}',     
 		'Jobby\\' => 'https://raw.githubusercontent.com/jobbyphp/jobby/v3.5.0/src/${class}.php?cache_bust=${salt}',
 		 \Wehowski\Helpers\ArrayHelper::class => 'https://webfan.de/install/?salt=${salt}&source=Wehowski\Helpers\ArrayHelper',    
 		'Lechimp\PHP2JS\\' => 'https://raw.githubusercontent.com/lechimp-p/php2js/0.1.0/src/${class}.php?cache_bust=${salt}',
@@ -418,12 +418,12 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		\Webfan\cta\Storage\StorageInterface::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/StorageInterface.php?cache_bust=${salt}',
 	        \frdl\cta\Server::class => 'https://webfan.de/install/?source=frdl\cta\Server&salt=${salt}',
 		\Webfan\Webfat\Jeytill::class => 'https://raw.githubusercontent.com/frdl/webfat-jeytill/main/src/Jeytill.php?cache_bust=${salt}',	 
-	         \frdl\common\Stream::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/frdl/common/Stream.php?cache_bust=${salt}',    
-		 'Amp\Dns\\' => 'https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/${class}.php?cache_bust=${salt}',
-		 'Amp\\' => 'https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/${class}.php?cache_bust=${salt}',
+	        \frdl\common\Stream::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/frdl/common/Stream.php?cache_bust=${salt}',    
+		'Amp\Dns\\' => 'https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/${class}.php?cache_bust=${salt}',
+		'Amp\\' => 'https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/${class}.php?cache_bust=${salt}',
 		    
-		  'Laminas\Stdlib\\' => 'https://raw.githubusercontent.com/laminas/laminas-stdlib/3.16.1/src/${class}.php?cache_bust=${salt',      
-		  'Laminas\Config\\' => 'https://raw.githubusercontent.com/laminas/laminas-config/3.8.0/src/${class}.php?cache_bust=${salt',  
+		'Laminas\Stdlib\\' => 'https://raw.githubusercontent.com/laminas/laminas-stdlib/3.16.1/src/${class}.php?cache_bust=${salt',      
+		'Laminas\Config\\' => 'https://raw.githubusercontent.com/laminas/laminas-config/3.8.0/src/${class}.php?cache_bust=${salt',  
 		    
 		    	    
     // Zend Framework components    	    
