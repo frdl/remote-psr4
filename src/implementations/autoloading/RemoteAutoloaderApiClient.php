@@ -182,7 +182,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		  $context = stream_context_create($opts);
 		  $key = @file_get_contents($baseUrl.'source='.urlencode('@server.key'), false, $context
 		  if(false === $key){
-			throw new \Exception('Cannot get '.  $baseUrl.'source=@server.key in '.__METHOD__);
+			//throw new \Exception('Cannot get '.  $baseUrl.'source=@server.key in '.__METHOD__);
+			  trigger_error('Cannot get '.  $baseUrl.'source=@server.key in '.__METHOD__, \E_USER_WARNING);
 		  }					    
 		  foreach($http_response_header as $i => $header){				
             $h = explode(':', $header);
