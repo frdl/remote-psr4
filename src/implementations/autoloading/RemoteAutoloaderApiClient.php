@@ -173,13 +173,17 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
       if($expires <= time()  || !file_exists($pubKeyFile) ){
 		  	$opts =[
         'http'=>[
+	    'ignore_errors' => true,
             'method'=>'GET',
             //'header'=>"Accept-Encoding: deflate, gzip\r\n",
             ],
 	
 			];
 		  $context = stream_context_create($opts);
-		  $key = file_get_contents($baseUrl.'source=@server.key', false, $context);
+		  $key = @file_get_contents($baseUrl.'source='.urlencode('@server.key'), false, $context
+		  if(false === $key){
+			throw new \Exception('Cannot get '.  $baseUrl.'source=@server.key in '.__METHOD__);
+		  }					    
 		  foreach($http_response_header as $i => $header){				
             $h = explode(':', $header);
 			if('x-frdlweb-source-expires' === strtolower(trim($h[0]))){
