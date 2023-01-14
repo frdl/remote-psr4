@@ -191,6 +191,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		  if(false === $key){
 			//throw new \Exception('Cannot get '.  $baseUrl.'source=@server.key in '.__METHOD__);
 			  trigger_error('Cannot get '.  $baseUrl.'source=@server.key in '.__METHOD__, \E_USER_WARNING);
+		      return;
 		  }					    
 		  foreach($http_response_header as $i => $header){				
             $h = explode(':', $header);
@@ -229,6 +230,11 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	        $c++;
 		$sep = 'X19oYWx0X2NvbXBpbGVyKCk7'; 
         $my_signed_data=$code;
+	     
+	     if(!file_exists($pubKeyFile)){
+		return new \Exception("ERROR -- missing public key for ".$class." at ".$baseUrl.": ".htmlentities(substr($code, 0, 1024).'...'));     
+	     }
+	     
         $public_key = file_get_contents($pubKeyFile);
 		 
     list($plain_data,$sigdata) = explode(base64_decode($sep), $my_signed_data, 2);
@@ -237,7 +243,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	 $old_sig = base64_decode($old_sig);	 
 	 $ATTACHMENT = base64_decode($ATTACHMENT);
     if(empty($old_sig)){
-      return new \Exception("ERROR -- unsigned data");
+      return new \Exception("ERROR -- unsigned data for ".$class." at ".$baseUrl.": ".htmlentities(substr($code, 0, 1024).'...'));     
     }
     \openssl_public_decrypt($old_sig, $decrypted_sig, $public_key);
     $data_hash = sha1($plain_data.$ATTACHMENT).substr(str_pad(strlen($plain_data.$ATTACHMENT).'', 128, strlen($plain_data.$ATTACHMENT) % 10, \STR_PAD_LEFT), 0, 128);
@@ -601,7 +607,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         $server =  'https://webfan.de/install/stable/?source={{class}}&salt={{salt}}',
         $register = true,
         $version = 'latest',
-        $allowFromSelfOrigin = false,
+        $allowFromSelfOrigin = true,
         $salted = false,
         $classMap = null,
         $cacheDirOrAccessLevel = self::ACCESS_LEVEL_SHARED,
@@ -646,7 +652,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         $server = 'https://webfan.de/install/stable/?source={{class}}&salt={{salt}}',
         $register = true,
         $version = 'latest',
-        $allowFromSelfOrigin = false,
+        $allowFromSelfOrigin = true,
         $salted = false,
         $classMap = null,
         $cacheDirOrAccessLevel = self::ACCESS_LEVEL_SHARED,
