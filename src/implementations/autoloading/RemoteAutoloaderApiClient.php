@@ -141,8 +141,14 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
     protected static $existsCache = [];
 		
     protected $salt;
+		
+    protected $httTimeout = 25;
 	
-	
+    public function withTimeout(int $timeout){
+       $this->httTimeout = $timeout;
+    }
+		
+		
     public function withWebfanWebfatDefaultSettings(string $dir = null){
 	    if(null===$dir){
 		  $dir=  (is_dir($this->cacheDir)) ? $this->cacheDir :  \sys_get_temp_dir().\DIRECTORY_SEPARATOR;		    
@@ -173,6 +179,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
       if($expires <= time()  || !file_exists($pubKeyFile) ){
 		  	$opts =[
         'http'=>[
+	    'timeout' => $this->httTimeout,  
 	    'ignore_errors' => true,
             'method'=>'GET',
             //'header'=>"Accept-Encoding: deflate, gzip\r\n",
@@ -1149,6 +1156,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
         $options = [
         'http' => [
+	   'timeout' => max(1, floor($this->httTimeout / 2)),  	
            'method'  => 'HEAD',
             'ignore_errors' => false,
 
@@ -1185,6 +1193,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         'http' => [
            'method'  => 'GET',
             'ignore_errors' => false,
+	    'timeout' => $this->httTimeout,  
             'header'=> "X-Source-Encoding: b64\r\n"
                // . "Content-Length: " . strlen($data) . "\r\n"
 				,
