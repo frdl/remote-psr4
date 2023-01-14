@@ -442,7 +442,9 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		\Frdlweb\KernelHelperInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/KernelHelperInterface.php?cache_bust=${salt}',
 		'Dapphp\TorUtils\\'=>'https://raw.githubusercontent.com/dapphp/TorUtils/v1.15.3/src/${class}.php?cache_bust=${salt}',
 	        'DI\Definition\\' => 'https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/Definition/${class}.php?cache_bust=${salt}', 		      
-	      
+	        'Webmozart\Assert\\' => 'https://raw.githubusercontent.com/webmozarts/assert/1.11.0/src/${class}.php?cache_bust=${salt}', 		      
+	        'Webmozart\PathUtil\\' => 'https://raw.githubusercontent.com/webmozart/path-util/2.3.0/src/${class}.php?cache_bust=${salt}',		      
+	        'Phpactor\PathFinder\\' => 'https://raw.githubusercontent.com/phpactor/path-finder/1a93de92f63d827a2f913037511b3b95833e4954/lib/${class}.php?cache_bust=${salt}',
 		\Webfan\cta\HashType\HashTypeInterface::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/HashTypeInterface.php?cache_bust=${salt}',	  
 		\Webfan\cta\HashType\XHashSha1::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/XHashSha1.php?cache_bust=${salt}',	  
 		\Webfan\cta\Storage\StorageInterface::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/StorageInterface.php?cache_bust=${salt}',
