@@ -410,7 +410,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		 '@'.\Webfan\CommonJavascript::class => \Webfan\Script\Modules::class,   
 		\Frdlweb\AdvancedWebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/AdvancedWebAppInterface.php?cache_bust=${salt}',		
 		\Frdlweb\KernelHelperInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/KernelHelperInterface.php?cache_bust=${salt}',
-		    
+		'Dapphp\TorUtils\\'=>'https://raw.githubusercontent.com/dapphp/TorUtils/v1.15.3/src/${class}.php?cache_bust=${salt}',
 	        'DI\Definition\\' => 'https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/Definition/${class}.php?cache_bust=${salt}', 		      
 	      
 		\Webfan\cta\HashType\HashTypeInterface::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/HashTypeInterface.php?cache_bust=${salt}',	  
