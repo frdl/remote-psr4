@@ -180,7 +180,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		  	$opts =[
         'http'=>[
 	    'timeout' => $this->httTimeout,  
-	    'ignore_errors' => true,
+	    'ignore_errors' => false,
             'method'=>'GET',
             //'header'=>"Accept-Encoding: deflate, gzip\r\n",
             ],
