@@ -154,7 +154,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
      protected $transport = 'http';
 		
 		
-    public function withTransport(string $schema, \callable | \Closure $handler){
+    public function withTransport(string $schema, array | \callable | \Closure $handler){
         $this->_TRANSPORTS[$schema] = $handler;
     }			
 
