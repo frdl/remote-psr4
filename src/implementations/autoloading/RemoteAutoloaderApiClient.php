@@ -208,19 +208,6 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		  set_time_limit(min(max($httTimeout,180), intval(ini_get('max_execution_time')) + max($httTimeout,90)));
 		}
 	      
-	      /*
-		  	$opts =[
-        'http'=>[
-	    'timeout' => $this->httTimeout * 4, //The server may be rebuild at first request!?  
-	    'ignore_errors' => false,
-            'method'=>'GET',
-            //'header'=>"Accept-Encoding: deflate, gzip\r\n",
-            ],
-	
-			];
-		  $context = stream_context_create($opts);
-		   $key = @file_get_contents($baseUrl.'source='.urlencode('@server.key'), false, $context);
-		   */	     
 	  $httpResult = $me->transport($baseUrl.'source='.urlencode('@server.key'), 'GET', [
 		 
 	 ], [		          
@@ -470,7 +457,10 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		'@'.\Webfan\Webfat\Filesystems\Local::class => \Webfan\Webfat\Filesystems\PathResolvingFilesystem::class,
 		'@'.\BetterReflection\Reflection\ReflectionFunction::class => \Roave\BetterReflection\BetterReflection::class,   
 		'@'.\BetterReflection\SourceLocator\Exception\TwoClosuresOneLine::class => \Roave\BetterReflection\SourceLocator\Exception\TwoClosuresOnSameLine::class,   		    
-   	        \Webfan\Webfat\MainModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/MainModule.php?cache_bust=${salt}',
+                 \Frdlweb\AdvancedWebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/AdvancedWebAppInterface.php?cache_bust=${salt}',		
+	         \Frdlweb\KernelHelperInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/KernelHelperInterface.php?cache_bust=${salt}',
+		 \Frdlweb\WebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/WebAppInterface.php?cache_bust=${salt}',	        
+		 \Webfan\Webfat\MainModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/MainModule.php?cache_bust=${salt}',
 		\Webfan\Webfat\Module::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module.php?cache_bust=${salt}',
 		\Webfan\Webfat\CoreModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/CoreModule.php?cache_bust=${salt}',
 		'Webfan\Webfat\Module\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module/${class}.php?cache_bust=${salt}', 
@@ -482,8 +472,6 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		'WMDE\VueJsTemplating\\' => 'https://raw.githubusercontent.com/wmde/php-vuejs-templating/2.0.0/src/${class}.php?cache_bust=${salt}',
 		'@BetterReflection\\'=>'Roave\BetterReflection\\',    
 		 '@'.\Webfan\CommonJavascript::class => \Webfan\Script\Modules::class,   
-		\Frdlweb\AdvancedWebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/AdvancedWebAppInterface.php?cache_bust=${salt}',		
-		\Frdlweb\KernelHelperInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/KernelHelperInterface.php?cache_bust=${salt}',
 		'Dapphp\TorUtils\\'=>'https://raw.githubusercontent.com/dapphp/TorUtils/v1.15.3/src/${class}.php?cache_bust=${salt}',
 	        'DI\Definition\\' => 'https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/Definition/${class}.php?cache_bust=${salt}', 		      
 	        'Webmozart\Assert\\' => 'https://raw.githubusercontent.com/webmozarts/assert/1.11.0/src/${class}.php?cache_bust=${salt}', 		      
@@ -1218,19 +1206,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
              return $exists;
         }
 
-	    /*
-        $options = [
-        'http' => [
-	   'timeout' => max(1, floor($this->httTimeout / 2)),  	
-           'method'  => 'HEAD',
-            'ignore_errors' => false,
-
-           ]
-        ];
-        $context  = stream_context_create($options);
-        $res = @file_get_contents($source, false, $context);
-	*/
-	    			
+   			
 	    $httpResult = $this->transport($source, 'HEAD', null, [		          	
 				     'ignore_errors' => false,	   	
 				     'timeout' => max(1, floor($this->httTimeout / 2)),  	
@@ -1296,7 +1272,13 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    }elseif(true !== $callable instanceof \Closure){			
 		    $fn = (\Closure::fromCallable($callable))->bindTo($this);			
 		    $callable = $fn;		
-	    }	    
+	    }	  
+	    
+		
+	    if(true === self::$increaseTimelimit){		 
+		    set_time_limit(min(max($this->httTimeout,180), intval(ini_get('max_execution_time')) + max($this->httTimeout,180)));		
+	    }    
+	    
 	return \call_user_func_array($callable, func_get_args());    
     }
 		
@@ -1314,29 +1296,11 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
           }
           $withSaltedUrl = (true === $this->str_contains($url, '${salt}', false)) ? true : false;
           $url =  $this->replaceUrlVars($url, $salt, $class, $this->version);
-   /*	
-	     $url =  $this->url( $class );
-	     $withSaltedUrl = (true === $this->str_contains($this->loadClass($class, $salt), '${salt}', false)) ? true : false;
-*/
-	    
+   
 		if(self::$increaseTimelimit){			
 		  set_time_limit(min(max($this->httTimeout,180), intval(ini_get('max_execution_time')) + max($this->httTimeout,90)));
 		}	    
-	
-	    /*
-        $options = [
-        'http' => [
-           'method'  => 'GET',
-            'ignore_errors' => false,
-	    'timeout' => $this->httTimeout,  
-            'header'=> "X-Source-Encoding: b64\r\n"
-               // . "Content-Length: " . strlen($data) . "\r\n"
-				,
-           ]
-        ];
-        $context  = stream_context_create($options);
-        $code = @file_get_contents($url, false, $context);
-*/
+
 	 $httpResult = $this->transport($url, 'GET', [
 		 'X-Source-Encoding'=>'b64',
 	 ], [		          
