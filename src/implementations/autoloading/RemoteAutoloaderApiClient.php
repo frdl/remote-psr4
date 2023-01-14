@@ -361,8 +361,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			   break;			
 		       case \Webfan\Webfat\App\ContainerAppKernel::class :       
 		       case \DI\ContainerBuilder::class :
-		       case 'DI\\' === substr($class, 3) : 
-		       case '\DI\\' === substr($class, 4) : 
+		       case 'DI\\' === substr($class, 3) :  
 			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'php-di';
 			       if(!is_dir($aDir)){
 				  mkdir($aDir, 0775, true);       
@@ -378,9 +377,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			       return true;
 			   break;
 		       case \Amp\Dns\Resolver::class : 
-		       case 'Amp\Dns\\' === substr($class, strlen('Amp\Dns\\') ) : 
-		       case '\Amp\Dns\\' === substr($class, strlen('\Amp\Dns\\') ) : 
-		       case '\Amp\\Dns\\' === substr($class, strlen('\Amp\\Dns\\') ) : 
+		       case 'Amp\Dns\\' === substr($class, strlen('Amp\Dns\\') ) :   
 			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'amp-dns';
 			       if(!is_dir($aDir)){
 				  mkdir($aDir, 0775, true);       
@@ -397,8 +394,6 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			   break;
 		       case \Amp\Loop::class : 
 		       case 'Amp\\' === substr($class, strlen('Amp\\') ) && 'Amp\Dns\\' !== substr($class, strlen('Amp\Dns\\') ) : 
-		       case '\Amp\\' === substr($class, strlen('\Amp\\') ) && '\Amp\Dns\\' !== substr($class, strlen('\Amp\Dns\\') ) : 
-		       case '\Amp\\' === substr($class, strlen('\Amp\\') ) && '\Amp\\Dns\\' !== substr($class, strlen('\Amp\\Dns\\') ) : 
 			      foreach(['functions.php', 'Internal/functions.php'] as $file){
 			         $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'amp-amp'
 					 .\DIRECTORY_SEPARATOR. dirname(str_replace('/', \DIRECTORY_SEPARATOR, $file));
@@ -418,8 +413,6 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		       case \Webfan\Webfat\EventModule::class :       
 		       case \Webfan\Webfat\App\Router::class : 
 		       case 'Opis\Closure\\' === substr($class, strlen('Opis\Closure\\') ) : 
-		       case '\Opis\Closure\\' === substr($class, strlen('\Opis\Closure\\') ) : 
-		       case '\Opis\\Closure\\' === substr($class, strlen('\Opis\\Closure\\') ) :
 			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'opis-closure';
 			       if(!is_dir($aDir)){
 				  mkdir($aDir, 0775, true);       
@@ -434,7 +427,23 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			       }
 			       
 			       return true;
+			   break; 
+		       case 'Spatie\\Once\\' === substr($class, strlen('Spatie\\Once\\') ) :
+			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'spatie-once';
+			       if(!is_dir($aDir)){
+				  mkdir($aDir, 0775, true);       
+			       }
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
+			       if(!file_exists($aFile)){
+				  file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/spatie/once/3.1.0/src/functions.php?cache_bust='.time()));   
+			       }
+			       if (!in_array($aFile, get_included_files())) {
+			           require $aFile;
+			       }
+			       
+			       return true;
 			   break;
+			       
 			       
 		       default:
 			    return true;
@@ -468,9 +477,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		'Webfan\Webfat\Intent\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Intent/${class}.php?cache_bust=${salt}',    
 		\Pimple::class => 'https://raw.githubusercontent.com/silexphp/Pimple/1.1/lib/Pimple.php',
 		'ConfigWriter\\' => 'https://raw.githubusercontent.com/filips123/ConfigWriter/v2.0.3/src/${class}.php?cache_bust=${salt}',
-		'Task\Plugin\Console\\' => 'https://raw.githubusercontent.com/taskphp/console/00bfa982c4502938ca0110d2f23c5cd04ffcbcc3/src/${class}.php?cache_bust=${salt}',
-		'Task\\' => 'https://raw.githubusercontent.com/taskphp/task/7618739308ba484b5f90a83d5e1a44e1d90968d2/src/${class}.php?cache_bust=${salt}',			    
-	       // 'Monolog\\' => 'https://raw.githubusercontent.com/Seldaek/monolog/3.2.0/src/Monolog/${class}.php?cache_bust=${salt}',    	
+		// 'Monolog\\' => 'https://raw.githubusercontent.com/Seldaek/monolog/3.2.0/src/Monolog/${class}.php?cache_bust=${salt}',    	
 	        \Monolog\Registry::class => 'https://raw.githubusercontent.com/Seldaek/monolog/3.2.0/src/Monolog/Registry.php?cache_bust=${salt',
 		'WMDE\VueJsTemplating\\' => 'https://raw.githubusercontent.com/wmde/php-vuejs-templating/2.0.0/src/${class}.php?cache_bust=${salt}',
 		'@BetterReflection\\'=>'Roave\BetterReflection\\',    
@@ -487,8 +494,11 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		\Webfan\cta\Storage\StorageInterface::class => 'https://raw.githubusercontent.com/frdl/cta/main/src/StorageInterface.php?cache_bust=${salt}',
 	        \frdl\cta\Server::class => 'https://webfan.de/install/?source=frdl\cta\Server&salt=${salt}',
 		\Webfan\Webfat\Jeytill::class => 'https://raw.githubusercontent.com/frdl/webfat-jeytill/main/src/Jeytill.php?cache_bust=${salt}',	 
-	        \frdl\common\Stream::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/frdl/common/Stream.php?cache_bust=${salt}',    
-		'Amp\Dns\\' => 'https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/${class}.php?cache_bust=${salt}',
+	        \frdl\common\Stream::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/frdl/common/Stream.php?cache_bust=${salt}',
+	        'Spatie\Once\\' => 'https://raw.githubusercontent.com/spatie/once/3.1.0/src/${class}.php?cache_bust=${salt}',   
+		'Task\Plugin\Console\\' => 'https://raw.githubusercontent.com/taskphp/console/00bfa982c4502938ca0110d2f23c5cd04ffcbcc3/src/${class}.php?cache_bust=${salt}',
+		'Task\\' => 'https://raw.githubusercontent.com/taskphp/task/7618739308ba484b5f90a83d5e1a44e1d90968d2/src/${class}.php?cache_bust=${salt}',			    
+	        'Amp\Dns\\' => 'https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/${class}.php?cache_bust=${salt}',
 		'Amp\\' => 'https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/${class}.php?cache_bust=${salt}',
 		    
 		'Laminas\Stdlib\\' => 'https://raw.githubusercontent.com/laminas/laminas-stdlib/3.16.1/src/${class}.php?cache_bust=${salt',      
