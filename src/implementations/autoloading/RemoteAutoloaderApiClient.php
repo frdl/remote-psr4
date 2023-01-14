@@ -457,7 +457,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		'@'.\Webfan\Webfat\Filesystems\Local::class => \Webfan\Webfat\Filesystems\PathResolvingFilesystem::class,
 		'@'.\BetterReflection\Reflection\ReflectionFunction::class => \Roave\BetterReflection\BetterReflection::class,   
 		'@'.\BetterReflection\SourceLocator\Exception\TwoClosuresOneLine::class => \Roave\BetterReflection\SourceLocator\Exception\TwoClosuresOnSameLine::class,   		    
-                 \Frdlweb\AdvancedWebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/AdvancedWebAppInterface.php?cache_bust=${salt}',		
+                 \frdlweb\AppInterface::class => 'https://webfan.de/install/?source=frdlweb\AppInterface&salt=${salt}',
+		 \Frdlweb\AdvancedWebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/AdvancedWebAppInterface.php?cache_bust=${salt}',		
 	         \Frdlweb\KernelHelperInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/KernelHelperInterface.php?cache_bust=${salt}',
 		 \Frdlweb\WebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/WebAppInterface.php?cache_bust=${salt}',	        
 		 \Webfan\Webfat\MainModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/MainModule.php?cache_bust=${salt}',
@@ -471,7 +472,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	        \Monolog\Registry::class => 'https://raw.githubusercontent.com/Seldaek/monolog/3.2.0/src/Monolog/Registry.php?cache_bust=${salt',
 		'WMDE\VueJsTemplating\\' => 'https://raw.githubusercontent.com/wmde/php-vuejs-templating/2.0.0/src/${class}.php?cache_bust=${salt}',
 		'@BetterReflection\\'=>'Roave\BetterReflection\\',    
-		 '@'.\Webfan\CommonJavascript::class => \Webfan\Script\Modules::class,   
+		'@'.\Webfan\CommonJavascript::class => \Webfan\Script\Modules::class,   
 		'Dapphp\TorUtils\\'=>'https://raw.githubusercontent.com/dapphp/TorUtils/v1.15.3/src/${class}.php?cache_bust=${salt}',
 	        'DI\Definition\\' => 'https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/Definition/${class}.php?cache_bust=${salt}', 		      
 	        'Webmozart\Assert\\' => 'https://raw.githubusercontent.com/webmozarts/assert/1.11.0/src/${class}.php?cache_bust=${salt}', 		      
@@ -1486,7 +1487,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
 
             if( false !== $res  ){
-                 $this->pruneCache();
+              //  Change: Use a seperate process (or setup): $this->pruneCache(); 
             }else{
                  throw new \Exception(sprintf('Cannot register Autoloader of "%s" with cachedir "%s"', __METHOD__, $this->cacheDir));
             }
