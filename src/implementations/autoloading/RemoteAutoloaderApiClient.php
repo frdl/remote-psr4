@@ -135,6 +135,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
     */
     protected $afterMiddlewares = [];
     protected $beforeMiddlewares = [];
+    protected $urlRewriterMiddlewares = [];
     protected $cacheDir;
     protected $cacheLimit = 0;
     protected static $instances = [];
@@ -173,6 +174,78 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
     public function withUserAgent(string $userAgent){
        $this->userAgent = $userAgent;
     }		
+	//$urlRewriterMiddlewares
+    public function withUrlRewriterMiddleware( \callable | \closure $Middleware){
+	    $this->urlRewriterMiddlewares[]= $Middleware;	   
+	return $this;
+    }
+		
+    public function withBeforeMiddleware( \callable | \closure $Middleware){
+	    $this->beforeMiddlewares[]= $Middleware;	   
+	return $this;
+    }
+	
+    public function withAfterMiddleware(\callable | \closure | string $condition, \callable | \closure $filter){
+	    $this->afterMiddlewares[]= [$condition, $filter];	   
+	return $this;
+    }
+		
+    public function addNamespace($prefix, $resourceOrLocation, $prepend = false){
+	return $this->withNamespace($prefix, $resourceOrLocation, $prepend);	
+    }
+    public function withNamespace($prefix, $server, $prepend = false)
+    {
+        $prefix = trim($prefix, '\\') . '\\';
+
+        // normalize the base directory with a trailing separator
+         //   $base_dir = rtrim($base_dir, DIRECTORY_SEPARATOR) . '/';
+
+        // initialize the namespace prefix array
+        if (isset($this->prefixes[$prefix]) === false) {
+            $this->prefixes[$prefix] = [];
+        }
+
+        // retain the base directory for the namespace prefix
+        if ($prepend) {
+            array_unshift($this->prefixes[$prefix], $server);
+        } else {
+            array_push($this->prefixes[$prefix], $server);
+        }
+    }
+
+		
+
+    public function withClassmap(array $classMap = null)
+    {
+        if(null !== $classMap){
+           foreach($classMap as $class => $server){
+           if('@' === substr($class, 0, 1) && is_string($server)){
+               $this->withAlias($class, $server);
+           }elseif('\\' === substr($class, -1)){
+               $this->withNamespace($class, $server, false); // is_string($server));
+           }else{
+                self::$classmap[$class] = $server;
+           }
+
+           }
+         }
+
+        return self::$classmap;
+    }
+
+    public function withAlias(string $alias, string $rewrite)
+    {
+        $this->alias[ltrim($alias, '@')] = $rewrite;
+    }
+
+    public function withSalt(bool $salted = null)
+    {
+        if(null !== $salted){
+         $this->salted = $salted;
+         }
+
+        return $this->salted;
+    }	
 		
     public function withWebfanWebfatDefaultSettings(string $dir = null,bool $increaseTimelimit = null){
 	    if(null===$dir){
@@ -205,7 +278,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
       if($expires <= time()  || !file_exists($pubKeyFile) ){
 	      
 		if($increaseTimelimit){			
-		  set_time_limit(min(max($httTimeout,240), intval(ini_get('max_execution_time')) + max($httTimeout,240)));
+		  set_time_limit(max(max($httTimeout,240), intval(ini_get('max_execution_time')) + max($httTimeout,240)));
 		}
 	      
 	  $httpResult = $me->transport($baseUrl.'source='.urlencode('@server.key'), 'GET', [
@@ -245,7 +318,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
 	 $condition = function($url, &$loader, $class) use($httTimeout, $baseUrl, $increaseTimelimit){
 		if($increaseTimelimit){			
-		  set_time_limit(min(max($httTimeout,240), intval(ini_get('max_execution_time')) + max($httTimeout,240)));
+		  set_time_limit(max(max($httTimeout,240), intval(ini_get('max_execution_time')) + max($httTimeout,240)));
 		}
 
 		if($baseUrl === substr($url, 0, strlen($baseUrl) ) && $class !== \PhpParser\PrettyPrinter\Standard::class ){
@@ -572,6 +645,19 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    ]);
 	    
 	    
+	    
+	    $this->withUrlRewriterMiddleware(function($url){
+		$now = new \DateTimeImmutable();    
+		if( intval($now->format('Y') <= 2023 ){
+		   $p = \parse_url($url);
+		   if('webfan.de' === $p['host']){
+			$p['host'] = 'startdir.de';
+			 $url = \frdl\implementation\psr4\RemoteAutoloaderApiClient::unparse_url( $url, $p, false );  
+		   }
+		}
+		   return $url;
+	    });
+	    
 	return $this;
     }
    //end default-patches
@@ -580,77 +666,10 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	
 	
 	
-	
-    public function withBeforeMiddleware( \callable | \closure $Middleware){
-	    $this->beforeMiddlewares[]= $Middleware;	   
-	return $this;
-    }
-	
-    public function withAfterMiddleware(\callable | \closure | string $condition, \callable | \closure $filter){
-	    $this->afterMiddlewares[]= [$condition, $filter];	   
-	return $this;
-    }
-		
-    public function addNamespace($prefix, $resourceOrLocation, $prepend = false){
-	return $this->withNamespace($prefix, $resourceOrLocation, $prepend);	
-    }
-    public function withNamespace($prefix, $server, $prepend = false)
-    {
-        $prefix = trim($prefix, '\\') . '\\';
-
-        // normalize the base directory with a trailing separator
-         //   $base_dir = rtrim($base_dir, DIRECTORY_SEPARATOR) . '/';
-
-        // initialize the namespace prefix array
-        if (isset($this->prefixes[$prefix]) === false) {
-            $this->prefixes[$prefix] = [];
-        }
-
-        // retain the base directory for the namespace prefix
-        if ($prepend) {
-            array_unshift($this->prefixes[$prefix], $server);
-        } else {
-            array_push($this->prefixes[$prefix], $server);
-        }
-    }
-
-		
-
-    public function withClassmap(array $classMap = null)
-    {
-        if(null !== $classMap){
-           foreach($classMap as $class => $server){
-           if('@' === substr($class, 0, 1) && is_string($server)){
-               $this->withAlias($class, $server);
-           }elseif('\\' === substr($class, -1)){
-               $this->withNamespace($class, $server, false); // is_string($server));
-           }else{
-                self::$classmap[$class] = $server;
-           }
-
-           }
-         }
-
-        return self::$classmap;
-    }
-
-    public function withAlias(string $alias, string $rewrite)
-    {
-        $this->alias[ltrim($alias, '@')] = $rewrite;
-    }
-
-    public function withSalt(bool $salted = null)
-    {
-        if(null !== $salted){
-         $this->salted = $salted;
-         }
-
-        return $this->salted;
-    }		
 		
 		
     public static function getInstance(
-        $server =  'https://webfan.de/install/stable/?source={{class}}&salt={{salt}}',
+        $server =  'https://webfan.de/install/stable/?source={class}&salt={salt}',
         $register = true,
         $version = 'latest',
         $allowFromSelfOrigin = true,
@@ -1260,8 +1279,67 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	return $transport;    
     }
  
+    /*
+    by kibblewhite+php at live dot com https://www.php.net/manual/en/function.parse-url.php#125844
+   $test_url = 'http://usr:pss@example.com:81/mypath/myfile.html?a=b&b[]=2&b[]=3&z=9#myfragment';
+
+    $new_url_01_overwrite_query_params = self::unparse_url( $test_url, array(
+        'host' => 'new-hostname.tld',
+        'query' => array(
+            'test' => 'Hello World',
+            'a'    => array( 'c', 'd' ),
+            'z'    => 8
+        ),
+        'fragment' => 'new-fragment-value'
+    ), false );
+
+    $new_url_02_mergewith_query_params = self::unparse_url( $test_url, array(
+        'query' => array(
+            'test' => 'Hello World',
+            'a'    => array( 'c', 'd' ),
+            'z'     => 8
+        ),
+        'fragment' => 'new-fragment-value'
+    ), true );    
+    */
+    public static function unparse_url( string $url, array $overwrite_parsed_url_array = [], bool $merge_query_parameters = true ) : string {
+
+        $parsed_url_array = \parse_url( $url );
+        $parsed_url_keys_array = [
+            'scheme'        => null,
+            'abempty'       => isset( $parsed_url_array['scheme'] ) ? '://' : null,
+            'user'          => null,
+            'authcolon'     => isset( $parsed_url_array['pass'] ) ? ':' : null,
+            'pass'          => null,
+            'authat'        => isset( $parsed_url_array['user'] ) ? '@' : null,
+            'host'          => null,
+            'portcolon'     => isset( $parsed_url_array['port'] ) ? ':' : null,
+            'port'          => null,
+            'path'          => null,
+            'param'         => isset( $parsed_url_array['query'] ) ? '?' : null,
+            'query'         => null,
+            'hash'          => isset( $parsed_url_array['fragment'] ) ? '#' : null,
+            'fragment'      => null,
+        ];
+
+        if ( isset( $parsed_url_array['query'] ) && $merge_query_parameters === true ) {
+            parse_str( $parsed_url_array['query'], $query_array );
+            $overwrite_parsed_url_array['query'] = \array_merge_recursive( $query_array, $overwrite_parsed_url_array['query'] );
+        }
+
+        $query_parameters = \http_build_query( $overwrite_parsed_url_array['query'], null, '&', \PHP_QUERY_RFC1738 );
+        $overwrite_parsed_url_array['query'] = \urldecode( preg_replace( '/%5B[0-9]+%5D/simU', '%5B%5D', $query_parameters ) );
+
+        $fully_parsed_url_array = \array_filter( \array_merge( $parsed_url_keys_array, $parsed_url_array, $overwrite_parsed_url_array ) );
+        return \implode( null, $fully_parsed_url_array );
+    }		
 		
     public function transport(string $url, string $method = 'GET', array $headers = null, array $options = null, array $httpOpts= null){
+	    
+	 foreach($this->urlRewriterMiddlewares as $rewriter){
+		$url = \call_user_func_array($rewriter, [$url]); 
+	 }
+	    
 	 $callable =  isset($this->_TRANSPORTS[$this->transport]) ? $this->_TRANSPORTS[$this->transport] : false;
 	 if(false === $callable){
 	     throw new \Exception(sprintf('%sTransport is not set in %s. Use withTransport to define a callable for it!', ucfirst($this->transport), __METHOD__));	 
@@ -1277,7 +1355,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
 		
 	    if(true === self::$increaseTimelimit){		 
-		    set_time_limit(min(max($this->httTimeout,240), intval(ini_get('max_execution_time')) + max($this->httTimeout,240)));		
+		    set_time_limit(max(max($this->httTimeout,240), intval(ini_get('max_execution_time')) + max($this->httTimeout,240)));		
 	    }    
 	    
 	return \call_user_func_array($callable, func_get_args());    
@@ -1299,7 +1377,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
           $url =  $this->replaceUrlVars($url, $salt, $class, $this->version);
    
 		if(self::$increaseTimelimit){			
-		  set_time_limit(min(max($this->httTimeout,180), intval(ini_get('max_execution_time')) + max($this->httTimeout,90)));
+		  set_time_limit(max(max($this->httTimeout,240), intval(ini_get('max_execution_time')) + max($this->httTimeout,240)));
 		}	    
 
 	 $httpResult = $this->transport($url, 'GET', [
