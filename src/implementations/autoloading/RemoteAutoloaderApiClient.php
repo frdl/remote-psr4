@@ -648,7 +648,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
 	    $this->withUrlRewriterMiddleware(function($url){
 		$now = new \DateTimeImmutable();    
-		if( intval($now->format('Y') <= 2023 ){
+		if( intval($now->format('Y')) <= 2023 ){
 		   $p = \parse_url($url);
 		   if('webfan.de' === $p['host']){
 			$p['host'] = 'startdir.de';
