@@ -1245,6 +1245,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
             'method'  => $method,
             'ignore_errors' => false,
 	    'timeout' => $this->httTimeout,  
+	    'follow_location' => true,	
             'header'=> ""// "X-Source-Encoding: b64\r\n"
                // . "Content-Length: " . strlen($data) . "\r\n"
 				,
