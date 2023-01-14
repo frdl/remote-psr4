@@ -144,7 +144,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		
     protected $salt;
 		
-    protected $httTimeout = 25;
+    protected $httTimeout = 45;
     public static $increaseTimelimit = true;
     protected $userAgent = null;		
     protected $_TRANSPORTS = [
@@ -205,7 +205,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
       if($expires <= time()  || !file_exists($pubKeyFile) ){
 	      
 		if($increaseTimelimit){			
-		  set_time_limit(min(max($httTimeout,180), intval(ini_get('max_execution_time')) + max($httTimeout,90)));
+		  set_time_limit(min(max($httTimeout,240), intval(ini_get('max_execution_time')) + max($httTimeout,240)));
 		}
 	      
 	  $httpResult = $me->transport($baseUrl.'source='.urlencode('@server.key'), 'GET', [
@@ -245,7 +245,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
 	 $condition = function($url, &$loader, $class) use($httTimeout, $baseUrl, $increaseTimelimit){
 		if($increaseTimelimit){			
-		  set_time_limit(min(max($httTimeout,180), intval(ini_get('max_execution_time')) + max($httTimeout,90)));
+		  set_time_limit(min(max($httTimeout,240), intval(ini_get('max_execution_time')) + max($httTimeout,240)));
 		}
 
 		if($baseUrl === substr($url, 0, strlen($baseUrl) ) && $class !== \PhpParser\PrettyPrinter\Standard::class ){
@@ -1277,7 +1277,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
 		
 	    if(true === self::$increaseTimelimit){		 
-		    set_time_limit(min(max($this->httTimeout,180), intval(ini_get('max_execution_time')) + max($this->httTimeout,180)));		
+		    set_time_limit(min(max($this->httTimeout,240), intval(ini_get('max_execution_time')) + max($this->httTimeout,240)));		
 	    }    
 	    
 	return \call_user_func_array($callable, func_get_args());    
@@ -1572,7 +1572,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
           }
 
 
-        if(!file_exists($cacheFile)
+     if(!file_exists($cacheFile)
            || (
            $this->cacheLimit !== 0
            && $this->cacheLimit !== -1
@@ -1588,34 +1588,33 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	}else if(true === $code){
               return true;
         }elseif(false !==$code){
-        if(!is_dir(dirname($cacheFile))){
-          mkdir(dirname($cacheFile), 0775, true);
-        }
-
-        if(!file_put_contents($cacheFile, $code)){
-          throw new \Exception('Cannot write source for class '.$class.' to '.$cacheFile);
+           if(!is_dir(dirname($cacheFile))){
+            mkdir(dirname($cacheFile), 0775, true);
            }
 
-           }elseif(false ===$code && !file_exists($cacheFile)){
-         // die($cacheFile);
+           if(!file_put_contents($cacheFile, $code)){
+               throw new \Exception('Cannot write source for class '.$class.' to '.$cacheFile);
+            }
+
+        
+	}elseif(false ===$code && !file_exists($cacheFile)){
           return false;
         }
-
-          }
+         
+     }
 
 
 
 
         if(file_exists($cacheFile) ){
-        if(false === ($this->requireFile($cacheFile)) ){
+          if(false === ($this->requireFile($cacheFile)) ){
             if(file_exists($cacheFile)){
                 unlink($cacheFile);
             }
             return false;
-        }
-              //return true;
-            return class_exists($class, false);
-        }elseif(isset($code) && is_string($code)){
+          }
+           return class_exists($class, false);
+        }elseif(isset($code) && is_string($code) && \frdlweb\Thread\ShutdownTasks::class !== $class ){
 
                    $tmpfile = tempnam($this->cacheDir, 'autoloaded-file.'.sha1($code));
 
@@ -1628,18 +1627,18 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
                   }, $tmpfile);
 
 
-        if(false === ($this->requireFile($tmpfile)) ){
+          if(false === ($this->requireFile($tmpfile)) ){
             if(file_exists($tmpfile)){
                 unlink($tmpfile);
             }
             return false;
-        }else{
+          }else{
             unlink($tmpfile);
             return class_exists($class, false);
-        }
-        }else{
-          throw new \Exception('Cannot write/load source for class '.$class.' in '.$cacheFile);
-           }
+          }
+         }else{
+          throw new \Exception('Cannot write/load source for class '.$class.' in '.$cacheFile);          
+	 }
     }
 }
 
