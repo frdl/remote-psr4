@@ -143,28 +143,28 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
     protected $salt;
 		
     protected $httTimeout = 25;
+    public static $increaseTimelimit = true;
 	
     public function withTimeout(int $timeout){
        $this->httTimeout = $timeout;
     }
 		
 		
-    public function withWebfanWebfatDefaultSettings(string $dir = null){
+    public function withWebfanWebfatDefaultSettings(string $dir = null,bool $increaseTimelimit = null){
 	    if(null===$dir){
 		  $dir=  (is_dir($this->cacheDir)) ? $this->cacheDir :  \sys_get_temp_dir().\DIRECTORY_SEPARATOR;		    
 	    }
 		    
-	   $publicKeyChanged = false;
-  $increaseTimelimit = true;
+	   $httTimeout = $this->httTimeout;
+	   $publicKeyChanged = false; 
+	   $increaseTimelimit = is_null($increaseTimelimit) ? self::$increaseTimelimit : $increaseTimelimit; 
 
- $setPublicKey = function($baseUrl, $expFile, $pubKeyFile){
-	 if(file_exists($expFile)){
-          $expires = intval(file_get_contents($expFile));
-	 }else{
-       $expires = 0;
-	 }
-	
-	 
+ $setPublicKey = function($baseUrl, $expFile, $pubKeyFile) use($httTimeout, $increaseTimelimit) {
+	 if(file_exists($expFile)){       
+		 $expires = intval(file_get_contents($expFile));
+	 }else{      
+		 $expires = 0;
+	 }	 
 			if(!is_dir(dirname($expFile))){
 			   mkdir(dirname($expFile), 0755, true);	
 			}
@@ -177,9 +177,14 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		   sleep(3);
 	   }
       if($expires <= time()  || !file_exists($pubKeyFile) ){
+	      
+		if($increaseTimelimit){			
+		  set_time_limit(min(max($httTimeout,180), intval(ini_get('max_execution_time')) + max($httTimeout,90)));
+		}
+	      
 		  	$opts =[
         'http'=>[
-	    'timeout' => $this->httTimeout,  
+	    'timeout' => $this->httTimeout * 4, //The server may be rebuild at first request!?  
 	    'ignore_errors' => false,
             'method'=>'GET',
             //'header'=>"Accept-Encoding: deflate, gzip\r\n",
@@ -188,7 +193,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			];
 		  $context = stream_context_create($opts);
 		   $key = @file_get_contents($baseUrl.'source='.urlencode('@server.key'), false, $context);
-		  if(false === $key){
+		  if(false === $key || empty($key) ){
 			//throw new \Exception('Cannot get '.  $baseUrl.'source=@server.key in '.__METHOD__);
 			  trigger_error('Cannot get '.  $baseUrl.'source=@server.key in '.__METHOD__, \E_USER_WARNING);
 		      return;
@@ -206,15 +211,17 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	 
  };
 
- $getDefaultValidatorForUrl = function($baseUrl, $cacheDir, $increaseTimelimit = true) use($setPublicKey, &$publicKeyChanged) {
-     $expFile =  rtrim($cacheDir, '\\/ ') .	\DIRECTORY_SEPARATOR.'validator-'.sha1($baseUrl).strlen($baseUrl).'.expires.txt';
-	 $pubKeyFile =  rtrim($cacheDir, '\\/ ') .	\DIRECTORY_SEPARATOR.'validator-'.sha1($baseUrl).strlen($baseUrl).'.public-key.txt';
+ $getDefaultValidatorForUrl = function($baseUrl, $cacheDir, $increaseTimelimit = true) use($httTimeout, $setPublicKey, &$publicKeyChanged) {
+      $parsedUrl = parse_url($baseUrl);
+      $host = is_array($parsedUrl) && isset($parsedUrl['host']) ? $parsedUrl['host'] : 'DNS_PROBE_FINISHED_NXDOMAIN';
+      $expFile =  rtrim($cacheDir, '\\/ ') .	\DIRECTORY_SEPARATOR.'validator-'.$host.'-'.sha1($baseUrl).strlen($baseUrl).'.expires.txt';
+      $pubKeyFile =  rtrim($cacheDir, '\\/ ') .	\DIRECTORY_SEPARATOR.'validator-'.$host.'-'.sha1($baseUrl).strlen($baseUrl).'.public-key.txt';
 	 
      $setPublicKey($baseUrl, $expFile, $pubKeyFile);
 
-	 $condition = function($url, &$loader, $class) use($baseUrl, $increaseTimelimit){
-		if($increaseTimelimit){
-			set_time_limit(min(180, intval(ini_get('max_execution_time')) + 90));
+	 $condition = function($url, &$loader, $class) use($httTimeout, $baseUrl, $increaseTimelimit){
+		if($increaseTimelimit){			
+		  set_time_limit(min(max($httTimeout,180), intval(ini_get('max_execution_time')) + max($httTimeout,90)));
 		}
 
 		if($baseUrl === substr($url, 0, strlen($baseUrl) ) && $class !== \PhpParser\PrettyPrinter\Standard::class ){
@@ -265,7 +272,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
  };
 
 
- $getDefaultValidators = function($cacheDir, $increaseTimelimit = true) use($getDefaultValidatorForUrl) {
+ $getDefaultValidators = function($cacheDir,bool $increaseTimelimit = null) use($getDefaultValidatorForUrl) {
+
     return [            
 	 $getDefaultValidatorForUrl('https://latest.software-download.frdlweb.de/?', $cacheDir, $increaseTimelimit),
          $getDefaultValidatorForUrl('https://stable.software-download.frdlweb.de/?', $cacheDir, $increaseTimelimit),
@@ -279,7 +287,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
  };
 	    
 	        
-	    foreach($getDefaultValidators($dir, true) as $validator){	  
+	    foreach($getDefaultValidators($dir, $increaseTimelimit) as $validator){	  
 		    $this->withAfterMiddleware($validator[0], $validator[1]);   
 	    }			
 	    
@@ -1195,6 +1203,11 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	     $url =  $this->url( $class );
 	     $withSaltedUrl = (true === $this->str_contains($this->loadClass($class, $salt), '${salt}', false)) ? true : false;
 */
+	    
+		if(self::$increaseTimelimit){			
+		  set_time_limit(min(max($this->httTimeout,180), intval(ini_get('max_execution_time')) + max($this->httTimeout,90)));
+		}	    
+	    
         $options = [
         'http' => [
            'method'  => 'GET',
