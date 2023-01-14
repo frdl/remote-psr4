@@ -51,6 +51,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
     public const ACCESS_LEVEL_PROJECT = 4;
     public const ACCESS_LEVEL_BUCKET = 8;
     public const ACCESS_LEVEL_CONTEXT = 16;
+   
+
 
     public const CLASSMAP_DEFAULTS = [   
 	    
@@ -144,11 +146,33 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		
     protected $httTimeout = 25;
     public static $increaseTimelimit = true;
-	
+    protected $userAgent = null;		
+    protected $_TRANSPORTS = [
+	    //'http',
+	   // 'tor',
+    ];		
+     protected $transport = 'http';
+		
+		
+    public function withTransport(string $schema, \callable | \Closure $handler){
+        $this->_TRANSPORTS[$schema] = $handler;
+    }			
+
     public function withTimeout(int $timeout){
        $this->httTimeout = $timeout;
     }
 		
+    public function setTransport(string $transport){
+       if(!isset($this->_TRANSPORTS[$transport])){
+	  throw new \Exception(sprintf('%sTransport is not set in %s. Use withTransport to define a callable for it!', ucfirst($transport), __METHOD__));
+       }
+	$this->transport = $transport;    
+    }
+		
+		
+    public function withUserAgent(string $userAgent){
+       $this->userAgent = $userAgent;
+    }		
 		
     public function withWebfanWebfatDefaultSettings(string $dir = null,bool $increaseTimelimit = null){
 	    if(null===$dir){
@@ -158,8 +182,10 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	   $httTimeout = $this->httTimeout;
 	   $publicKeyChanged = false; 
 	   $increaseTimelimit = is_null($increaseTimelimit) ? self::$increaseTimelimit : $increaseTimelimit; 
+	    
+	    $me = &$this;
 
- $setPublicKey = function($baseUrl, $expFile, $pubKeyFile) use($httTimeout, $increaseTimelimit) {
+ $setPublicKey = function($baseUrl, $expFile, $pubKeyFile) use($httTimeout, $increaseTimelimit, $me) {
 	 if(file_exists($expFile)){       
 		 $expires = intval(file_get_contents($expFile));
 	 }else{      
@@ -182,6 +208,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		  set_time_limit(min(max($httTimeout,180), intval(ini_get('max_execution_time')) + max($httTimeout,90)));
 		}
 	      
+	      /*
 		  	$opts =[
         'http'=>[
 	    'timeout' => $this->httTimeout * 4, //The server may be rebuild at first request!?  
@@ -193,12 +220,22 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			];
 		  $context = stream_context_create($opts);
 		   $key = @file_get_contents($baseUrl.'source='.urlencode('@server.key'), false, $context);
-		  if(false === $key || empty($key) ){
+		   */	     
+	  $httpResult = $me->transport($baseUrl.'source='.urlencode('@server.key'), 'GET', [
+		 
+	 ], [		          
+		 'ignore_errors' => false,	   
+		 'timeout' =>$this->httTimeout * 4,  
+	 ]);
+	    $key = $httpResult->body;
+	      
+	      	  if(false === $key || empty($key) ){
 			//throw new \Exception('Cannot get '.  $baseUrl.'source=@server.key in '.__METHOD__);
 			  trigger_error('Cannot get '.  $baseUrl.'source=@server.key in '.__METHOD__, \E_USER_WARNING);
 		      return;
 		  }					    
-		  foreach($http_response_header as $i => $header){				
+		
+	   foreach($httpResult->headers as $i => $header){				
             $h = explode(':', $header);
 			if('x-frdlweb-source-expires' === strtolower(trim($h[0]))){
 				file_put_contents($expFile, trim($h[1]) );
@@ -669,7 +706,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         $cacheLimit = null,
         $password = null
     ) {
-	  
+	$this->withTransport('http', [$this, 'fetchHttp']);
+	$this->setTransport('http');    
 	$this->salt = mt_rand(10000000,99999999);       
         $key = static::ik();
            self::$instances[static::ik()] = &$this;
@@ -1170,6 +1208,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
              return $exists;
         }
 
+	    /*
         $options = [
         'http' => [
 	   'timeout' => max(1, floor($this->httTimeout / 2)),  	
@@ -1180,15 +1219,79 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         ];
         $context  = stream_context_create($options);
         $res = @file_get_contents($source, false, $context);
+	*/
+	    			
+	    $httpResult = $this->transport($source, 'HEAD', null, [		          	
+				     'ignore_errors' => false,	   	
+				     'timeout' => max(1, floor($this->httTimeout / 2)),  	
+			     ]);				    
+	    $res = $httpResult->body;
+	    
         $exists = false !== $res;
 	    
 	self::$existsCache[$source] = $exists;
       return $exists;
     }
 
+    public function fetchHttp(string $url, string $method = 'GET', array $headers = null, array $options = null, array $httpOpts= null){
+        $httpOptions = [
+        'http' => [
+            'method'  => $method,
+            'ignore_errors' => false,
+	    'timeout' => $this->httTimeout,  
+            'header'=> ""// "X-Source-Encoding: b64\r\n"
+               // . "Content-Length: " . strlen($data) . "\r\n"
+				,
+           ]
+        ];	 
+	 if(is_array($httpOpts)){
+	   $httpOptions = array_merge($httpOptions, $httpOpts);	 
+	 } 
+	 if(is_array($options)){
+	   $httpOptions['http'] = array_merge($httpOptions['http'], $options);	 
+	 }
+	 if(!is_array($headers)){
+	   $headers = [			   	
+	      'X-Source-Encoding' => 'b64',
+	   ];	 
+	 }
+	    if(is_string($this->userAgent)){
+		$headers['User-Agent'] = $this->userAgent;    
+	    }
+	    
+	    foreach($headers as $key => $value){
+		$httpOptions['http']['header'].= $key.": ". $value .  "\r\n";    
+	    }
+	    
+	$httpOptions['http']['method'] = $method;   
 	
-
+	$transport = new \stdclass;    
+        $transport->context  = stream_context_create($httpOptions);
+        $transport->body = @file_get_contents($url, false, $transport->context);	
+	$transport->headers = array_merge([], $http_response_header);
 	
+	return $transport;    
+    }
+ 
+		
+    public function transport(string $url, string $method = 'GET', array $headers = null, array $options = null, array $httpOpts= null){
+	 $callable =  isset($this->_TRANSPORTS[$this->transport]) ? $this->_TRANSPORTS[$this->transport] : false;
+	 if(false === $callable){
+	     throw new \Exception(sprintf('%sTransport is not set in %s. Use withTransport to define a callable for it!', ucfirst($this->transport), __METHOD__));	 
+	 }
+			
+	    if(is_array($callable) && !is_callable($callable)){			
+		    $fn = (\Closure::fromCallable($callable))->bindTo($this, \get_class($this));			
+		    $callable = $fn;		    
+	    }elseif(true !== $callable instanceof \Closure){			
+		    $fn = (\Closure::fromCallable($callable))->bindTo($this);			
+		    $callable = $fn;		
+	    }	    
+	return \call_user_func_array($callable, func_get_args());    
+    }
+		
+		
+		
     protected function fetchCode($class, $salt = null)
     {
 	 
@@ -1209,7 +1312,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		if(self::$increaseTimelimit){			
 		  set_time_limit(min(max($this->httTimeout,180), intval(ini_get('max_execution_time')) + max($this->httTimeout,90)));
 		}	    
-	    
+	
+	    /*
         $options = [
         'http' => [
            'method'  => 'GET',
@@ -1222,15 +1326,27 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         ];
         $context  = stream_context_create($options);
         $code = @file_get_contents($url, false, $context);
-
+*/
+	 $httpResult = $this->transport($url, 'GET', [
+		 'X-Source-Encoding'=>'b64',
+	 ], [		          
+		 'ignore_errors' => false,	   
+		 'timeout' => $this->httTimeout,  		
+	 ]);
+	    $code = $httpResult->body;
 	    
 		if(false === $code){
 		     $urlOld = $url;
 		     $url=preg_replace('/(\/stable\/)/', '/', $url);
 		     $url=preg_replace('/(\/latest\/)/', '/', $url);	
-		     if($urlOld !== $url){
-		        $context  = stream_context_create($options);
-		        $code = @file_get_contents($url, false, $context);
+		     if($urlOld !== $url){	
+			     $httpResult = $this->transport($url, 'GET', [		
+				     'X-Source-Encoding'=>'b64',	
+			     ], [		          	
+				     'ignore_errors' => false,	   	
+				     'timeout' => $this->httTimeout,  		
+			     ]);	  
+			     $code = $httpResult->body;
 		     }
 			if(false===$code){
 			   return false;	
@@ -1242,7 +1358,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
           $base64 = false;
 			
 			
-        foreach($http_response_header as $i => $header){
+        foreach($httpResult->headers as $i => $header){
            $h = explode(':', $header);
            $k = strtolower(trim($h[0]));
            $v =  (isset($h[1])) ? trim($h[1]) : $header;
