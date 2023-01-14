@@ -248,7 +248,11 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
 
  $getDefaultValidators = function($cacheDir, $increaseTimelimit = true) use($getDefaultValidatorForUrl) {
-    return [
+    return [            
+	 $getDefaultValidatorForUrl('https://latest.software-download.frdlweb.de/?', $cacheDir, $increaseTimelimit),
+         $getDefaultValidatorForUrl('https://stable.software-download.frdlweb.de/?', $cacheDir, $increaseTimelimit),
+         $getDefaultValidatorForUrl('https://startdir.de/install/latest/?', $cacheDir, $increaseTimelimit),
+         $getDefaultValidatorForUrl('https://startdir.de/install/stable/?', $cacheDir, $increaseTimelimit),
          $getDefaultValidatorForUrl('https://startdir.de/install/?', $cacheDir, $increaseTimelimit),
          $getDefaultValidatorForUrl('https://webfan.de/install/stable/?', $cacheDir, $increaseTimelimit),
          $getDefaultValidatorForUrl('https://webfan.de/install/latest/?', $cacheDir, $increaseTimelimit),
