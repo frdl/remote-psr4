@@ -511,7 +511,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       if(!file_exists($aFile)){
-				  file_put_contents($aFile, file_get_contents('https://webfan.de/install/?source=GuzzleHttp\Psr7\stream_for?salt='.time()));   
+				  file_put_contents($aFile, file_get_contents('https://webfan.de/install/?source=GuzzleHttp\Psr7\stream_for&salt='.time()));   
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
