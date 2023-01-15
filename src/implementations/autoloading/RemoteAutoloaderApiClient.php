@@ -1226,7 +1226,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
              return $exists;
         }
 
-   			
+   			 
 	    $httpResult = $this->transport($source, 'HEAD', null, [		          	
 				     'ignore_errors' => false,	   	
 				     'timeout' => max(1, floor($this->httTimeout / 2)),  	
