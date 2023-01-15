@@ -1243,7 +1243,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         $httpOptions = [
         'http' => [
             'method'  => $method,
-            'ignore_errors' => false,
+            'ignore_errors' => true,
 	    'timeout' => $this->httTimeout,  
 	    'follow_location' => true,	
             'header'=> ""// "X-Source-Encoding: b64\r\n"
@@ -1303,8 +1303,12 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         'fragment' => 'new-fragment-value'
     ), true );    
     */
-    public static function unparse_url( string $url, array $overwrite_parsed_url_array = [], bool $merge_query_parameters = true ) : string {
+    public static function unparse_url( string $url, array $overwrite_parsed_url_array = null, bool $merge_query_parameters = null ) : string {
 
+		$merge_query_parameters = is_bool($merge_query_parameters) ? $merge_query_parameters : true;
+		$overwrite_parsed_url_array = is_array($overwrite_parsed_url_array) ? $overwrite_parsed_url_array : [];
+		
+		
         $parsed_url_array = \parse_url( $url );
         $parsed_url_keys_array = [
             'scheme'        => null,
