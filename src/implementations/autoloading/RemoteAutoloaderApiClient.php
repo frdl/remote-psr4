@@ -1233,7 +1233,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			     ]);				    
 	    $res = $httpResult->body;
 	    
-        $exists = false !== $res;
+        $exists = false !== $res && $httpResult->status == 200;
 	    
 	self::$existsCache[$source] = $exists;
       return $exists;
@@ -1277,6 +1277,11 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         $transport->body = @file_get_contents($url, false, $transport->context);	
 	$transport->headers = array_merge([], $http_response_header);
 	
+        $status_line = $transport->headers[0];
+        preg_match('{HTTP\/\S*\s(\d{3})}', $status_line, $match);
+        $transport->status = intval($match[1]);	    
+	    
+	    
 	return $transport;    
     }
  
@@ -1398,9 +1403,9 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	 ]);
 	    $code = $httpResult->body;
 	    
-	      preg_match('{HTTP\/\S*\s(\d{3})}', $httpResult->headers[0], $match);
+	       
 		
-		if(false === $code || "200" != $match[0]){
+		if(false === $code || $httpResult->status !== 200){
 		     $urlOld = $url;
 		     $url=preg_replace('/(\/stable\/)/', '/', $url);
 		     $url=preg_replace('/(\/latest\/)/', '/', $url);	
