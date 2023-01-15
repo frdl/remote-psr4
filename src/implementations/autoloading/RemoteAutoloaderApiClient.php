@@ -1293,7 +1293,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	$transport = new \stdclass;    
         $transport->context  = stream_context_create($httpOptions);
         $transport->body = @file_get_contents($url, false, $transport->context);	
-	$transport->headers = array_merge([], $http_response_header);
+	  $transport->headers = array_merge([], is_array($http_response_header) ? $http_response_header : []);
 	 preg_match('{HTTP\/\S*\s(\d{3})}', $transport->headers[0], $match);
 		$transport->status = $match[1];
 	return $transport;    
@@ -1387,7 +1387,24 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		    set_time_limit(max(max($this->httTimeout,240), intval(ini_get('max_execution_time')) + max($this->httTimeout,240)));		
 	    }    
 	    
-	return \call_user_func_array($callable, func_get_args());    
+	  $transport = \call_user_func_array($callable, func_get_args());    
+		$status = ((string)$transport->status).'';
+		if('3' === substr($status,0, 1)){
+		
+			foreach($transport->headers as $i => $header){          
+				$h = explode(':', $header, 2);           
+				$k = strtolower(trim($h[0]));          
+				$v =  (isset($h[1])) ? trim($h[1]) : $header;
+           
+           
+				if('location' === $k){                          
+				   return $this->transport($v,  $method ,  $headers,  $options ,  $httpOpts);
+				}
+      
+			}
+		}
+		
+     return $transport;
     }
 		
 		
@@ -1443,7 +1460,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			
 			
         foreach($httpResult->headers as $i => $header){
-           $h = explode(':', $header);
+           $h = explode(':', $header, 2);
            $k = strtolower(trim($h[0]));
            $v =  (isset($h[1])) ? trim($h[1]) : $header;
            
