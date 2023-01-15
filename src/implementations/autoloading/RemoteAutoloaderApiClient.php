@@ -284,7 +284,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	  $httpResult = $me->transport($baseUrl.'source='.urlencode('@server.key'), 'GET', [
 		 
 	 ], [		          
-		 //'ignore_errors' => false,	   
+		// 'ignore_errors' => false,	   
 		 'timeout' =>$this->httTimeout * 4,  
 	 ]);
 	    $key = $httpResult->body;
@@ -1243,7 +1243,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         $httpOptions = [
         'http' => [
             'method'  => $method,
-           'ignore_errors' => false,	   
+            'ignore_errors' => false,
 	    'timeout' => $this->httTimeout,  
 	    'follow_location' => true,	
             'header'=> ""// "X-Source-Encoding: b64\r\n"
@@ -1276,7 +1276,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         $transport->context  = stream_context_create($httpOptions);
         $transport->body = @file_get_contents($url, false, $transport->context);	
 	$transport->headers = array_merge([], $http_response_header);
-	
+	 preg_match('{HTTP\/\S*\s(\d{3})}', $transport->headers[0], $match);
+		$transport->status = $match[1];
 	return $transport;    
     }
  
@@ -1393,14 +1394,14 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	 $httpResult = $this->transport($url, 'GET', [
 		 'X-Source-Encoding'=>'b64',
 	 ], [		          
-	//	'ignore_errors' => false,	   
+		// 'ignore_errors' => true,	   
 		 'timeout' => $this->httTimeout,  		
 	 ]);
 	    $code = $httpResult->body;
 	    
-	      preg_match('{HTTP\/\S*\s(\d{3})}', $httpResult->headers[0], $match);
+ 
 		
-		if(false === $code || "200" != $match[0]){
+		if(false === $code || 200 != $httpResult->status){
 		     $urlOld = $url;
 		     $url=preg_replace('/(\/stable\/)/', '/', $url);
 		     $url=preg_replace('/(\/latest\/)/', '/', $url);	
@@ -1408,7 +1409,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			     $httpResult = $this->transport($url, 'GET', [		
 				     'X-Source-Encoding'=>'b64',	
 			     ], [		          	
-				     'ignore_errors' => false,	   	
+				   //  'ignore_errors' => false,	   	
 				     'timeout' => $this->httTimeout,  		
 			     ]);	  
 			     $code = $httpResult->body;
