@@ -561,7 +561,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		'Task\Plugin\Console\\' => 'https://raw.githubusercontent.com/taskphp/console/00bfa982c4502938ca0110d2f23c5cd04ffcbcc3/src/${class}.php?cache_bust=${salt}',
 		'Task\\' => 'https://raw.githubusercontent.com/taskphp/task/7618739308ba484b5f90a83d5e1a44e1d90968d2/src/${class}.php?cache_bust=${salt}',			    
 	        'Amp\Dns\\' => 'https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/${class}.php?cache_bust=${salt}',
-		'Amp\\' => 'https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/${class}.php?cache_bust=${salt}',
+		'Amp\\' => 'https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/${class}.php?cache_bust=${salt}',		    
+		'IvoPetkov\\' => 'https://latest.software-download.frdlweb.de/?source=IvoPetkov\${class}&salt=${salt}',
 		    
 		'Laminas\Stdlib\\' => 'https://raw.githubusercontent.com/laminas/laminas-stdlib/3.16.1/src/${class}.php?cache_bust=${salt',      
 		'Laminas\Config\\' => 'https://raw.githubusercontent.com/laminas/laminas-config/3.8.0/src/${class}.php?cache_bust=${salt',  
