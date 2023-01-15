@@ -1323,9 +1323,14 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
             'fragment'      => null,
         ];
 
-        if ( isset( $parsed_url_array['query'] ) && $merge_query_parameters === true ) {
-            parse_str( $parsed_url_array['query'], $query_array );
-            $overwrite_parsed_url_array['query'] = \array_merge_recursive( $query_array, $overwrite_parsed_url_array['query'] );
+	    if(is_string($overwrite_parsed_url_array['query'])){
+	      parse_str( $overwrite_parsed_url_array['query'], $overwrite_parsed_url_array['query'] );
+	    }
+	    
+        if ( isset( $overwrite_parsed_url_array['query'] ) && $merge_query_parameters === true ) {
+            $overwrite_parsed_url_array['query'] = \array_merge_recursive( $overwrite_parsed_url_array['query'], $overwrite_parsed_url_array['query'] );
+        }elseif ( isset( $overwrite_parsed_url_array['query'] ) && $merge_query_parameters !== true ) {
+            $overwrite_parsed_url_array['query'] = \array_merge( $overwrite_parsed_url_array['query'], $overwrite_parsed_url_array['query'] );
         }
 
         $query_parameters = \http_build_query( $overwrite_parsed_url_array['query'], null, '&', \PHP_QUERY_RFC1738 );
@@ -1388,6 +1393,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		 'timeout' => $this->httTimeout,  		
 	 ]);
 	    $code = $httpResult->body;
+	    
 	      preg_match('{HTTP\/\S*\s(\d{3})}', $httpResult->headers[0], $match);
 		
 		if(false === $code || "200" != $match[0]){
