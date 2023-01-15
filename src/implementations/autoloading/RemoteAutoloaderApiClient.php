@@ -503,7 +503,22 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			       
 			       return true;
 			   break;
+
+		       case 'Guzzle' === substr($class, strlen('Guzzle') ) :
+			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'guzzle-http';
+			       if(!is_dir($aDir)){
+				  mkdir($aDir, 0775, true);       
+			       }
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
+			       if(!file_exists($aFile)){
+				  file_put_contents($aFile, file_get_contents('https://webfan.de/install/?source=GuzzleHttp\Psr7\stream_for?salt='.time()));   
+			       }
+			       if (!in_array($aFile, get_included_files())) {
+			           require $aFile;
+			       }
 			       
+			       return true;
+			   break;			       
 			       
 		       default:
 			    return true;
