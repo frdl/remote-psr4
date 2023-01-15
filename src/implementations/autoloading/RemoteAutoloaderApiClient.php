@@ -1393,7 +1393,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	 $httpResult = $this->transport($url, 'GET', [
 		 'X-Source-Encoding'=>'b64',
 	 ], [		          
-		'ignore_errors' => false,	   
+	//	'ignore_errors' => false,	   
 		 'timeout' => $this->httTimeout,  		
 	 ]);
 	    $code = $httpResult->body;
