@@ -1228,17 +1228,19 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
    			
 	    $httpResult = $this->transport($source, 'HEAD', null, [		          	
-				     'ignore_errors' => false,	   	
+				     'ignore_errors' => true,	   	
 				     'timeout' => max(1, floor($this->httTimeout / 2)),  	
 			     ]);				    
 	    $res = $httpResult->body;
+	    preg_match('{HTTP\/\S*\s(\d{3})}', $httpResult->headers[0], $match);
 	    
-        $exists = false !== $res;
+        $exists = false !== $res && 200 === intval($match[0]);
 	    
 	self::$existsCache[$source] = $exists;
       return $exists;
     }
 
+			
     public function fetchHttp(string $url, string $method = 'GET', array $headers = null, array $options = null, array $httpOpts= null){
         $httpOptions = [
         'http' => [
@@ -1384,12 +1386,14 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	 $httpResult = $this->transport($url, 'GET', [
 		 'X-Source-Encoding'=>'b64',
 	 ], [		          
-		 'ignore_errors' => false,	   
+		 'ignore_errors' => true,	   
 		 'timeout' => $this->httTimeout,  		
 	 ]);
 	    $code = $httpResult->body;
 	    
-		if(false === $code){
+	        preg_match('{HTTP\/\S*\s(\d{3})}', $httpResult->headers[0], $match);
+	      
+		if(false === $code ||  200 !== intval($match[0]) ){
 		     $urlOld = $url;
 		     $url=preg_replace('/(\/stable\/)/', '/', $url);
 		     $url=preg_replace('/(\/latest\/)/', '/', $url);	
