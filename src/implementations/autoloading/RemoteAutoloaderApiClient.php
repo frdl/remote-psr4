@@ -532,8 +532,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
 	    
 	    $this->withClassmap([	 
-		 \Frdlweb\IanaPenListFetcher::class => 'https://raw.githubusercontent.com/frdl/iana-enterprise-numbers-fetcher/main/src/IanaPenListFetcher.class.php?cache_bust=${salt}',
-	        'ActivityPhp\\' => 'https://raw.githubusercontent.com/vendor-patch/activitypub/patch-1/src/ActivityPhp/${class}.php?cache_bust=${salt}',     
+		'ActivityPhp\\' => 'https://raw.githubusercontent.com/vendor-patch/activitypub/patch-1/src/ActivityPhp/${class}.php?cache_bust=${salt}',  
+	        'Clivern\Imap\\' => 'https://raw.githubusercontent.com/Clivern/Imap/1.0.6/src/${class}.php?cache_bust=${salt}',			    
 		'Jobby\\' => 'https://raw.githubusercontent.com/jobbyphp/jobby/v3.5.0/src/${class}.php?cache_bust=${salt}',
 		 \Wehowski\Helpers\ArrayHelper::class => 'https://webfan.de/install/?salt=${salt}&source=Wehowski\Helpers\ArrayHelper',    
 		'Lechimp\PHP2JS\\' => 'https://raw.githubusercontent.com/lechimp-p/php2js/0.1.0/src/${class}.php?cache_bust=${salt}',
@@ -549,8 +549,10 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
                  \frdlweb\AppInterface::class => 'https://webfan.de/install/?source=frdlweb\AppInterface&salt=${salt}',
 		 \Frdlweb\AdvancedWebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/AdvancedWebAppInterface.php?cache_bust=${salt}',		
 	         \Frdlweb\KernelHelperInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/KernelHelperInterface.php?cache_bust=${salt}',
-		 \Frdlweb\WebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/WebAppInterface.php?cache_bust=${salt}',	        
-		 \Webfan\Webfat\MainModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/MainModule.php?cache_bust=${salt}',
+		 \Frdlweb\IanaPenListFetcher::class => 'https://raw.githubusercontent.com/frdl/iana-enterprise-numbers-fetcher/main/src/IanaPenListFetcher.class.php?cache_bust=${salt}',
+	        \Frdlweb\WebAppInterface::class => 'https://raw.githubusercontent.com/frdl/codebase/main/src/Frdlweb/WebAppInterface.php?cache_bust=${salt}',	        
+		'Hybridauth\\ '=> 'https://raw.githubusercontent.com/hybridauth/hybridauth/v3.8.2/src/${class}.php?cache_bust=${salt}',
+		\Webfan\Webfat\MainModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/MainModule.php?cache_bust=${salt}',
 		\Webfan\Webfat\Module::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module.php?cache_bust=${salt}',
 		\Webfan\Webfat\CoreModule::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/CoreModule.php?cache_bust=${salt}',
 		'Webfan\Webfat\Module\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module/${class}.php?cache_bust=${salt}', 
