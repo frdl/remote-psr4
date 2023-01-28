@@ -12,6 +12,37 @@ namespace Frdlweb\Contract\Autoload{
 }//ns Frdlweb\Contract\Autoload
 
 namespace Frdlweb\Contract\Autoload{
+ if (!interface_exists(ClassmapGeneratorApiInterface::class)) {	
+	interface ClassmapGeneratorApiInterface {	
+	   public function getClassmapCachefileFor(string $app, string $version, string $phpVersion = \PHP_VERSION) : string;		
+	   // $cache = true : load from cache if exists
+           // $cache = int :  load from cache if it is newer than $cache seconds
+	   // $cache = false : invalidate cache for the classmap and load from implementation/API
+	   public function getClassmapFor(string $app, string $version, string $phpVersion = \PHP_VERSION, int | bool $cache = true) : array | bool;	
+	   public function withClassmapFor(string $app, string $version, string $phpVersion = \PHP_VERSION, int | bool $cache = true);
+	}
+ }
+}//ns Frdlweb\Contract\Autoload
+
+namespace Frdlweb\Contract\Autoload{
+ if (!interface_exists(ClassmapGeneratorInterface::class)) {	
+	interface ClassmapGeneratorInterface {		
+	   public function withClassmap(array $classMap = null);
+	}
+ }
+}//ns Frdlweb\Contract\Autoload
+
+
+namespace Frdlweb\Contract\Autoload{
+ if (!interface_exists(AliasMapGeneratorInterface::class)) {	
+	interface AliasMapGeneratorInterface {		
+	   public function withAlias(string $alias, string $rewrite);
+	}
+ }
+}//ns Frdlweb\Contract\Autoload
+
+
+namespace Frdlweb\Contract\Autoload{
 if (!interface_exists(ClassLoaderInterface::class)) {		
 	interface ClassLoaderInterface {
 		public function Autoload(string $class):bool|string;
@@ -42,7 +73,10 @@ namespace frdl\implementation\psr4{
 class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInterface, 
 	\Frdlweb\Contract\Autoload\ResolverInterface,
 	\Frdlweb\Contract\Autoload\ClassLoaderInterface,
-	\Frdlweb\Contract\Autoload\Psr4GeneratorInterface 
+	\Frdlweb\Contract\Autoload\Psr4GeneratorInterface,
+	\Frdlweb\Contract\Autoload\ClassmapGeneratorInterface,
+	\Frdlweb\Contract\Autoload\ClassmapGeneratorApiInterface,
+	\Frdlweb\Contract\Autoload\AliasMapGeneratorInterface
 {
     public const HASH_ALGO = 'sha1';
     public const ACCESS_LEVEL_SHARED = 0;
@@ -246,6 +280,52 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
         return $this->salted;
     }	
+	
+	   //ClassmapGeneratorApiInterface	
+	   public function getClassmapCachefileFor(string $app, string $version, string $phpVersion = \PHP_VERSION) : string {
+		$dir=  (is_dir($this->cacheDir)) ? rtrim($this->cacheDir, \DIRECTORY_SEPARATOR.' \\/ ').\DIRECTORY_SEPARATOR :  \sys_get_temp_dir().\DIRECTORY_SEPARATOR;   
+		$dir.= '~application-classmaps-caches'.  \DIRECTORY_SEPARATOR;
+		$dir.= 'remote-mapping-' . sha1($app, 0, 4).  \DIRECTORY_SEPARATOR;   
+		$dir.= preg_replace("/[^A-Za-z0-9\-\.\_]/", '-', $app).\DIRECTORY_SEPARATOR;   
+		$dir.= $version .  \DIRECTORY_SEPARATOR;   
+		$dir.= 'php-'.$phpVersion.  \DIRECTORY_SEPARATOR;  
+		return $dir.'remote-classmap.php';
+	   }
+	   protected function _isClassmapfileCacheExpired($file, $cache) : bool {
+		  switch($cache){
+		      case false :
+			    return true;	  
+		          break;
+		      case true :
+			    return !file_exists($file);	  
+		         break;
+		      case \is_int($cache) :
+			   return !file_exists($file) || filemtime($file) < time() - $cache;	  
+		          break;
+		    default :
+		      return !file_exists($file);
+		     break;
+		  }
+	   }
+	   //ClassmapGeneratorApiInterface		
+	   // $cache = true : load from cache if exists
+           // $cache = int :  load from cache if it is newer than $cache seconds
+	   // $cache = false : invalidate cache for the classmap and load from implementation/API
+	   public function getClassmapFor(string $app, string $version, string $phpVersion = \PHP_VERSION, int | bool $cache = true) : array | bool {
+		$file = $this->getClassmapCachefileFor($app, $version, $phpVersion);
+		   
+	        if(!$this->_isClassmapfileCacheExpired($file, $cache)){
+		   return require $file;
+		}
+		   
+		   throw new \Exception('@ToDo Sorry, I implement this in a few minutes...');
+		   
+	   }	
+	   //ClassmapGeneratorApiInterface		
+	   public function withClassmapFor(string $app, string $version, string $phpVersion = \PHP_VERSION, int | bool $cache = true) {
+		 $this->withClassmap($this->getClassmapFor($app, $version, $phpVersion, $cache));
+	   }
+		
 		
     public function withWebfanWebfatDefaultSettings(string $dir = null,bool $increaseTimelimit = null){
 	    if(null===$dir){
