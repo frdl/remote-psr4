@@ -300,7 +300,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 			    return !file_exists($file);	  
 		         break;
 		      case \is_int($cache) :
-			   return !file_exists($file) || filemtime($file) < time() - $cache;	  
+			   return !file_exists($file) || ($cache > 0 && filemtime($file) < time() - $cache);	  
 		          break;
 		    default :
 		      return !file_exists($file);
@@ -318,9 +318,32 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		   return require $file;
 		}
 		   
-		   throw new \Exception('@ToDo Sorry, I implement this in a few minutes...');
+		   $userAgent = 'Webfan/Fusio-Plugin-0.0.1'
+				  .' Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,like Gecko) Chrome/107.0.0.0 Safari/537.36';
+		   $this->withUserAgent($userAgent);
+	     
+		   $url = sprintf('https://api.webfan.de/v1/install/generate/%s/%s/autoloading/remote-mapping/%s/classmap', $app, $version, $phpVersion);
 		   
+		   $httpResult = $this->transport($url, 'GET', [		 
+	
+		   ], [		          		
+			   // 'ignore_errors' => false,	   		
+			   'timeout' =>$this->httTimeout * 3,	
+		   ]);
+	 
+		   $json = $httpResult->body;		   
+		   $classMap = \json_decode($json);
+		   $classMap = (array)$classMap;
+		   $classMap = (array)$classMap['result'];
+		   $exp = \var_export($classMap, true);
+		   $phpCode = <<<PHPCODE
+<?php
+ return $exp;
+PHPCODE;		   
+		   \file_put_contents($file, $phpCode);
+		return $classMap;
 	   }	
+		
 	   //ClassmapGeneratorApiInterface		
 	   public function withClassmapFor(string $app, string $version, string $phpVersion = \PHP_VERSION, int | bool $cache = true) {
 		 $this->withClassmap($this->getClassmapFor($app, $version, $phpVersion, $cache));
@@ -610,7 +633,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
 	    
 
-	    
+	    $this->withClassmapFor('default', 'latest', \PHP_VERSION, $this->cacheLimit);
+	     /*
 	    $this->withClassmap([	 
 		'ActivityPhp\\' => 'https://raw.githubusercontent.com/vendor-patch/activitypub/patch-1/src/ActivityPhp/${class}.php?cache_bust=${salt}',  
 	        'Clivern\Imap\\' => 'https://raw.githubusercontent.com/Clivern/Imap/1.0.6/src/${class}.php?cache_bust=${salt}',			    
@@ -661,9 +685,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	        'Amp\Dns\\' => 'https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/${class}.php?cache_bust=${salt}',
 		'Amp\\' => 'https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/${class}.php?cache_bust=${salt}',		    
 		'IvoPetkov\\' => 'https://latest.software-download.frdlweb.de/?source=IvoPetkov\${class}&salt=${salt}',
-		/*
-		'Symfony\Component\EventDispatcher\\' => 'https://latest.software-download.frdlweb.de/?source=Symfony\Component\EventDispatcher\${class}&salt=${salt}',    
-		*/
+		 
 		'Laminas\Stdlib\\' => 'https://raw.githubusercontent.com/laminas/laminas-stdlib/3.16.1/src/${class}.php?cache_bust=${salt',      
 		'Laminas\Config\\' => 'https://raw.githubusercontent.com/laminas/laminas-config/3.8.0/src/${class}.php?cache_bust=${salt',  
 		    
@@ -744,7 +766,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
     '@ZendOAuth' => 'Laminas\\OAuth',
 		    
 	    ]);
-	    
+	     */
 	    
 	    
 	    $this->withUrlRewriterMiddleware(function($url){
