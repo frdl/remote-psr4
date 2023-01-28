@@ -340,6 +340,10 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 <?php
  return $exp;
 PHPCODE;		   
+		
+		  if(!is_dir(dirname($file))){
+		    \mkdir(dirname($file), 0775, true);	  
+		  }
 		   \file_put_contents($file, $phpCode);
 		return $classMap;
 	   }	
