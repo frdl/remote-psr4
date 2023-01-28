@@ -532,6 +532,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 
 	    
 	    $this->withClassmap([	 
+		 \Frdlweb\IanaPenListFetcher::class => 'https://raw.githubusercontent.com/frdl/iana-enterprise-numbers-fetcher/main/src/IanaPenListFetcher.class.php?cache_bust=${salt}',
 	        'ActivityPhp\\' => 'https://raw.githubusercontent.com/vendor-patch/activitypub/patch-1/src/ActivityPhp/${class}.php?cache_bust=${salt}',     
 		'Jobby\\' => 'https://raw.githubusercontent.com/jobbyphp/jobby/v3.5.0/src/${class}.php?cache_bust=${salt}',
 		 \Wehowski\Helpers\ArrayHelper::class => 'https://webfan.de/install/?salt=${salt}&source=Wehowski\Helpers\ArrayHelper',    
