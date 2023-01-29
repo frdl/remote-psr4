@@ -283,7 +283,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	
 	   //ClassmapGeneratorApiInterface	
 	   public function getClassmapCachefileFor(string $app, string $version, string $phpVersion = \PHP_VERSION) : string {
-		$dir=  (is_dir($this->cacheDir)) ? rtrim($this->cacheDir, \DIRECTORY_SEPARATOR.' \\/ ').\DIRECTORY_SEPARATOR :  \sys_get_temp_dir().\DIRECTORY_SEPARATOR;   
+		$dir=  (is_string($this->cacheDir)) ? rtrim($this->cacheDir, \DIRECTORY_SEPARATOR.' \\/ ').\DIRECTORY_SEPARATOR :  \sys_get_temp_dir().\DIRECTORY_SEPARATOR;   
 		$dir.= '~application-classmaps-caches'.  \DIRECTORY_SEPARATOR;
 		$dir.= 'remote-mapping-' . \substr(sha1($app), 0, 4).  \DIRECTORY_SEPARATOR;   
 		$dir.= preg_replace("/[^A-Za-z0-9\-\.\_]/", '-', $app).\DIRECTORY_SEPARATOR;   
