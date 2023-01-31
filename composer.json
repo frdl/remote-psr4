@@ -1,7 +1,8 @@
 {
   "name" : "frdl/remote-psr4",
   "type" : "library",
-  "description": "An php psr4 Autoloader which is autoloading from a remote server.",	  
+  "description": "An php psr4 Autoloader which is autoloading from a remote server.",
+  "keywords" : ["autoloading", "PSR-4", "remote"],
   "license": ["MIT"],	 
   "authors":[
 	  {
@@ -9,8 +10,10 @@
 	    "email" : "software@frdl.de"
 	  }
 	  ],
+  "readme" : "README.md",
+  "homepage" : "https://webfan.de/install/",
   "require" : {
-	    "php": ">=7.2"
+	    "php": ">=7.2 | >=8.0"
   },	  
   "autoload": {
     "classmap" : ["src/implementations/autoloading/"],  
@@ -19,6 +22,7 @@
      }
   },
  "suggest" : {
-   "frdl/codebase" : "More autoloading strategy..."
+   "frdl/codebase" : "More autoloading strategy...",
+   "frdlweb/webfat" : "An Implementation wich is wrapping this package."
  }
 }
