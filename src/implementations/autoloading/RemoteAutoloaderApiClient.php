@@ -907,7 +907,9 @@ PHPCODE;
 
           if(!is_dir($this->cacheDir)){
             mkdir($this->cacheDir, 0775,true);
-          }
+          }else{
+	    chmod($this->cacheDir, 0775);	  
+	  }
 
          if(!$valCacheDir($this->cacheDir,false,false) ){
            throw new \Exception('Bootstrap error in '.basename(__FILE__).' '.__LINE__.' for '.$this->cacheDir);
