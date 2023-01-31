@@ -229,6 +229,11 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
     }
     public function withNamespace($prefix, $server, $prepend = false)
     {
+        $this->_withNamespace($prefix, $server, $prepend, true);
+    }
+
+    protected function _withNamespace($prefix, $server, $prepend = false, bool $sort = true)
+    {
         $prefix = trim($prefix, '\\') . '\\';
 
         // normalize the base directory with a trailing separator
@@ -245,33 +250,47 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         } else {
             array_push($this->prefixes[$prefix], $server);
         }
-    }
-
-		
+	    
+	  if($sort){
+		  krsort($this->prefixes);   
+	  }
+    }		
 
     public function withClassmap(array $classMap = null)
     {
+	 
+        krsort(self::$classmap);  
+	    
         if(null !== $classMap){
            foreach($classMap as $class => $server){
            if('@' === substr($class, 0, 1) && is_string($server)){
-               $this->withAlias($class, $server);
+               $this->_withAlias($class, $server, false);
            }elseif('\\' === substr($class, -1)){
-               $this->withNamespace($class, $server, false); // is_string($server));
+		 $this->_withNamespace($class, $server, false, false);  
            }else{
                 self::$classmap[$class] = $server;
            }
 
            }
          }
-
+	    
+	krsort($this->alias);       
+	krsort($this->prefixes);   
         return self::$classmap;
     }
 
     public function withAlias(string $alias, string $rewrite)
     {
-        $this->alias[ltrim($alias, '@')] = $rewrite;
+        $this->_withAlias($alias, $rewrite, true);
     }
-
+    protected function _withAlias(string $alias, string $rewrite, bool $sort = true)
+    {
+        $this->alias[ltrim($alias, '@')] = $rewrite;
+	  if($sort){		 
+	      krsort($this->alias);   
+	  }
+    }
+		
     public function withSalt(bool $salted = null)
     {
         if(null !== $salted){
@@ -807,7 +826,8 @@ PHPCODE;
                break;
            }
 
-        $this->cacheLimit = (is_int($cacheLimit)) ? $cacheLimit : ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']))? $_ENV['FRDL_HPS_PSR4_CACHE_LIMIT'] : $defauoltcacheLimit);
+        $this->cacheLimit = (is_int($cacheLimit)) ? $cacheLimit 
+		: ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']))? $_ENV['FRDL_HPS_PSR4_CACHE_LIMIT'] : $defauoltcacheLimit);
 
 
            $this->cacheDir = (is_string($cacheDirOrAccessLevel) && is_dir($cacheDirOrAccessLevel) && is_readable($cacheDirOrAccessLevel) && is_writeable($cacheDirOrAccessLevel) )
@@ -1607,17 +1627,18 @@ PHPCODE;
     {
         if($this->cacheLimit !== 0
            && $this->cacheLimit !== -1){
-
-                 $ShutdownTasks = \frdlweb\Thread\ShutdownTasks::mutex();
-                  $ShutdownTasks(function($CacheDir, $maxCacheTime){
+                  $ShutdownTasks = \frdlweb\Thread\ShutdownTasks::mutex();
+                  $ShutdownTasks(function($loader, int $cacheLimit){
                           @\ignore_user_abort(true);
-                          @\webfan\hps\patch\Fs::pruneDir($CacheDir, $maxCacheTime, true,  'tmp' !== basename($CacheDir));
-
-                  }, $this->cacheDir, $this->cacheLimit);
-
+                          @\call_user_func_array([$loader, 'prune'], [$cacheLimit]);
+                  }, $this, $this->cacheLimit);		
         }
     }
-       
+    public function prune(int $cacheLimit)
+    {
+	\webfan\hps\patch\Fs::pruneDir($this->cacheDir, $cacheLimit, true,  'tmp' !== basename($this->cacheDir));
+    }
+		
 	public function resolve(string $class):bool|string{
 	    $cacheFile = $this->file($class);
 	    $url =  $this->url( $class );
@@ -1631,9 +1652,11 @@ PHPCODE;
 		return false;    
 	    }		
 	}
+		
         public function file(string $class):bool|string{
 	  return rtrim($this->cacheDir, \DIRECTORY_SEPARATOR.'/\\ '). \DIRECTORY_SEPARATOR. str_replace('\\', \DIRECTORY_SEPARATOR, $class). '.php';
 	}
+		
         public function url(string $class):bool|string{
         
            $salt = $this->salt;         
@@ -1644,7 +1667,6 @@ PHPCODE;
              return $url;
           }
 
-        //  $withSaltedUrl = (true === $this->str_contains($url, '${salt}', false)) ? true : false;
           $url =  $this->replaceUrlVars($url, $salt, $class, $this->version);		
 	  return $url;
 	}	
@@ -1655,13 +1677,12 @@ PHPCODE;
 	    
 		
 	foreach($this->beforeMiddlewares as $middleware){
-	    if(false === call_user_func_array($middleware, [$class, &$this]) ){
+	    if(false === \call_user_func_array($middleware, [$class, &$this]) ){
 	      return false;	
 	    }        
 	}	    
 	    
         $cacheFile = $this->file($class);
-        //$cacheFile = realpath($cacheFile);
 
          if(file_exists($cacheFile)
            && ($this->cacheLimit !== 0
