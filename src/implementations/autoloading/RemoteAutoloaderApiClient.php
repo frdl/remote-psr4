@@ -188,6 +188,8 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
     ];		
      protected $transport = 'http';
 		
+     protected $_calledWIthDefaultMethods = [];
+		
 		
     public function withTransport(string $schema, array | \callable | \Closure $handler){
         $this->_TRANSPORTS[$schema] = $handler;
@@ -252,7 +254,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
         }
 	    
 	  if($sort){
-		  krsort($this->prefixes);   
+	     krsort($this->prefixes);   
 	  }
     }		
 
@@ -373,11 +375,16 @@ PHPCODE;
 	   }
 		
 		
-    public function withWebfanWebfatDefaultSettings(string $dir = null,bool $increaseTimelimit = null){
+    public function withDefaultValidators(string $dir = null,bool $increaseTimelimit = null){
+	    
+	    if(\in_array(__METHOD__, $this->_calledWIthDefaultMethods)){
+		return;    
+	    }
+	    $this->_calledWIthDefaultMethods[] = __METHOD__;
+	    
 	    if(null===$dir){
 		  $dir=  (is_dir($this->cacheDir)) ? $this->cacheDir :  \sys_get_temp_dir().\DIRECTORY_SEPARATOR;		    
 	    }
-		    
 	   $httTimeout = $this->httTimeout;
 	   $publicKeyChanged = false; 
 	   $increaseTimelimit = is_null($increaseTimelimit) ? self::$increaseTimelimit : $increaseTimelimit; 
@@ -416,8 +423,7 @@ PHPCODE;
 	    $key = $httpResult->body;
 	      
 	      	  if(false === $key || empty($key) ){
-			//throw new \Exception('Cannot get '.  $baseUrl.'source=@server.key in '.__METHOD__);
-			  trigger_error('Cannot get '.  $baseUrl.'source=@server.key in '.__METHOD__, \E_USER_WARNING);
+			throw new \Exception('Cannot get '.  $baseUrl.'source=@server.key in '.__METHOD__);
 		      return;
 		  }					    
 		
@@ -427,10 +433,10 @@ PHPCODE;
 				file_put_contents($expFile, trim($h[1]) );
 				break;
 			}           
-         }
+           }
 		  
 		  file_put_contents($pubKeyFile, $key);
-	  }
+	}//keyfile expired and refetched
 	 
  };
 
@@ -440,14 +446,12 @@ PHPCODE;
       $expFile =  rtrim($cacheDir, '\\/ ') .	\DIRECTORY_SEPARATOR.'validator-'.$host.'-'.sha1($baseUrl).strlen($baseUrl).'.expires.txt';
       $pubKeyFile =  rtrim($cacheDir, '\\/ ') .	\DIRECTORY_SEPARATOR.'validator-'.$host.'-'.sha1($baseUrl).strlen($baseUrl).'.public-key.txt';
 	 
-     $setPublicKey($baseUrl, $expFile, $pubKeyFile);
-
+  
 	 $condition = function($url, &$loader, $class) use($httTimeout, $baseUrl, $increaseTimelimit){
-		if($increaseTimelimit){			
-		  set_time_limit(max(max($httTimeout,240), intval(ini_get('max_execution_time')) + max($httTimeout,240)));
-		}
-
 		if($baseUrl === substr($url, 0, strlen($baseUrl) ) && $class !== \PhpParser\PrettyPrinter\Standard::class ){
+		         if($increaseTimelimit){			
+		            set_time_limit(max(max($httTimeout,120), intval(ini_get('max_execution_time')) + max($httTimeout,120)));
+		         }			
 			return true;	  
 		}else{
 		  return false;	
@@ -460,6 +464,8 @@ PHPCODE;
 	        $c++;
 		$sep = 'X19oYWx0X2NvbXBpbGVyKCk7'; 
         $my_signed_data=$code;
+	     
+	     $setPublicKey($baseUrl, $expFile, $pubKeyFile);
 	     
 	     if(!file_exists($pubKeyFile)){
 		return new \Exception("ERROR -- missing public key for ".$class." at ".$baseUrl.": ".htmlentities(substr($code, 0, 1024).'...'));     
@@ -512,8 +518,22 @@ PHPCODE;
 	        
 	    foreach($getDefaultValidators($dir, $increaseTimelimit) as $validator){	  
 		    $this->withAfterMiddleware($validator[0], $validator[1]);   
-	    }			
+	    }		
 	    
+	return $this;    
+    }
+		
+		
+    public function withWebfanWebfatDefaultSettings(string $dir = null,bool $increaseTimelimit = null){
+	    if(\in_array(__METHOD__, $this->_calledWIthDefaultMethods)){
+		return;    
+	    }
+	    $this->_calledWIthDefaultMethods[] = __METHOD__;	    
+	    
+	    if(null===$dir){
+		  $dir=  (is_dir($this->cacheDir)) ? $this->cacheDir :  \sys_get_temp_dir().\DIRECTORY_SEPARATOR;		    
+	    }
+		    
 	    
 	  /* some dirty workaround patches... */
 	  $this->withBeforeMiddleware(function($class, &$loader) use ($dir) {
@@ -823,6 +843,7 @@ PHPCODE;
            case self::ACCESS_LEVEL_SHARED :
                default:
                 $bucket = '_'.\DIRECTORY_SEPARATOR.'shared';
+	        $defauoltcacheLimit = $defauoltcacheLimit > 0 ? \max($defauoltcacheLimit, 5 * 60) : 24 * 60 * 60;	   
                break;
            }
 
@@ -830,9 +851,12 @@ PHPCODE;
 		: ((isset($_ENV['FRDL_HPS_PSR4_CACHE_LIMIT']))? $_ENV['FRDL_HPS_PSR4_CACHE_LIMIT'] : $defauoltcacheLimit);
 
 
-           $this->cacheDir = (is_string($cacheDirOrAccessLevel) && is_dir($cacheDirOrAccessLevel) && is_readable($cacheDirOrAccessLevel) && is_writeable($cacheDirOrAccessLevel) )
-           ? $cacheDirOrAccessLevel
-            :  \sys_get_temp_dir().\DIRECTORY_SEPARATOR
+           $this->cacheDir =/* (is_string($cacheDirOrAccessLevel)
+			       && is_dir($cacheDirOrAccessLevel) && is_readable($cacheDirOrAccessLevel) && is_writeable($cacheDirOrAccessLevel)
+			     ) */
+	    is_string($cacheDirOrAccessLevel)	   
+              ? $cacheDirOrAccessLevel
+               :  \sys_get_temp_dir().\DIRECTORY_SEPARATOR
                                   //   .'.frdl'.\DIRECTORY_SEPARATOR
                                      .$bucket.\DIRECTORY_SEPARATOR
                                      .'lib'.\DIRECTORY_SEPARATOR
@@ -869,38 +893,28 @@ PHPCODE;
                   $checkAccessable === false
                 ||
                 (
-                 //  (//is_dir($CacheDir)
-                //    || is_dir(dirname($CacheDir))
-                    //|| is_dir(dirname(dirname($CacheDir)))
-                    // ||
-                //    $valCacheDir($r, false, false, $CacheDir)
-                //    )
-                //&&
-
-                  is_writable($CacheDir)
+	           is_dir($CacheDir)
+               &&  is_writable($CacheDir)
                && is_readable($CacheDir)
                 )
              )
 
              && true === $checked
-
                 ? true
                 : false
             ;
         });
 
-
+          if(!is_dir($this->cacheDir)){
+            mkdir($this->cacheDir, 0775,true);
+          }
 
          if(!$valCacheDir($this->cacheDir,false,false) ){
-        throw new \Exception('Bootstrap error in '.basename(__FILE__).' '.__LINE__.' for '.$this->cacheDir);
+           throw new \Exception('Bootstrap error in '.basename(__FILE__).' '.__LINE__.' for '.$this->cacheDir);
          }
-
-          if(!is_dir($this->cacheDir)){
-         mkdir($this->cacheDir, 0777,true);
-          }
-           //die($this->cacheDir);
+       
            if(!is_array($classMap)){
-          $classMap = self::CLASSMAP_DEFAULTS;
+             $classMap = self::CLASSMAP_DEFAULTS;
            }
 
             $this->withSalt($salted);
@@ -909,7 +923,7 @@ PHPCODE;
         $this->version=$version;
         $this->server = $server;
         $_self = (isset($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] 
-	       : ( (isset($_SERVER['HTTP_HOST']) && \php_sapi_name() !== 'cli' ) ? $_SERVER['HTTP_HOST'] : 'dev.localhost');
+	       : ( (isset($_SERVER['HTTP_HOST']) && \php_sapi_name() !== 'cli' ) ? $_SERVER['HTTP_HOST'] : \php_uname("n"));
         $h = explode('.', $_self);
         $dns = array_reverse($h);
         $this->selfDomain = $dns[1].'.'.$dns[0];
@@ -920,11 +934,13 @@ PHPCODE;
         $this->domain = $dns[1].'.'.$dns[0];
     }
 
-        if(!$this->allowFromSelfOrigin && $this->domain === $this->selfDomain){
-          $register = false;
+        if(true === $register && !$this->allowFromSelfOrigin && $this->domain === $this->selfDomain){
+	   $message = 'Autoloading from remote at this domain at self local server is disabled in '.__METHOD__;
+	   throw new \Exception($message);
+          //$register = false;
         }
 
-
+        $this->withDefaultValidators($this->cacheDir,null);
 
         if(true === $register){
            $this->register();
