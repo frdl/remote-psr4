@@ -138,7 +138,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	    
       //Versions at Webfan:
 	  // Default/Fallback Versions Server:
-	\webfan\hps\Format\DataUri::class => 'https://webfan.de/install/?salt=${salt}&source=webfan\hps\Format\DataUri',
+	\webfan\hps\Format\DataUri::class => 'https://webfan.de/install/?salt=${salt}&source=${class}',
 	 // Stable/Current Versions Server:   
         //\webfan\hps\Format\DataUri::class => 'https://webfan.de/install/stable/?salt=${salt}&source=webfan\hps\Format\DataUri',	    
 	// Latest/Beta Versions Server:    
@@ -1103,7 +1103,7 @@ PHPCODE;
          }elseif(is_object($server) && is_callable([$server, 'get']) ){
         $url = call_user_func_array([$server, 'get'], [$class, $this->version, $salt]);
          }
-           return  (true === $parseVars && is_string($url)) ?  $this->replaceUrlVars($url, $salt, $class, $version) : $url;
+           return  (true === $parseVars && is_string($url)) ?  $this->replaceUrlVars($url, $salt, $class, $this->version) : $url;
     }
 
     public function replaceUrlVars($url, $salt, $class, $version)
