@@ -3,6 +3,41 @@
 * Bundled from https://github.com/frdl/codebase/tree/main/src/Frdlweb/Contract/Autoload
 * @ToDo: How could I "preload" this better/from github-sources?
 **/
+
+
+namespace Frdlweb\Contract\Autoload{
+ if (!interface_exists(ClassmapGeneratorInterface::class)) {	
+	 interface ClassmapGeneratorInterface {				
+		public function addDirectory(string $dir); 
+	}	
+  }	  
+}//ns Frdlweb\Contract\Autoload	
+
+
+namespace Frdlweb\Contract\Autoload {
+ if (!interface_exists(SourceCodeGeneratorInterface::class)) {	     
+  interface SourceCodeGeneratorInterface
+   {
+     public function file(string $className):string;
+     public function source(string $className):string;
+     public function bundle(array $classes):string;   
+   }
+  }     
+}
+
+namespace Frdlweb\Contract\Autoload{
+  if (!interface_exists(GeneratorInterface::class)) {	
+	interface GeneratorInterface {	
+	   public function withContext(Context $Context); 		
+	   public function withPackage(string | array | \stdclass/*$urlPackageNameOrComposerJson*/); 			
+	   public function withDirectory($dir); 
+	   public function withAlias(string $alias, string $rewrite); 
+	   public function withClassmap(array $classMap = null); 
+	   public function withNamespace($prefix, $server, $prepend = false);
+	}
+  }	  
+}//ns Frdlweb\Contract\Autoload	
+    
 namespace Frdlweb\Contract\Autoload{
  if (!interface_exists(Psr4GeneratorInterface::class)) {	
 	interface Psr4GeneratorInterface {		
@@ -25,8 +60,8 @@ namespace Frdlweb\Contract\Autoload{
 }//ns Frdlweb\Contract\Autoload
 
 namespace Frdlweb\Contract\Autoload{
- if (!interface_exists(ClassmapGeneratorInterface::class)) {	
-	interface ClassmapGeneratorInterface {		
+ if (!interface_exists(RemoteClassmapGeneratorInterface::class)) {	
+	interface RemoteClassmapGeneratorInterface {		
 	   public function withClassmap(array $classMap = null);
 	}
  }
@@ -74,7 +109,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 	\Frdlweb\Contract\Autoload\ResolverInterface,
 	\Frdlweb\Contract\Autoload\ClassLoaderInterface,
 	\Frdlweb\Contract\Autoload\Psr4GeneratorInterface,
-	\Frdlweb\Contract\Autoload\ClassmapGeneratorInterface,
+	\Frdlweb\Contract\Autoload\RemoteClassmapGeneratorInterface,
 	\Frdlweb\Contract\Autoload\ClassmapGeneratorApiInterface,
 	\Frdlweb\Contract\Autoload\AliasMapGeneratorInterface
 {
