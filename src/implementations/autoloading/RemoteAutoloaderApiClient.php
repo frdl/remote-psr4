@@ -29,7 +29,7 @@ namespace Frdlweb\Contract\Autoload{
   if (!interface_exists(GeneratorInterface::class)) {	
 	interface GeneratorInterface {	
 	   public function withContext(Context $Context); 		
-	   public function withPackage(string | array | \stdclass/*$urlPackageNameOrComposerJson*/); 			
+	   public function withPackage(string | array | \stdclass $urlPackageNameOrComposerJson ); 			
 	   public function withDirectory($dir); 
 	   public function withAlias(string $alias, string $rewrite); 
 	   public function withClassmap(array $classMap = null); 
