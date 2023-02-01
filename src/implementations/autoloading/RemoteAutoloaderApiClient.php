@@ -1211,7 +1211,7 @@ PHPCODE;
 
 
         if(isset(self::$classmap[$class]) && is_string(self::$classmap[$class]) && '\\' !== substr($class, -1)  && '\\' !== substr(self::$classmap[$class], -1) ){
-             $url = $this->getUrl($class, self::$classmap[$class], $salt);
+             $url = $this->getUrl($class, self::$classmap[$class], $salt, true);
              $url =  $this->replaceUrlVars($url, $salt, $class, $this->version); 
 		         
 		if(is_string($url) && $this->exists($url) ){              
@@ -1223,7 +1223,7 @@ PHPCODE;
         // look through base directories for this namespace prefix
         foreach ($this->prefixes[$prefix] as $server) {
 
-            $url = $this->getUrl($relative_class, $server, $salt);
+            $url = $this->getUrl($relative_class, $server, $salt, true);
             $url =  $this->replaceUrlVars($url, $salt, $relative_class, $this->version); 
 		
             if(is_string($url) && $this->exists($url) ){
@@ -1232,7 +1232,7 @@ PHPCODE;
         }
          }
         // never found it
-           return $this->getUrl($class, $this->server, $salt);
+           return $this->getUrl($class, $this->server, $salt, true);
     }
 
     /**
