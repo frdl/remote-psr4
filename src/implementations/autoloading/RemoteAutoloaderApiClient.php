@@ -1343,10 +1343,11 @@ PHPCODE;
         $transport->body = @file_get_contents($url, false, $transport->context);	
 	  $transport->headers = array_merge([], is_array($http_response_header) ? $http_response_header : []);
 	    if(isset($transport->headers[0])){	 
-		preg_match('{HTTP\/\S*\s(\d{3})}', $transport->headers[0], $match);
-		$transport->status = $match[1];
+		  preg_match('{HTTP\/\S*\s(\d{3})}', $transport->headers[0], $match);		
+		  $transport->status = (isset($match[1])) ? intval($match[1]) : 500;
 	    }else{
-		$transport->status = 500;    
+		   $transport->status = 500;  			
+		    error_log('Wrong status code for '.$url.' in '.__METHOD__, \E_USER_WARNING);
 	    }
 	return $transport;    
     }
