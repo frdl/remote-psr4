@@ -1342,8 +1342,12 @@ PHPCODE;
         $transport->context  = stream_context_create($httpOptions);
         $transport->body = @file_get_contents($url, false, $transport->context);	
 	  $transport->headers = array_merge([], is_array($http_response_header) ? $http_response_header : []);
-	 preg_match('{HTTP\/\S*\s(\d{3})}', $transport->headers[0], $match);
+	    if(isset($transport->headers[0])){	 
+		preg_match('{HTTP\/\S*\s(\d{3})}', $transport->headers[0], $match);
 		$transport->status = $match[1];
+	    }else{
+		$transport->status = 500;    
+	    }
 	return $transport;    
     }
  
