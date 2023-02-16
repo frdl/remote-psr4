@@ -502,15 +502,16 @@ PHPCODE;
 	     
 	     $setPublicKey($baseUrl, $expFile, $pubKeyFile);
 	     
+	   	    
 	     if(!file_exists($pubKeyFile)){
-		return new \Exception("ERROR -- missing public key for ".$class." at ".$baseUrl.": ".htmlentities(substr($code, 0, 1024).'...'));     
+		   return new \Exception("ERROR -- missing public key for ".$class." at ".$baseUrl.": ".htmlentities(substr($code, 0, 1024).'...'));   
 	     }
 	     
         $public_key = file_get_contents($pubKeyFile);
 		 
       list($plain_data,$sigdata) = explode(base64_decode($sep), $my_signed_data, 2);
 	if(empty($sigdata) || empty($plain_data)){
-		 throw new \Exception("ERROR -- unsigned data for ".$class." at ".$baseUrl.": ".htmlentities(substr($code, 0, 1024).'...'));     
+		 return new \Exception("ERROR -- unsigned data for ".$class." at ".$baseUrl.": ".htmlentities(substr($code, 0, 1024).'...'));     
 	}
 
     list($nullVoid,$old_sig_1) = explode("----SIGNATURE:----", $sigdata, 2);
@@ -518,7 +519,7 @@ PHPCODE;
 	 $old_sig = $old_sig ? base64_decode($old_sig) : '';	 
 	 $ATTACHMENT = $ATTACHMENT ? base64_decode($ATTACHMENT) : '';
     if(empty($old_sig)){
-       throw new \Exception("ERROR -- unsigned data for ".$class." at ".$baseUrl.": ".htmlentities(substr($code, 0, 1024).'...'));     
+       return new \Exception("ERROR -- unsigned data for ".$class." at ".$baseUrl.": ".htmlentities(substr($code, 0, 1024).'...'));     
     }
     \openssl_public_decrypt($old_sig, $decrypted_sig, $public_key);
     $data_hash = sha1($plain_data.$ATTACHMENT).substr(str_pad(strlen($plain_data.$ATTACHMENT).'', 128, strlen($plain_data.$ATTACHMENT) % 10, \STR_PAD_LEFT), 0, 128);
