@@ -1349,7 +1349,7 @@ PHPCODE;
 	  $transport->headers = array_merge([], is_array($http_response_header) ? $http_response_header : []);
 	    if(isset($transport->headers[0])){	 
 		  preg_match('{HTTP\/\S*\s(\d{3})}', $transport->headers[0], $match);		
-		  $transport->status = (isset($match[1])) ? intval($match[1]) : \is_string($transport->body) ? 200 : 404;
+		  $transport->status = (isset($match[1])) ? $match[1] : (\is_string($transport->body) ? '200' : '404');
 	    }else{
 		   $transport->status = \is_string($transport->body) ? 200 : 404;  			
 		 //   error_log('Wrong status code for '.$url.' in '.__METHOD__, \is_string($transport->body) ? \E_USER_NOTICE : \E_USER_WARNING);
