@@ -1352,7 +1352,8 @@ PHPCODE;
 		  $transport->status = (isset($match[1])) ? intval($match[1]) : 500;
 	    }else{
 		   $transport->status = \is_string($transport->body) ? 200 : 500;  			
-		    error_log('Wrong status code for '.$url.' in '.__METHOD__, \is_string($transport->body) ? \E_USER_NOTICE : \E_USER_WARNING);
+		 //   error_log('Wrong status code for '.$url.' in '.__METHOD__, \is_string($transport->body) ? \E_USER_NOTICE : \E_USER_WARNING);
+		    error_log('Wrong status code for '.$url.' in '.__METHOD__, \E_USER_NOTICE);
 	    }
 	return $transport;    
     }
