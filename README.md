@@ -29,7 +29,7 @@ $config = [
  // $workspace is the DEFAULT Psr4 Server
  // e.g.: $workspace = 'https://webfan.de/install/'. $config['FRDL_UPDATE_CHANNEL'].'/?source=${class}&salt=${salt}&source-encoding=b64'
  $loader =  call_user_func(function($config,$workspace){
-    return \frdl\implementation\psr4\RemoteAutoloaderApiClient::class::getInstance($workspace, false, $config['FRDL_UPDATE_CHANNEL'], false, false, 
+    return \frdl\implementation\psr4\RemoteAutoloaderApiClient::getInstance($workspace, false, $config['FRDL_UPDATE_CHANNEL'], false, false, 
 	/*Classmap (with PSR4 and Alias)*/
        [
        // (CLASSMAP) Concrete Classes:     
