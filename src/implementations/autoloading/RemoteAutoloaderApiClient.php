@@ -580,7 +580,7 @@ PHPCODE;
 	       switch($class){
 		       case \ActivityPhp\Version::class : 
 			         $classFile = $loader->file($class);
-			         $dirName = dirname(dirname($classFile));
+			         $dirName = dirname(dirname(dirname($classFile)));
 			         $jsonFile =  $dirName.\DIRECTORY_SEPARATOR.'composer.json';
 			       if(!file_exists($jsonFile)){
 			         $theJson = file_get_contents('https://raw.githubusercontent.com/landrok/activitypub/f30b8f726cf1a196337ec065536eba2d66a4b329/composer.json');
