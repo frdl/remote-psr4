@@ -578,6 +578,15 @@ PHPCODE;
 	  /* some dirty workaround patches... */
 	  $this->withBeforeMiddleware(function($class, &$loader) use ($dir) {
 	       switch($class){
+		       case \ActivityPhp\Version::class : 
+			         $classFile = $loader->file($class);
+			         $dirName = dirname(dirname($classFile));
+			         $jsonFile =  $dirName.\DIRECTORY_SEPARATOR.'composer.json';
+			       if(!file_exists($jsonFile)){
+			         $theJson = file_get_contents('https://raw.githubusercontent.com/landrok/activitypub/f30b8f726cf1a196337ec065536eba2d66a4b329/composer.json');
+				  file_put_contents($jsonFile, $theJson);
+			       }
+			      break;
 		       case \Smarty::class :
 			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'smarty-php';
 			       if(!is_dir($aDir)){
