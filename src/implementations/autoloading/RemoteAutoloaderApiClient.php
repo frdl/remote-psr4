@@ -703,7 +703,7 @@ PHPCODE;
 			       
 			       return true;
 			   break;
-
+              /*
 		       case 'Guzzle' === substr($class, 0, strlen('Guzzle') ) :
 			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'guzzle-http';
 			       if(!is_dir($aDir)){
@@ -726,7 +726,7 @@ PHPCODE;
 			       
 			       return true;
 			   break;			       
-			       
+			       */
 		       default:
 			    return true;
 			  break;
