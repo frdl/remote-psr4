@@ -563,6 +563,11 @@ PHPCODE;
 	return $this;    
     }
 		
+
+    public function file_get_contents($url){
+	$transport = $this->transport($url);  
+	return $transport->body;
+    }
 		
     public function withWebfanWebfatDefaultSettings(string $dir = null,bool $increaseTimelimit = null){
 	    if(\in_array(__METHOD__, $this->_calledWIthDefaultMethods)){
@@ -583,7 +588,7 @@ PHPCODE;
 			         $dirName = dirname(dirname(dirname($classFile)));
 			         $jsonFile =  $dirName.\DIRECTORY_SEPARATOR.'composer.json';
 			       if(!file_exists($jsonFile)){
-			         $theJson = file_get_contents('https://raw.githubusercontent.com/landrok/activitypub/f30b8f726cf1a196337ec065536eba2d66a4b329/composer.json');
+			         $theJson = $this->file_get_contents('https://raw.githubusercontent.com/landrok/activitypub/f30b8f726cf1a196337ec065536eba2d66a4b329/composer.json');
 				  file_put_contents($jsonFile, $theJson);
 			       }
 			      break;
@@ -594,7 +599,7 @@ PHPCODE;
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       if(!file_exists($aFile)){
-				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/smarty-php/smarty/v4.3.0/libs/functions.php?cache_bust='.time()));      
+				    file_put_contents($aFile, $this->file_get_contents('https://raw.githubusercontent.com/smarty-php/smarty/v4.3.0/libs/functions.php?cache_bust='.time()));      
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
@@ -610,7 +615,7 @@ PHPCODE;
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Template.php';
 			       if(!file_exists($aFile)){
 				    file_put_contents($aFile, 
-					file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6d4ac8be4b0322200a55a0fbf5d32b2be3c1062b/src/Compiler/Template.php?cache_bust='.time()));      
+					$this->file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6d4ac8be4b0322200a55a0fbf5d32b2be3c1062b/src/Compiler/Template.php?cache_bust='.time()));      
 			       }
 			       return true;
 			   break;			
@@ -623,7 +628,7 @@ PHPCODE;
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       if(!file_exists($aFile)){
-				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/functions.php?cache_bust='.time()));      
+				    file_put_contents($aFile, $this->file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/functions.php?cache_bust='.time()));      
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
@@ -639,7 +644,7 @@ PHPCODE;
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       if(!file_exists($aFile)){
-				    file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/functions.php?cache_bust='.time()));      
+				    file_put_contents($aFile, $this->file_get_contents('https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/functions.php?cache_bust='.time()));      
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
@@ -657,7 +662,7 @@ PHPCODE;
 			          }
 			          $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			           if(!file_exists($aFile)){
-				       file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/'.$file.'?cache_bust='.time()));      
+				       file_put_contents($aFile, $this->file_get_contents('https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/'.$file.'?cache_bust='.time()));      
 			          }
 			          if (!in_array($aFile, get_included_files())) {
 			             require $aFile;
@@ -675,7 +680,7 @@ PHPCODE;
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       if(!file_exists($aFile)){
 				    //file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/opis/closure/3.6.3/functions.php?cache_bust='.time()));   
-				       file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/opis/closure/3.5.5/functions.php?cache_bust='.time()));   
+				       file_put_contents($aFile, $this->file_get_contents('https://raw.githubusercontent.com/opis/closure/3.5.5/functions.php?cache_bust='.time()));   
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
@@ -690,7 +695,7 @@ PHPCODE;
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       if(!file_exists($aFile)){
-				  file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/spatie/once/3.1.0/src/functions.php?cache_bust='.time()));   
+				  file_put_contents($aFile, $this->file_get_contents('https://raw.githubusercontent.com/spatie/once/3.1.0/src/functions.php?cache_bust='.time()));   
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
@@ -707,10 +712,10 @@ PHPCODE;
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       $aFile_2 = $aDir.\DIRECTORY_SEPARATOR.'functions_2.php';
 			       if(!file_exists($aFile)){
-				  file_put_contents($aFile, file_get_contents('https://webfan.de/install/?source=GuzzleHttp\Psr7\stream_for&salt='.time()));   
+				  file_put_contents($aFile, $this->file_get_contents('https://webfan.de/install/?source=GuzzleHttp\Psr7\stream_for&salt='.time()));   
 			       }
 			       if(!file_exists($aFile_2)){
-				  file_put_contents($aFile_2, file_get_contents('https://webfan.de/install/?source=GuzzleHttp\choose_handler&salt='.time()));   
+				  file_put_contents($aFile_2, $this->file_get_contents('https://webfan.de/install/?source=GuzzleHttp\choose_handler&salt='.time()));   
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
@@ -1469,13 +1474,10 @@ PHPCODE;
 			foreach($transport->headers as $i => $header){          
 				$h = explode(':', $header, 2);           
 				$k = strtolower(trim($h[0]));          
-				$v =  (isset($h[1])) ? trim($h[1]) : $header;
-           
-           
+				$v =  (isset($h[1])) ? trim($h[1]) : $header;                 
 				if('location' === $k){                          
 				   return $this->transport($v,  $method ,  $headers,  $options ,  $httpOpts);
-				}
-      
+				}      
 			}
 		}
 		
