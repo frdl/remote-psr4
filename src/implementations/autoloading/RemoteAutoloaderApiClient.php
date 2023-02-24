@@ -705,11 +705,18 @@ PHPCODE;
 				  mkdir($aDir, 0775, true);       
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
+			       $aFile_2 = $aDir.\DIRECTORY_SEPARATOR.'functions_2.php';
 			       if(!file_exists($aFile)){
 				  file_put_contents($aFile, file_get_contents('https://webfan.de/install/?source=GuzzleHttp\Psr7\stream_for&salt='.time()));   
 			       }
+			       if(!file_exists($aFile_2)){
+				  file_put_contents($aFile_2, file_get_contents('https://webfan.de/install/?source=GuzzleHttp\choose_handler&salt='.time()));   
+			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
+			       }
+			       if (!in_array($aFile_2, get_included_files())) {
+			           require $aFile_2;
 			       }
 			       
 			       return true;
