@@ -671,7 +671,8 @@ PHPCODE;
 			       return true;
 			   break;
 		       case \Webfan\Webfat\EventModule::class :       
-		       case \Webfan\Webfat\App\Router::class : 
+		       case \Webfan\Webfat\App\Router::class :       
+		       case \Webfan\Router::class : 
 		       case 'Opis\Closure\\' === substr($class, 0, strlen('Opis\Closure\\') ) : 
 			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'opis-closure';
 			       if(!is_dir($aDir)){
