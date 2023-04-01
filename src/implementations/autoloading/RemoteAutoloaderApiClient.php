@@ -581,14 +581,15 @@ PHPCODE;
 		    
 	    
 	  /* some dirty workaround patches... */
-	  $this->withBeforeMiddleware(function($class, &$loader) use ($dir) {
+	  $this->withBeforeMiddleware(function($class, &$loader){
+	        $dir = dirname($loader->file('Foo'));
 	       switch($class){
 		       case \ActivityPhp\Version::class : 
 			         $classFile = $loader->file($class);
 			         $dirName = dirname(dirname(dirname($classFile)));
 			         $jsonFile =  $dirName.\DIRECTORY_SEPARATOR.'composer.json';
 			       if(!file_exists($jsonFile)){
-			         $theJson = $this->file_get_contents('https://raw.githubusercontent.com/landrok/activitypub/f30b8f726cf1a196337ec065536eba2d66a4b329/composer.json');
+			         $theJson = $loader->file_get_contents('https://raw.githubusercontent.com/landrok/activitypub/f30b8f726cf1a196337ec065536eba2d66a4b329/composer.json');
 				  file_put_contents($jsonFile, $theJson);
 			       }
 			      break;
@@ -599,7 +600,7 @@ PHPCODE;
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       if(!file_exists($aFile)){
-				    file_put_contents($aFile, $this->file_get_contents('https://raw.githubusercontent.com/smarty-php/smarty/v4.3.0/libs/functions.php?cache_bust='.time()));      
+				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/smarty-php/smarty/v4.3.0/libs/functions.php?cache_bust='.time()));      
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
@@ -615,7 +616,7 @@ PHPCODE;
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Template.php';
 			       if(!file_exists($aFile)){
 				    file_put_contents($aFile, 
-					$this->file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6d4ac8be4b0322200a55a0fbf5d32b2be3c1062b/src/Compiler/Template.php?cache_bust='.time()));      
+					$loader->file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6d4ac8be4b0322200a55a0fbf5d32b2be3c1062b/src/Compiler/Template.php?cache_bust='.time()));      
 			       }
 			       return true;
 			   break;			
@@ -628,7 +629,7 @@ PHPCODE;
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       if(!file_exists($aFile)){
-				    file_put_contents($aFile, $this->file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/functions.php?cache_bust='.time()));      
+				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/functions.php?cache_bust='.time()));      
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
@@ -644,7 +645,7 @@ PHPCODE;
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       if(!file_exists($aFile)){
-				    file_put_contents($aFile, $this->file_get_contents('https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/functions.php?cache_bust='.time()));      
+				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/functions.php?cache_bust='.time()));      
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
@@ -662,7 +663,7 @@ PHPCODE;
 			          }
 			          $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			           if(!file_exists($aFile)){
-				       file_put_contents($aFile, $this->file_get_contents('https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/'.$file.'?cache_bust='.time()));      
+				       file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/'.$file.'?cache_bust='.time()));      
 			          }
 			          if (!in_array($aFile, get_included_files())) {
 			             require $aFile;
@@ -681,7 +682,7 @@ PHPCODE;
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       if(!file_exists($aFile)){
 				    //file_put_contents($aFile, file_get_contents('https://raw.githubusercontent.com/opis/closure/3.6.3/functions.php?cache_bust='.time()));   
-				       file_put_contents($aFile, $this->file_get_contents('https://raw.githubusercontent.com/opis/closure/3.5.5/functions.php?cache_bust='.time()));   
+				       file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/opis/closure/3.5.5/functions.php?cache_bust='.time()));   
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
@@ -696,38 +697,41 @@ PHPCODE;
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       if(!file_exists($aFile)){
-				  file_put_contents($aFile, $this->file_get_contents('https://raw.githubusercontent.com/spatie/once/3.1.0/src/functions.php?cache_bust='.time()));   
+				  file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/spatie/once/3.1.0/src/functions.php?cache_bust='.time()));   
 			       }
 			       if (!in_array($aFile, get_included_files())) {
 			           require $aFile;
 			       }
 			       
 			       return true;
-			   break;
-              /*
+			   break;             		     
 		       case 'Guzzle' === substr($class, 0, strlen('Guzzle') ) :
 			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'guzzle-http';
 			       if(!is_dir($aDir)){
-				  mkdir($aDir, 0775, true);       
+				     mkdir($aDir, 0775, true);       
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       $aFile_2 = $aDir.\DIRECTORY_SEPARATOR.'functions_2.php';
 			       if(!file_exists($aFile)){
-				  file_put_contents($aFile, $this->file_get_contents('https://webfan.de/install/?source=GuzzleHttp\Psr7\stream_for&salt='.time()));   
+				      file_put_contents($aFile, base64_decode($loader->file_get_contents(
+					  'https://webfan.de/install/?source=GuzzleHttp\Psr7\stream_for&salt='.time())
+					  ));   
 			       }
 			       if(!file_exists($aFile_2)){
-				  file_put_contents($aFile_2, $this->file_get_contents('https://webfan.de/install/?source=GuzzleHttp\choose_handler&salt='.time()));   
+				      file_put_contents($aFile_2, base64_decode( $loader->file_get_contents(
+					  'https://webfan.de/install/?source=GuzzleHttp\choose_handler&salt='.time())
+															   )
+									   );   
 			       }
-			       if (!in_array($aFile, get_included_files())) {
+			       if (!in_array($aFile, \get_included_files())) {
 			           require $aFile;
 			       }
-			       if (!in_array($aFile_2, get_included_files())) {
+			       if (!in_array($aFile_2, \get_included_files())) {
 			           require $aFile_2;
 			       }
 			       
 			       return true;
-			   break;			       
-			       */
+			   break;
 		       default:
 			    return true;
 			  break;
