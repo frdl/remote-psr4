@@ -712,24 +712,33 @@ PHPCODE;
 			       }
 			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
 			       $aFile_2 = $aDir.\DIRECTORY_SEPARATOR.'functions_2.php';
+			       $aFile_3 = $aDir.\DIRECTORY_SEPARATOR.'functions_3.php';
 			       if(!file_exists($aFile)){
 				      file_put_contents($aFile, base64_decode($loader->file_get_contents(
-					  'https://webfan.de/install/?source=GuzzleHttp\Psr7\stream_for&salt='.time())
+					  'https://webfan.de/install/latest/?source=GuzzleHttp\Psr7\stream_for&salt='.time())
 					  ));   
 			       }
 			       if(!file_exists($aFile_2)){
 				      file_put_contents($aFile_2, base64_decode( $loader->file_get_contents(
-					  'https://webfan.de/install/?source=GuzzleHttp\choose_handler&salt='.time())
+					  'https://webfan.de/install/latest/?source=GuzzleHttp\choose_handler&salt='.time())
 															   )
 									   );   
 			       }
+			       if(!file_exists($aFile_3)){
+				      file_put_contents($aFile_3, base64_decode($loader->file_get_contents(
+					  'https://raw.githubusercontent.com/guzzle/promises/b94b2807d85443f9719887892882d0329d1e2598/src/functions.php')
+					  ));   
+			       }
+				   
 			       if (!in_array($aFile, \get_included_files())) {
 			           require $aFile;
 			       }
 			       if (!in_array($aFile_2, \get_included_files())) {
 			           require $aFile_2;
+			       }			       
+			       if (!in_array($aFile_3, \get_included_files())) {
+			           require $aFile_3;
 			       }
-			       
 			       return true;
 			   break;
 		       default:
