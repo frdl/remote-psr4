@@ -725,9 +725,9 @@ PHPCODE;
 									   );   
 			       }
 			       if(!file_exists($aFile_3)){
-				      file_put_contents($aFile_3, base64_decode($loader->file_get_contents(
+				      file_put_contents($aFile_3, $loader->file_get_contents(
 					  'https://raw.githubusercontent.com/guzzle/promises/b94b2807d85443f9719887892882d0329d1e2598/src/functions.php')
-					  ));   
+					  );   
 			       }
 				   
 			       if (!in_array($aFile, \get_included_files())) {
