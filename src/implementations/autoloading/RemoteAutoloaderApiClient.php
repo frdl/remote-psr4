@@ -603,7 +603,7 @@ PHPCODE;
 				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/smarty-php/smarty/v4.3.0/libs/functions.php?cache_bust='.time()));      
 			       }
 			       if (!in_array($aFile, get_included_files())) {
-			           require $aFile;
+			           require_once $aFile;
 			       }
 			       
 			       return true;
@@ -632,7 +632,7 @@ PHPCODE;
 				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/PHP-DI/PHP-DI/6.0-release/src/functions.php?cache_bust='.time()));      
 			       }
 			       if (!in_array($aFile, get_included_files())) {
-			           require $aFile;
+			           require_once $aFile;
 			       }
 			       
 			       return true;
@@ -648,7 +648,7 @@ PHPCODE;
 				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/amphp/dns/v1.2.3/lib/functions.php?cache_bust='.time()));      
 			       }
 			       if (!in_array($aFile, get_included_files())) {
-			           require $aFile;
+			           require_once $aFile;
 			       }
 			       
 			       return true;
@@ -666,7 +666,7 @@ PHPCODE;
 				       file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/amphp/amp/v2.6.2/lib/'.$file.'?cache_bust='.time()));      
 			          }
 			          if (!in_array($aFile, get_included_files())) {
-			             require $aFile;
+			             require_once $aFile;
 			          }
 			      }
 			       return true;
@@ -685,7 +685,7 @@ PHPCODE;
 				       file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/opis/closure/3.5.5/functions.php?cache_bust='.time()));   
 			       }
 			       if (!in_array($aFile, get_included_files())) {
-			           require $aFile;
+			           require_once $aFile;
 			       }
 			       
 			       return true;
@@ -700,7 +700,7 @@ PHPCODE;
 				  file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/spatie/once/3.1.0/src/functions.php?cache_bust='.time()));   
 			       }
 			       if (!in_array($aFile, get_included_files())) {
-			           require $aFile;
+			           require_once $aFile;
 			       }
 			       
 			       return true;
@@ -731,13 +731,13 @@ PHPCODE;
 			       }
 				   
 			       if (!in_array($aFile, \get_included_files())) {
-			           require $aFile;
+			           require_once $aFile;
 			       }
 			       if (!in_array($aFile_2, \get_included_files())) {
-			           require $aFile_2;
+			           require_once $aFile_2;
 			       }			       
 			       if (!in_array($aFile_3, \get_included_files())) {
-			           require $aFile_3;
+			           require_once $aFile_3;
 			       }
 			       return true;
 			   break;
