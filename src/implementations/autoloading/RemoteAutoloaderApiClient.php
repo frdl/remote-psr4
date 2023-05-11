@@ -214,7 +214,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		
     protected $salt;
 		
-    protected $httTimeout = 45;
+    protected $httTimeout = 90;
     public static $increaseTimelimit = true;
     protected $userAgent = null;		
     protected $_TRANSPORTS = [
