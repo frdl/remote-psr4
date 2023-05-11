@@ -3,8 +3,6 @@
 * Bundled from https://github.com/frdl/codebase/tree/main/src/Frdlweb/Contract/Autoload
 * @ToDo: How could I "preload" this better/from github-sources?
 **/
-
-
 namespace Frdlweb\Contract\Autoload{
  if (!interface_exists(ClassmapGeneratorInterface::class)) {	
 	 interface ClassmapGeneratorInterface {				
@@ -1081,11 +1079,12 @@ PHPCODE;
     public function str_contains($haystack, $needle, $ignoreCase = false)
     {
         if ($ignoreCase) {
-        $haystack = strtolower($haystack);
-        $needle   = strtolower($needle);
+           $haystack = strtolower($haystack);
+           $needle   = strtolower($needle);
         }
         $needlePos = strpos($haystack, $needle);
-        return ($needlePos === false ? false : ($needlePos+1));
+      //  return ($needlePos === false ? false : ($needlePos+1));
+		return $needlePos === false ? false : true;
     }
 
     public function str_parse_vars($string, $start = '[', $end = '/]', $variableDelimiter = '=')
@@ -1554,13 +1553,14 @@ PHPCODE;
 		}
 		
 		
-		
 		if((false === $code || 200 != $httpResult->status)
 		   && (true === $this->str_contains($url, '/latest/', false) || true === $this->str_contains($url, '/stable/', false))
 		  ){
 		     $urlOld = $url;
 		     $url=preg_replace('/(\/stable\/)/', '/', $url);
 		     $url=preg_replace('/(\/latest\/)/', '/', $url);	
+		 
+			
 		     if($urlOld !== $url){	
 			     $httpResult = $this->transport($url, 'GET', [		
 				     'X-Source-Encoding'=>'b64',	
