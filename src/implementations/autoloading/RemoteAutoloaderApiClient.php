@@ -1525,9 +1525,39 @@ PHPCODE;
 	 ]);
 	    $code = $httpResult->body;
 	    
- 
 		
-		if(false === $code || 200 != $httpResult->status){
+		
+			
+		if((false === $code || 200 != $httpResult->status)
+		   && (true === $this->str_contains($url, '/latest/', false) || true === $this->str_contains($url, '/stable/', false))
+		  ){
+		     $urlOld = $url;
+			 if(true === $this->str_contains($url, '/stable/', false)){
+				 $url=preg_replace('/(\/stable\/)/', '/latest/', $url);
+			 }elseif(true === $this->str_contains($url, '/latest/', false)){
+				   $url=preg_replace('/(\/latest\/)/', '/stable/', $url);
+			 } 
+		     
+		   	
+		     if($urlOld !== $url){	
+			     $httpResult = $this->transport($url, 'GET', [		
+				     'X-Source-Encoding'=>'b64',	
+			     ], [		          	
+				   //  'ignore_errors' => false,	   	
+				     'timeout' => $this->httTimeout,  		
+			     ]);	  
+			     $code = $httpResult->body;
+		     }
+			//if(false===$code){
+			  // return false;	
+			//}
+		}
+		
+		
+		
+		if((false === $code || 200 != $httpResult->status)
+		   && (true === $this->str_contains($url, '/latest/', false) || true === $this->str_contains($url, '/stable/', false))
+		  ){
 		     $urlOld = $url;
 		     $url=preg_replace('/(\/stable\/)/', '/', $url);
 		     $url=preg_replace('/(\/latest\/)/', '/', $url);	
