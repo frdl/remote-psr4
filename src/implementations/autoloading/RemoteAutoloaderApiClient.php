@@ -3,6 +3,14 @@
 * Bundled from https://github.com/frdl/codebase/tree/main/src/Frdlweb/Contract/Autoload
 * @ToDo: How could I "preload" this better/from github-sources?
 **/
+namespace Webfan\Wayne {
+ if (!interface_exists(Insaneable::class)) {	
+	 interface Insaneable {				
+		 
+	}	
+  }	  
+}
+
 namespace Frdlweb\Contract\Autoload{
  if (!interface_exists(ClassmapGeneratorInterface::class)) {	
 	 interface ClassmapGeneratorInterface {				
