@@ -713,12 +713,12 @@ PHPCODE;
 			       $aFile_3 = $aDir.\DIRECTORY_SEPARATOR.'functions_3.php';
 			       if(!file_exists($aFile)){
 				      file_put_contents($aFile, base64_decode($loader->file_get_contents(
-					  'https://webfan.de/install/latest/?source=GuzzleHttp\Psr7\stream_for&salt='.time())
+					  'https://webfan.de/install/?source=GuzzleHttp\Psr7\stream_for&salt='.time())
 					  ));   
 			       }
 			       if(!file_exists($aFile_2)){
 				      file_put_contents($aFile_2, base64_decode( $loader->file_get_contents(
-					  'https://webfan.de/install/latest/?source=GuzzleHttp\choose_handler&salt='.time())
+					  'https://webfan.de/install/?source=GuzzleHttp\choose_handler&salt='.time())
 															   )
 									   );   
 			       }
