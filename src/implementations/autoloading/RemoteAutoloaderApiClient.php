@@ -141,7 +141,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
       // ALIAS = @ as first char:
       '@Webfan\\Autoloader\\Remote' => __CLASS__,
       '@'.\Webfat\Keychain::class => \Webfan\KeychainOld::class,    	    
-	    
+      '@'.\frdl\Facades::class => \Statical\Manager::class,       
       //Versions at Webfan:
 	  // Default/Fallback Versions Server:
 	\webfan\hps\Format\DataUri::class => 'https://webfan.de/install/?salt=${salt}&source=${class}',
