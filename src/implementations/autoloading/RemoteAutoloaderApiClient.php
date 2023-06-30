@@ -1736,9 +1736,9 @@ PHPCODE;
         }
 
         $aFuncs = \spl_autoload_functions();
-       // if(!is_array($aFuncs) || !in_array($this->getLoader(), $aFuncs) ){
+         if(!is_array($aFuncs) || !in_array($this->getLoader(), $aFuncs) ){
             $res =  \spl_autoload_register($this->getLoader(), $throw, $prepend);
-       // }
+        }
 
 
             if( false !== $res  ){
