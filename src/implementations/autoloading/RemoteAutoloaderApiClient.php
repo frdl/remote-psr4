@@ -167,6 +167,13 @@ namespace Frdlweb\Contract\Autoload{
 	   public function register(bool $prepend = false);
 	}
  }
+
+ if (!interface_exists(UnloadableInterface::class)) {		
+	interface UnloadableInterface {
+	   public function unregister();
+	}
+ }
+	
 }//ns Frdlweb\Contract\Autoload
 
 
@@ -175,7 +182,9 @@ namespace frdl\implementation\psr4{
 	
 use Frdlweb\Contract\Autoload\CodebaseInterface as CodebaseInterface;
 	
-class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInterface, 
+class RemoteAutoloaderApiClient implements
+	\Frdlweb\Contract\Autoload\LoaderInterface, 
+	\Frdlweb\Contract\Autoload\UnloadableInterface,
 	\Frdlweb\Contract\Autoload\ResolverInterface,
 	\Frdlweb\Contract\Autoload\ClassLoaderInterface,
 	\Frdlweb\Contract\Autoload\Psr4GeneratorInterface,
@@ -1821,11 +1830,11 @@ PHPCODE;
            throw new \Exception('You should not autoload from remote where you have local access to the source (remote server = host)');
         }
 
-        $aFuncs = \spl_autoload_functions();
-         if(!is_array($aFuncs) || !in_array($this->getLoader(), $aFuncs) ){
-            $res =  \spl_autoload_register($this->getLoader(), $throw, $prepend);
-        }
-
+     //   $aFuncs = \spl_autoload_functions();
+     //    if(!is_array($aFuncs) || !in_array($this->getLoader(), $aFuncs) ){
+      //      $res =  \spl_autoload_register($this->getLoader(), $throw, $prepend);
+     //   }
+           $res = $this->enable($prepend);
 
             if( false !== $res  ){
               //  Change: Use a seperate process (or setup): $this->pruneCache(); 
@@ -1837,7 +1846,60 @@ PHPCODE;
 
         return $res;
     }
+  //https://github.com/johnstevenson/statical/blob/master/src/AliasManager.php	
+  protected function enable(?bool $prepend = false)
+    { 
+	$isRegistered = $this->isLoaderRegistered($isInOrder, $prepend);
+        if (true===$isRegistered) {
+            if ($isInOrder) {
+                return $isRegistered;
+            }
 
+            $this->disable();
+        }
+
+	    if (version_compare(\PHP_VERSION, '8.0.0') >= 0) {
+              $isRegistered = spl_autoload_register($this->getLoader(), $prepend);
+	    }else{
+               $isRegistered = spl_autoload_register($this->getLoader(), true, $prepend);
+	    }
+       
+       return $isRegistered;
+    }
+ 
+    protected function disable()
+    {
+        spl_autoload_unregister($this->getLoader());
+    }
+    /**
+    * Disables static proxying.
+    *
+    * @return void
+    */
+    public function unregister()
+    {
+       $this->disable();
+    }
+   //https://github.com/johnstevenson/statical/blob/master/src/AliasManager.php	
+   protected function isLoaderRegistered(&$isInOrder, ?bool $prepend = false) : bool
+    {
+        $registered = false;
+        $isInOrder = false;
+
+        if ($funcs = \spl_autoload_functions()) {
+            $index = array_search($this->getLoader(), $funcs, true);
+
+            if (false !== $index) {
+                $registered = true;
+                $isInOrder = true !== $prepend
+			? $index === count($funcs) - 1
+			: $index === 0;
+            }
+        }
+
+        return $registered;
+    }
+	
     protected function getLoader()
     {
         return [$this, 'Autoload'];
