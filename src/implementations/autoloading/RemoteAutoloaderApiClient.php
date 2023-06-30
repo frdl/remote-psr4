@@ -341,15 +341,16 @@ class RemoteAutoloaderApiClient implements
      }
      public function getManager(?bool $foce =false)  : CodebaseInterface {
 	 if(null === $this->ApiManager && true===$foce){
-
+            
 	 }
        return $this->ApiManager;
      }
      protected function _forceManager()  : CodebaseInterface|bool {
-	 if(\class_exists(IO4:class)){
+	 if(\class_exists(\Webfan\FacadesManager:class)){
           // return IO4::
+		 // $this->ApiManager
 	 }
-	return false;
+	return $this->ApiManager;
      }	
     public function withTransport(string $schema, array | \callable | \Closure $handler){
         $this->_TRANSPORTS[$schema] = $handler;
