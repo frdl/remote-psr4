@@ -164,10 +164,13 @@ if (!interface_exists(ResolverInterface::class)) {
 namespace Frdlweb\Contract\Autoload{ 
  if (!interface_exists(LoaderInterface::class)) {		
 	interface LoaderInterface {
+	  // public const HAS_ALWAYS_CORRECT_STACK_ORDER = false;
 	   public function register(bool $prepend = false);
 	}
  }
+}//ns Frdlweb\Contract\Autoload
 
+namespace Frdlweb\Contract\Autoload{ 
  if (!interface_exists(UnloadableInterface::class)) {		
 	interface UnloadableInterface {
 	   public function unregister();
@@ -177,6 +180,17 @@ namespace Frdlweb\Contract\Autoload{
 }//ns Frdlweb\Contract\Autoload
 
 
+namespace Frdlweb\Contract\Autoload{ 
+ if (!interface_exists(StackOrderAwareLoaderInterface::class)) {		
+	interface StackOrderAwareLoaderInterface {
+	   public const HAS_ALWAYS_CORRECT_STACK_ORDER = true;
+	   public function register(bool $prepend = false);
+	}
+ }
+}//ns Frdlweb\Contract\Autoload
+
+
+
 
 namespace frdl\implementation\psr4{
 	
@@ -184,6 +198,7 @@ use Frdlweb\Contract\Autoload\CodebaseInterface as CodebaseInterface;
 	
 class RemoteAutoloaderApiClient implements
 	\Frdlweb\Contract\Autoload\LoaderInterface, 
+	\Frdlweb\Contract\Autoload\StackOrderAwareLoaderInterface, 
 	\Frdlweb\Contract\Autoload\UnloadableInterface,
 	\Frdlweb\Contract\Autoload\ResolverInterface,
 	\Frdlweb\Contract\Autoload\ClassLoaderInterface,
@@ -192,6 +207,7 @@ class RemoteAutoloaderApiClient implements
 	\Frdlweb\Contract\Autoload\ClassmapGeneratorApiInterface,
 	\Frdlweb\Contract\Autoload\AliasMapGeneratorInterface
 {
+    
     public const HASH_ALGO = 'sha1';
     public const ACCESS_LEVEL_SHARED = 0;
     public const ACCESS_LEVEL_PUBLIC = 1;
@@ -1819,9 +1835,9 @@ PHPCODE;
     public function register(bool $prepend = false)
     {
 	$args = func_get_args();
-	if(count($args)>=2 && is_bool($args[1])){
-	  $prepend = $args[1];	
-	}
+	//if(count($args)>=2 && is_bool($args[1])){
+	//  $prepend = $args[1];	
+	//}
 	$throw = $prepend; /* Always FALSE as false is deprecated in SPL!      This parameter is ignored as of PHP 8.0.0 !!! */   
         $res = false;
 
