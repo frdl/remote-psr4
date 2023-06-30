@@ -346,7 +346,7 @@ class RemoteAutoloaderApiClient implements
        return $this->ApiManager;
      }
      protected function _forceManager()  : CodebaseInterface|bool {
-	 if(\class_exists(\Webfan\FacadesManager:class)){
+	 if(\class_exists(\Webfan\FacadesManager::class)){
           // return IO4::
 		 // $this->ApiManager
 	 }
