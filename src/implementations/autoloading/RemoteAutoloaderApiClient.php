@@ -2,7 +2,67 @@
 /**
 * Bundled from https://github.com/frdl/codebase/tree/main/src/Frdlweb/Contract/Autoload
 * @ToDo: How could I "preload" this better/from github-sources?
+* https://raw.githubusercontent.com/frdlweb/webfat/main/public/index.php
+* @ToDo StubModuleBuilder
 **/
+namespace Frdlweb\Contract\Autoload{
+	
+
+if (!\interface_exists(CodebaseInterface::class, false)) {	
+  interface CodebaseInterface
+ { 
+   const ALL_CHANNELS = '*';
+   const ENDPOINT_DEFAULT = 'RemoteApiBaseUrl';
+   const ENDPOINT_WEBFAT_CENTRAL = 'io4.webfat.central';
+   const ENDPOINT_WORKSPACE_REMOTE = 'io4.workspace.remote';
+   const ENDPOINT_INSTALLER_REMOTE = 'io4.installer.remote';
+   const ENDPOINT_MODULES_WEBFANSCRIPT_REMOTE = 'RemoteModulesBaseUrl';
+   const ENDPOINT_AUTOLOADER_PSR4_REMOTE = 'RemotePsr4UrlTemplate';
+   const ENDPOINT_UDAP = 'io4.udap';
+   const ENDPOINT_RDAP = 'io4.rdap';
+   const ENDPOINT_OIDIP = 'io4.rdap';
+   const ENDPOINT_PROXY_OBJECT_REMOTE = 'io4.proxy-object.remote';
+
+   const CHANNEL_LATEST = 'latest';
+   const CHANNEL_STABLE = 'stable';
+   const CHANNEL_FALLBACK = 'fallback';
+   const CHANNEL_TEST = 'test';
+   const CHANNELS =[
+        self::CHANNEL_LATEST => self::CHANNEL_LATEST,
+        self::CHANNEL_STABLE => self::CHANNEL_STABLE,
+        self::CHANNEL_FALLBACK => self::CHANNEL_FALLBACK,
+        self::CHANNEL_TEST => self::CHANNEL_TEST,
+	];
+   const DEFAULT_ENDPOINT_NAMES =[
+        self::ENDPOINT_DEFAULT,
+        self::ENDPOINT_WORKSPACE_REMOTE,
+        self::ENDPOINT_INSTALLER_REMOTE,
+        self::ENDPOINT_MODULES_WEBFANSCRIPT_REMOTE,
+        self::ENDPOINT_AUTOLOADER_PSR4_REMOTE,
+        self::ENDPOINT_UDAP,
+        self::ENDPOINT_RDAP,
+        self::ENDPOINT_PROXY_OBJECT_REMOTE,
+        self::ENDPOINT_WEBFAT_CENTRAL,
+	    self::ENDPOINT_OIDIP,
+   ];
+     
+   public function loadUpdateChannel(mixed $StubRunner = null) : string;     
+   public function getRemoteApiBaseUrl(?string $serviceEndpoint = self::ENDPOINT_DEFAULT) : string|bool;
+   public function setUpdateChannel(string $channel);	 
+   public function getUpdateChannel() : string;	  
+   public function getRemotePsr4UrlTemplate() : string;	  
+   public function getRemoteModulesBaseUrl() : string;
+   public function getServiceEndpoints() : array;	 
+   public function getServiceEndpointNames() : array;	  	 	 	 
+   public function setServiceEndpoints(array $serviceEndpoints) : CodebaseInterface;	 
+   public function setServiceEndpoint(string $serviceEndpointName,
+									 string|\Closure|\callable $baseUrl, 
+									 ?string $channel = self::ALL_CHANNELS) : CodebaseInterface;
+ }
+} 
+}
+
+
 namespace Webfan\Wayne {
  if (!interface_exists(Insaneable::class)) {	
 	 interface Insaneable {				
@@ -60,7 +120,7 @@ namespace Frdlweb\Contract\Autoload{
            // $cache = int :  load from cache if it is newer than $cache seconds
 	   // $cache = false : invalidate cache for the classmap and load from implementation/API
 	   public function getClassmapFor(string $app, string $version, string $phpVersion = \PHP_VERSION, int | bool $cache = true) : array | bool;	
-	   public function withClassmapFor(string $app, string $version, string $phpVersion = \PHP_VERSION, int | bool $cache = true);
+	   public function withClassmapFor(string $app, string $version, string $phpVersion = \PHP_VERSION, int | bool $cache = true) : bool;
 	}
  }
 }//ns Frdlweb\Contract\Autoload
@@ -109,8 +169,12 @@ namespace Frdlweb\Contract\Autoload{
  }
 }//ns Frdlweb\Contract\Autoload
 
-namespace frdl\implementation\psr4{
 
+
+namespace frdl\implementation\psr4{
+	
+use Frdlweb\Contract\Autoload\CodebaseInterface as CodebaseInterface;
+	
 class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInterface, 
 	\Frdlweb\Contract\Autoload\ResolverInterface,
 	\Frdlweb\Contract\Autoload\ClassLoaderInterface,
@@ -141,7 +205,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
       // ALIAS = @ as first char:
       '@Webfan\\Autoloader\\Remote' => __CLASS__,
       '@'.\Webfat\Keychain::class => \Webfan\KeychainOld::class,    	    
-      '@'.\frdl\Facades::class => \Statical\Manager::class,       
+      '@'.\frdl\Facades::class => \Webfan\FacadesManager::class,//\Statical\Manager::class,       
       //Versions at Webfan:
 	  // Default/Fallback Versions Server:
 	\webfan\hps\Format\DataUri::class => 'https://webfan.de/install/?salt=${salt}&source=${class}',
@@ -231,7 +295,23 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		
      protected $_calledWIthDefaultMethods = [];
 		
-		
+     protected $ApiManager = null;//CodebaseInterface
+
+     public function setManager(CodebaseInterface $Manager)  {
+        $this->ApiManager = $Manager;
+     }
+     public function getManager(?bool $foce =false)  : CodebaseInterface {
+	 if(null === $this->ApiManager && true===$foce){
+
+	 }
+       return $this->ApiManager;
+     }
+     protected function _forceManager()  : CodebaseInterface|bool {
+	 if(\class_exists(IO4:class)){
+          // return IO4::
+	 }
+	return false;
+     }	
     public function withTransport(string $schema, array | \callable | \Closure $handler){
         $this->_TRANSPORTS[$schema] = $handler;
     }			
@@ -396,7 +476,7 @@ class RemoteAutoloaderApiClient implements \Frdlweb\Contract\Autoload\LoaderInte
 		   $json = $httpResult->body;		   
 		   $classMap = \json_decode($json);
 		   $classMap = (array)$classMap;
-		   $classMap = (array)$classMap['result'];
+		 //  $classMap = (array)$classMap['result'];
 		   $exp = \var_export($classMap, true);
 		   $phpCode = <<<PHPCODE
 <?php
@@ -411,8 +491,14 @@ PHPCODE;
 	   }	
 		
 	   //ClassmapGeneratorApiInterface		
-	   public function withClassmapFor(string $app, string $version, string $phpVersion = \PHP_VERSION, int | bool $cache = true) {
-		 $this->withClassmap($this->getClassmapFor($app, $version, $phpVersion, $cache));
+	   public function withClassmapFor(string $app, string $version, string $phpVersion = \PHP_VERSION, int | bool $cache = true) : bool {
+		 $classMapInfo = $this->getClassmapFor($app, $version, $phpVersion, $cache);
+		 if(is_bool($classMapInfo)){
+                   return $classMapInfo;
+		 }
+		 $classMap = (array)$classMapInfo['result'];
+		 $this->withClassmap($classMapInfo);
+	    return true;
 	   }
 		
 		
