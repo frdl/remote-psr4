@@ -1721,13 +1721,13 @@ PHPCODE;
       return true;
    }
 	
-    public function register(/* $throw = true,*/bool $prepend = false)
+    public function register(bool $prepend = false)
     {
 	$args = func_get_args();
 	if(count($args)>=2 && is_bool($args[1])){
 	  $prepend = $args[1];	
 	}
-	$throw = true; //Always true as false is deprecated in SPL!        
+	$throw = $prepend; /* Always FALSE as false is deprecated in SPL!      This parameter is ignored as of PHP 8.0.0 !!! */   
         $res = false;
 
 
@@ -1736,9 +1736,9 @@ PHPCODE;
         }
 
         $aFuncs = \spl_autoload_functions();
-        if(!is_array($aFuncs) || !in_array($this->getLoader(), $aFuncs) ){
+       // if(!is_array($aFuncs) || !in_array($this->getLoader(), $aFuncs) ){
             $res =  \spl_autoload_register($this->getLoader(), $throw, $prepend);
-        }
+       // }
 
 
             if( false !== $res  ){
