@@ -1903,7 +1903,7 @@ PHPCODE;
   protected function enable(?bool $prepend = false)
     { 
 	if(self::$alwaysAppendLoader === true){
-            $prepend = true;
+            $prepend = false;
 	}
 	$isRegistered = $this->isLoaderRegistered($isInOrder, $prepend);
         if (true===$isRegistered) {
