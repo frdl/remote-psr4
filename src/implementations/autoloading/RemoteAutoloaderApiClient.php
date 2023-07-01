@@ -277,6 +277,10 @@ class RemoteAutoloaderApiClient implements
   
     ];
 
+
+
+   public static $alwaysAppendLoader = true;
+	
     protected $salted = false;
     protected $selfDomain;
     protected $server;
@@ -1894,6 +1898,9 @@ PHPCODE;
   //https://github.com/johnstevenson/statical/blob/master/src/AliasManager.php	
   protected function enable(?bool $prepend = false)
     { 
+	if(self::$alwaysAppendLoader === true){
+            $prepend = true;
+	}
 	$isRegistered = $this->isLoaderRegistered($isInOrder, $prepend);
         if (true===$isRegistered) {
             if ($isInOrder) {
@@ -1903,9 +1910,8 @@ PHPCODE;
             $this->disable();
         }
 
-	    if (version_compare(\PHP_VERSION, '8.0.0') >= 0) {
-            //  $isRegistered = spl_autoload_register($this->getLoader(), true, $prepend);
-		$isRegistered =true!==$prepend ? spl_autoload_register($this->getLoader()) : spl_autoload_register($this->getLoader(), true, $prepend);    
+	    if (version_compare(\PHP_VERSION, '8.0.0') >= 0) { 
+		$isRegistered =true!==$prepend ? spl_autoload_register($this->getLoader(), true, $prepend) : spl_autoload_register($this->getLoader(), true, $prepend);    
 	    }else{
                $isRegistered = spl_autoload_register($this->getLoader(), true, $prepend);
 	    }
