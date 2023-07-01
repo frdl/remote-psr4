@@ -2049,7 +2049,7 @@ PHPCODE;
               return true;
         }elseif(false !==$code){
            if(!is_dir(dirname($cacheFile))){
-            mkdir(dirname($cacheFile), 0775, true);
+              @mkdir(dirname($cacheFile), 0755, true);
            }
 
            if(!file_put_contents($cacheFile, $code)){
