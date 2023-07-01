@@ -9,10 +9,11 @@ namespace Frdlweb\Contract\Autoload{
 	
 
 if (!\interface_exists(CodebaseInterface::class, false)) {	
-  interface CodebaseInterface
+    interface CodebaseInterface
  { 
    const ALL_CHANNELS = '*';
    const ENDPOINT_DEFAULT = 'RemoteApiBaseUrl';
+   const ENDPOINT_PROVIDER_IDENTITY_CENTRAL = 'io4.pid.central';
    const ENDPOINT_WEBFAT_CENTRAL = 'io4.webfat.central';
    const ENDPOINT_REMOTE_PUBLIC = 'io4.workspace.public';
    const ENDPOINT_REMOTE_PRIVATE = 'io4.workspace.private';
@@ -20,6 +21,7 @@ if (!\interface_exists(CodebaseInterface::class, false)) {
    const ENDPOINT_INSTALLER_REMOTE = 'io4.installer.remote';
    const ENDPOINT_PROXY_OBJECT_REMOTE = 'io4.proxy-object.remote';
    const ENDPOINT_CONTAINER_REMOTE = 'io4.container.remote';
+   const ENDPOINT_CONFIG_REMOTE = 'io4.config.remote';
    const ENDPOINT_MODULES_WEBFANSCRIPT_REMOTE = 'RemoteModulesBaseUrl';
    const ENDPOINT_AUTOLOADER_PSR4_REMOTE = 'RemotePsr4UrlTemplate';
    const ENDPOINT_UDAP = 'io4.udap';
@@ -38,6 +40,7 @@ if (!\interface_exists(CodebaseInterface::class, false)) {
 	];
    const DEFAULT_ENDPOINT_NAMES =[
         self::ENDPOINT_DEFAULT,
+	self::ENDPOINT_PROVIDER_IDENTITY_CENTRAL,
         self::ENDPOINT_WEBFAT_CENTRAL,
 	self::ENDPOINT_REMOTE_PUBLIC,
 	self::ENDPOINT_REMOTE_PRIVATE, 
@@ -50,6 +53,7 @@ if (!\interface_exists(CodebaseInterface::class, false)) {
         self::ENDPOINT_UDAP,
         self::ENDPOINT_RDAP,
 	self::ENDPOINT_OIDIP,
+	self::ENDPOINT_CONFIG_REMOTE,
    ];
      
    public function loadUpdateChannel(mixed $StubRunner = null) : string;     
