@@ -512,6 +512,10 @@ class RemoteAutoloaderApiClient implements
 			   // 'ignore_errors' => false,	   		
 			   'timeout' =>$this->httTimeout * 3,	
 		   ]);
+
+                  if($httpResult != 200){
+                    return false;
+		  }
 	 
 		   $json = $httpResult->body;		   
 		   $classMap = \json_decode($json);
