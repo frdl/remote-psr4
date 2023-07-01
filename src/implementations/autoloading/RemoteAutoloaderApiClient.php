@@ -1871,6 +1871,9 @@ PHPCODE;
 	
     public function register(bool $prepend = false)
     {
+	if($this->isLoaderRegistered($isInOrder, $prepend) ) {
+          return true;
+	}
 	$args = func_get_args();
 	//if(count($args)>=2 && is_bool($args[1])){
 	//  $prepend = $args[1];	
