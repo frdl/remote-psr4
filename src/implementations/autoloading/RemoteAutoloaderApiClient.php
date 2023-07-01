@@ -1915,9 +1915,9 @@ PHPCODE;
         }
 
 	    if (version_compare(\PHP_VERSION, '8.0.0') >= 0) { 
-		$isRegistered =true!==$prepend ? spl_autoload_register($this->getLoader(), true, $prepend) : spl_autoload_register($this->getLoader(), true, $prepend);    
+		$isRegistered =true!==$prepend ? spl_autoload_register($this->getLoader()) : spl_autoload_register($this->getLoader(), true, $prepend);    
 	    }else{
-               $isRegistered = spl_autoload_register($this->getLoader(), true, $prepend);
+               $isRegistered = $prepend ? spl_autoload_register($this->getLoader(), true, $prepend) : spl_autoload_register($this->getLoader());
 	    }
        
        return $isRegistered;
