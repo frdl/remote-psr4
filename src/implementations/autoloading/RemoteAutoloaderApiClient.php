@@ -535,9 +535,13 @@ PHPCODE;
 		 $classMapInfo = $this->getClassmapFor($app, $version, $phpVersion, $cache);
 		 if(is_bool($classMapInfo)){
                    return $classMapInfo;
+		 }elseif(is_array($classMapInfo)){
+                   $classMap = (array)$classMapInfo['result'];
+		   $this->withClassmap($classMapInfo);
+		 }else{
+			return false; 
 		 }
-		 $classMap = (array)$classMapInfo['result'];
-		 $this->withClassmap($classMapInfo);
+		 
 	    return true;
 	   }
 		
