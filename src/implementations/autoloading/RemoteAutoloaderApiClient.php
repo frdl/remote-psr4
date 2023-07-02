@@ -1920,7 +1920,7 @@ PHPCODE;
 	    if (version_compare(\PHP_VERSION, '8.0.0') >= 0) { 
 		$isRegistered =true!==$prepend ? spl_autoload_register($this->getLoader(), true, $prepend) : spl_autoload_register($this->getLoader(), true, $prepend);    
 	    }else{
-               $isRegistered = $prepend ? spl_autoload_register($this->getLoader(), true, $prepend) : spl_autoload_register($this->getLoader()), true, $prepend;
+               $isRegistered = $prepend ? spl_autoload_register($this->getLoader(), true, $prepend) : spl_autoload_register($this->getLoader(), true, $prepend);
 	    }
        
        return $isRegistered;
