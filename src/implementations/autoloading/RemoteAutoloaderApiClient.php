@@ -1882,9 +1882,9 @@ PHPCODE;
         $res = false;
 
 
-        if(!$this->allowFromSelfOrigin && $this->domain === $this->selfDomain){
-           throw new \Exception('You should not autoload from remote where you have local access to the source (remote server = host)');
-        }
+     //    if(!$this->allowFromSelfOrigin && $this->domain === $this->selfDomain){
+       //     throw new \Exception('You should not autoload from remote where you have local access to the source (remote server = host)');
+     //    }
 
      //   $aFuncs = \spl_autoload_functions();
      //    if(!is_array($aFuncs) || !in_array($this->getLoader(), $aFuncs) ){
@@ -1914,13 +1914,13 @@ PHPCODE;
                 return $isRegistered;
             }
 
-            $this->disable();
+          //  $this->disable();
         }
 
 	    if (version_compare(\PHP_VERSION, '8.0.0') >= 0) { 
-		$isRegistered =true!==$prepend ? spl_autoload_register($this->getLoader()) : spl_autoload_register($this->getLoader(), true, $prepend);    
+		$isRegistered =true!==$prepend ? spl_autoload_register($this->getLoader(), true, $prepend) : spl_autoload_register($this->getLoader(), true, $prepend);    
 	    }else{
-               $isRegistered = $prepend ? spl_autoload_register($this->getLoader(), true, $prepend) : spl_autoload_register($this->getLoader());
+               $isRegistered = $prepend ? spl_autoload_register($this->getLoader(), true, $prepend) : spl_autoload_register($this->getLoader()), true, $prepend;
 	    }
        
        return $isRegistered;
