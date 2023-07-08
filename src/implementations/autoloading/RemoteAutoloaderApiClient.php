@@ -687,7 +687,7 @@ PHPCODE;
 		   $setPublicKey($baseUrl, $expFile, $pubKeyFile);
 		   return $cb($code, $loader, $class, $c);	
 		}
-           throw new \Exception("ERROR -- untrusted signature");
+           return new \Exception("ERROR -- untrusted signature");
 	}
   };
     $cb = $filter;	 
