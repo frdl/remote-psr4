@@ -906,7 +906,7 @@ PHPCODE;
 
 	    $this->withClassmapFor('default', 'latest', \PHP_VERSION, $this->cacheLimit);
 	       
-	    
+	    /*
 	    $this->withUrlRewriterMiddleware(function($url){
 		$now = new \DateTimeImmutable();    
 		if( intval($now->format('Y')) <= 2023 ){
@@ -918,7 +918,7 @@ PHPCODE;
 		}
 		   return $url;
 	    });
-	    
+	    */
 	return $this;
     }
    //end default-patches
