@@ -8,6 +8,7 @@ If you want to build an `API Server` for this client, you can install my Package
 This is recommended for larger projects, **please use [my API Server](https://webfan.de/install/) only for testing, 
 if want to use it productionaly or need a larger amount of load, please contact me!**
 You can also [contact me](https://startforum.de/u/till.wehowski/about) if you need any help with my packages, or if you need a webhosting plan!
+Optionaly you can [configure the client](#with-custom-configuration), e.g. to load from githubs without a central server.
 
 ## Usage
 ````php
