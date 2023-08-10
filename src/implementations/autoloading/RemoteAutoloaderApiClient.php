@@ -738,6 +738,25 @@ PHPCODE;
 	  $this->withBeforeMiddleware(function($class, &$loader){
 	        $dir = dirname($loader->file('Foo'));
 	       switch($class){
+		       case \Embed\OEmbed::class :
+			         $classFile = $loader->file($class);
+			         $dirName = dirname($classFile).\DIRECTORY_SEPARATOR.'resources';
+			       if(!is_dir($dirName)){
+				  mkdir($dirName, 0775, true);       
+			       }
+			       $aFile = $dirName.\DIRECTORY_SEPARATOR.'oembed.php';
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/oscarotero/Embed/530593af5ef7c6701a075eee1be58aa5aaa17c95/src/resources/oembed.php?cache_bust='.time()));      
+			       }
+
+
+			       $aFile = $dirName.\DIRECTORY_SEPARATOR.'suffix.php';
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/oscarotero/Embed/530593af5ef7c6701a075eee1be58aa5aaa17c95/src/resources/suffix.php?cache_bust='.time()));      
+			       }		        
+			       
+			       return true;
+			   break;	
 		       case \ActivityPhp\Version::class : 
 			         $classFile = $loader->file($class);
 			         $dirName = dirname(dirname(dirname($classFile)));
