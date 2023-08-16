@@ -527,7 +527,7 @@ class RemoteAutoloaderApiClient implements
 			   'timeout' =>$this->httTimeout * 3,	
 		   ]);
 
-                  if($httpResult != '200'){
+                  if($httpResult->status != '200'){
                     return false;
 		  }
 	 
