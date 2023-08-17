@@ -532,7 +532,8 @@ class RemoteAutoloaderApiClient implements
 		  }
 	 
 		   $json = $httpResult->body;		   
-		   $classMap = \json_decode($json);
+		   $classMap = \json_decode($json);		   
+		   $classMap = (array)$classMap;
 		   $classMap =!isset($classMap['result']) ? $classMap : $classMap['result'];
 		   $classMap = (array)$classMap;
 		   $exp = \var_export($classMap, true);
