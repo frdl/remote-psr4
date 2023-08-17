@@ -1634,6 +1634,12 @@ PHPCODE;
     }		
 		
     public function transport(string $url, string $method = 'GET', array $headers = null, array $options = null, array $httpOpts= null){
+
+              if(!is_string($this->userAgent)){
+		   $userAgent = 'Webfan/Fusio-Plugin-0.0.1'
+				  .' Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,like Gecko) Chrome/107.0.0.0 Safari/537.36';
+		   $this->withUserAgent($userAgent);
+	      }
 	    
 	 foreach($this->urlRewriterMiddlewares as $rewriter){
 		$url = \call_user_func_array($rewriter, [$url]); 
