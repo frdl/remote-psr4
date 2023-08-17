@@ -555,7 +555,7 @@ PHPCODE;
                    return $classMapInfo;
 		 }elseif(is_array($classMapInfo)){
 		   $classMap =!isset($classMapInfo['result']) ? $classMapInfo : $classMapInfo['result'];
-		   $this->withClassmap($classMap);
+		   $this->withClassmap((array)$classMap);
 		 }else{
 			return false; 
 		 }
