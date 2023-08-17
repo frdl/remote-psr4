@@ -433,7 +433,7 @@ class RemoteAutoloaderApiClient implements
 	  }
     }		
 
-    public function withClassmap(array $classMap = null)
+    public function withClassmap(array $classMap)
     {
 	 
         krsort(self::$classmap);  
@@ -533,8 +533,8 @@ class RemoteAutoloaderApiClient implements
 	 
 		   $json = $httpResult->body;		   
 		   $classMap = \json_decode($json);
+		   $classMap =!isset($classMap['result']) ? $classMap : $classMap['result'];
 		   $classMap = (array)$classMap;
-		 //  $classMap = (array)$classMap['result'];
 		   $exp = \var_export($classMap, true);
 		   $phpCode = <<<PHPCODE
 <?php
@@ -554,8 +554,9 @@ PHPCODE;
 		 if(is_bool($classMapInfo)){
                    return $classMapInfo;
 		 }elseif(is_array($classMapInfo)){
-		   $classMap =!isset($classMapInfo['result']) ? $classMapInfo : $classMapInfo['result'];
-		   $this->withClassmap((array)$classMap);
+		   $classMap =!isset($classMapInfo['result']) ? $classMapInfo : $classMapInfo['result'];		 
+		   $classMap =(array)$classMap;
+		   $this->withClassmap($classMap);
 		 }else{
 			return false; 
 		 }
