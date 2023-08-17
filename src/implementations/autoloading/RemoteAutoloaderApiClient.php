@@ -433,7 +433,7 @@ class RemoteAutoloaderApiClient implements
 	  }
     }		
 
-    public function withClassmap(array $classMap)
+    public function withClassmap(?array $classMap = null)
     {
 	 
         krsort(self::$classmap);  
