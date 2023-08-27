@@ -1557,7 +1557,7 @@ PHPCODE;
 	$transport = new \stdclass;    
         $transport->context  = stream_context_create($httpOptions);
         $transport->body = @file_get_contents($url, false, $transport->context);	
-	  $transport->headers = array_merge([], is_array($http_response_header) ? $http_response_header : []);
+	  $transport->headers = array_merge([], isset($http_response_header) && is_array($http_response_header) ? $http_response_header : []);
 	    if(isset($transport->headers[0])){	 
 		  preg_match('{HTTP\/\S*\s(\d{3})}', $transport->headers[0], $match);		
 		  $transport->status = (isset($match[1])) ? $match[1] : (\is_string($transport->body) ? '200' : '404');
