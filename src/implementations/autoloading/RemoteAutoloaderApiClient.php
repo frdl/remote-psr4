@@ -740,6 +740,23 @@ PHPCODE;
 	  $this->withBeforeMiddleware(function($class, &$loader){
 	        $dir = dirname($loader->file('Foo'));
 	       switch($class){
+
+		       case 'Sabre\\' === substr($class, 0, strlen('Sabre\\') ) :   
+			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'sabre-dav';
+			       if(!is_dir($aDir)){
+				  mkdir($aDir, 0775, true);       
+			       }
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, $loader->file_get_contents('https://webfan.de/install/latest/?source='.urlencode(\Sabre\Uri\resolve::class).'?salt='.time()));      
+			       }
+			       if (!in_array($aFile, get_included_files())) {
+			           require_once $aFile;
+			       }
+			       
+			       return true;
+			   break;
+		       
 		       case \Embed\OEmbed::class :
 			         $classFile = $loader->file($class);
 			         $dirName = dirname($classFile).\DIRECTORY_SEPARATOR.'resources';
