@@ -1,5 +1,5 @@
 # remote-psr4
-An php **PSR-4**[[?]](https://www.php-fig.org/psr/psr-4/) Autoloader `Client` which is autoloading from a remote server.
+An php **PSR-4**[[?]](https://www.php-fig.org/psr/psr-4/) Autoloader `Client` which is autoloading from one or more remote servers.
 With remote **Classmap** and **Aliases**.
 
 ### Server?
