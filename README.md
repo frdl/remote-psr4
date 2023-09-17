@@ -85,7 +85,7 @@ $loader->register(false);
  ````
 
 ## With (custom) validators
-See methods:
+[See methods:](https://github.com/frdl/remote-psr4/blob/master/src/implementations/autoloading/RemoteAutoloaderApiClient.php)
 * ->withBeforeMiddleware()
 * ->withAfterMiddleware()
 * ->withWebfanWebfatDefaultSettings()
