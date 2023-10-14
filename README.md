@@ -83,6 +83,13 @@ $loader->register(false);
 // Prepend autoloader to autoloader-stack:
 // $loader->register(true);
  ````
+**Append Autoloader:** If you like to append the autoloader you have to set the public static variable *allwaysAppendAutoloader* to *false*, **before** registering the autoloader!
+````PHP
+public static $alwaysAppendLoader = true;
+````
+````PHP
+\frdl\implementation\psr4\RemoteAutoloader::$alwaysAppendLoader = false;
+````
 
 ## With (custom) validators
 [See methods:](https://github.com/frdl/remote-psr4/blob/master/src/implementations/autoloading/RemoteAutoloaderApiClient.php)
