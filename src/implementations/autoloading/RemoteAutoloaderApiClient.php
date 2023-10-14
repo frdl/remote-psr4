@@ -1417,7 +1417,7 @@ PHPCODE;
 
 
             if($classOrInterfaceExistsAndNotEqualsAlias){
-               \class_alias($originalClass, $alias);
+               \class_alias($originalClass, ltrim($alias, '@'));
             }
 
             return true;
