@@ -88,7 +88,7 @@ $loader->register(false);
 public static $alwaysAppendLoader = true;
 ````
 ````PHP
-\frdl\implementation\psr4\RemoteAutoloader::$alwaysAppendLoader = false;
+\frdl\implementation\psr4\RemoteAutoloader::$alwaysAppendLoader = $loader::$alwaysAppendLoader = false;
 $loader->register(true);
 ````
 
