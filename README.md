@@ -83,7 +83,7 @@ $loader->register(false);
 // Prepend autoloader to autoloader-stack:
 // $loader->register(true);
  ````
-**Append Autoloader:** If you like to append the autoloader you have to set the public static variable *allwaysAppendAutoloader* to *false*, **before** registering the autoloader!
+**Prepend Autoloader:** If you like to prepend the autoloader you have to set the public static variable *allwaysAppendAutoloader* to *false*, **before** registering the autoloader!
 ````PHP
 public static $alwaysAppendLoader = true;
 ````
