@@ -72,28 +72,7 @@ if (!\interface_exists(CodebaseInterface::class, false)) {
 } 
 }
 
-namespace Webfan {
- if (!interface_exists(Wayneable::class)) {	
-	 interface Wayneable {				
-		 
-	}	
-  }	  
-}
 
-namespace Webfan\Wayne {
- if (!interface_exists(Unsaneable::class)) {	
-	 interface Unsaneable extends \Webfan\Wayneable {				
-		 
-	}	
-  }	  
-}
-namespace Webfan\Wayne {
- if (!interface_exists(Insaneable::class)) {	
-	 interface Insaneable  extends \Webfan\Wayneable {				
-		 
-	}	
-  }	  
-}
 
 namespace Frdlweb\Contract\Autoload{
  if (!interface_exists(ClassmapGeneratorInterface::class)) {	
