@@ -63,16 +63,19 @@ $config = [
  ````php
  /** More Examples: */
  $loader->withClassmap([
+//Alias:
 		'@'.\BetterReflection\Reflection\ReflectionFunction::class => \Roave\BetterReflection\BetterReflection::class,   
 		'@'.\BetterReflection\SourceLocator\Exception\TwoClosuresOneLine::class => 
 		    \Roave\BetterReflection\SourceLocator\Exception\TwoClosuresOnSameLine::class,   		    
    	        \Webfan\Webfat\MainModule::class => 
 		    'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/MainModule.php?cache_bust=${salt}',
+//Conrete class AND namespace: ORDER matters!
+//Classmaps SHOULD be sorted DESC in most cases, CLASS should be listed BEFORE namespace if equal FQN.
 		\Webfan\Webfat\Module::class => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module.php?cache_bust=${salt}',
 		'Webfan\Webfat\Module\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Module/${class}.php?cache_bust=${salt}', 
 		'Webfan\Webfat\Intent\\' => 'https://raw.githubusercontent.com/frdl/recommendations/master/src/Webfan/Webfat/Intent/${class}.php?cache_bust=${salt}',    		 \Pimple::class => 'https://raw.githubusercontent.com/silexphp/Pimple/1.1/lib/Pimple.php',
-		'Task\\' => 'https://raw.githubusercontent.com/taskphp/task/7618739308ba484b5f90a83d5e1a44e1d90968d2/src/${class}.php?cache_bust=${salt}',
 		'Task\Plugin\Console\\' => 'https://github.com/taskphp/console/blob/00bfa982c4502938ca0110d2f23c5cd04ffcbcc3/src/${class}.php?cache_bust=${salt}',
+		'Task\\' => 'https://raw.githubusercontent.com/taskphp/task/7618739308ba484b5f90a83d5e1a44e1d90968d2/src/${class}.php?cache_bust=${salt}',
 		'@BetterReflection\\'=>'Roave\BetterReflection\\',    
 	    ]); 
  ````
