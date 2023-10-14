@@ -91,6 +91,7 @@ public static $alwaysAppendLoader = true;
 \frdl\implementation\psr4\RemoteAutoloader::$alwaysAppendLoader = $loader::$alwaysAppendLoader = false;
 $loader->register(true);
 ````
+This is **not recommended** as this loader loads from remote, for performance you should prefer your local classes (in production e.g.).
 
 ## With (custom) validators
 [See methods:](https://github.com/frdl/remote-psr4/blob/master/src/implementations/autoloading/RemoteAutoloaderApiClient.php)
