@@ -89,6 +89,7 @@ public static $alwaysAppendLoader = true;
 ````
 ````PHP
 \frdl\implementation\psr4\RemoteAutoloader::$alwaysAppendLoader = false;
+$loader->register(true);
 ````
 
 ## With (custom) validators
