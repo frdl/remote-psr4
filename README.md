@@ -231,3 +231,45 @@ This is **not recommended** as this loader loads from remote, for performance yo
           });     
 //...     
 ````
+## Presets per App and PHP Version
+To bundle presets and cache them, to load faster in the next requests you can use the method
+* **->getClassmapFor**
+The Webfan API provides an endpoint to fetch bundled classmaps with the classes of an app/group and for a specific `PHP Version`.
+Currently Frdlweb will possible deprecate PHP 7 support for new products, but possible will support >=7+ and >=8+.
+The $version parameter should be enum of `latest`, `stable` and `legacy`.
+The $app parameter `default` or `*` bundles most of the Framework classes, further you currently can specify the apps
++ io4
++ frdl/codebase | codebase
++ webfan | webfat | webfan-website | webfan-webfat
+````PHP
+public function getClassmapFor(string $app, string $version, string $phpVersion = \PHP_VERSION, int | bool $cache = true) : array | bool
+````
+Requsts the following API endpoint:
+````HTTP
+curl -X 'GET' \
+  'https://api.webfan.de/v1/install/generate/default/latest/autoloading/remote-mapping/8.2/classmap' \
+  -H 'accept: */*'
+````
+A successful response looks like (classmap in result member)
+````JSON
+{
+  "code": 200,
+  "message": "Your (remote-fetcher-) classmap was generated in the result property.",
+  "for": {
+    "app": "default",
+    "version": "latest",
+    "php_version": "8.2"
+  },
+  "result": {
+    "@frdl\\Facades": "Webfan\\FacadesManager",
+// ... ... ...
+  }
+}
+````
+To load the classmap corresponding to the PHP version you are running, from cache or API, and
+attatch the classmaps autoload definitions to the $loader immediately, you can use the method
+* **->withClassmapFor**
+````PHP
+withClassmapFor(string $app, string $version, string $phpVersion = \PHP_VERSION, int | bool $cache = true) 
+````
+
