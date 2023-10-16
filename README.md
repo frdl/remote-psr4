@@ -245,11 +245,13 @@ The $app parameter `default` or `*` bundles most of the Framework classes, furth
 public function getClassmapFor(string $app, string $version, string $phpVersion = \PHP_VERSION, int | bool $cache = true) : array | bool
 ````
 Requsts the following API endpoint:
-````HTTP
+`
 curl -X 'GET' \
   'https://api.webfan.de/v1/install/generate/default/latest/autoloading/remote-mapping/8.2/classmap' \
   -H 'accept: */*'
-````
+
+`
+
 A successful response looks like (classmap in result member)
 ````JSON
 {
@@ -262,7 +264,10 @@ A successful response looks like (classmap in result member)
   },
   "result": {
     "@frdl\\Facades": "Webfan\\FacadesManager",
-// ... ... ...
+    "Webfan\\ComposerAdapter\\": "https://raw.githubusercontent.com/frdl/composer-adapter/master/src/${class}.php?cache_bust=${salt}",
+    "Webfan\\Codebase\\Server\\BundleExportHelper": "https://webfan.de/install/?source=Webfan\\Codebase\\Server\\BundleExportHelper&salt=${salt}",
+    "WMDE\\VueJsTemplating\\": "https://raw.githubusercontent.com/wmde/php-vuejs-templating/2.0.0/src/${class}.php?cache_bust=${salt}",
+    "   ...   ": "   ...   "
   }
 }
 ````
