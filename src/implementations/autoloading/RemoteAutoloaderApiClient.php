@@ -807,6 +807,21 @@ PHPCODE;
 			       
 			       return true;
 			   break;	
+		       case 'Slim\Routing\\' === substr($class, 0, strlen('Slim\Routing\\') ) :  
+			       $aDir = dirname($dir).\DIRECTORY_SEPARATOR.'autoload-files-conditional'.\DIRECTORY_SEPARATOR.'slim-routing';
+			       if(!is_dir($aDir)){
+				  mkdir($aDir, 0775, true);       
+			       }
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'functions.php';
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/nikic/FastRoute/master/src/functions.php?cache_bust='.time()));      
+			       }
+			       if (!in_array($aFile, get_included_files())) {
+			           require_once $aFile;
+			       }
+			       
+			       return true;
+			   break;	
 		       case \DI\Compiler\Compiler::class :
 			       $aDir = dirname($loader->file($class));
 			       if(!is_dir($aDir)){
