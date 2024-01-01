@@ -739,6 +739,28 @@ PHPCODE;
 			   break;
 		       
 		       
+		       case \React\Promise\Timer\TimeoutException::class :
+			         $classFile = $loader->file($class);
+			         $dirName = dirname($classFile);
+			       if(!is_dir($dirName)){
+				  mkdir($dirName, 0775, true);       
+			       }
+			       $aFile = $dirName.\DIRECTORY_SEPARATOR.'functions.php';
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/reactphp/promise-timer/1.x/src/functions.php?cache_bust='.time()));      
+			       }
+
+
+			       $aFile = $dirName.\DIRECTORY_SEPARATOR.'functions_include.php';
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/reactphp/promise-timer/1.x/src/functions_include.php?cache_bust='.time()));      
+			       }		        
+			       
+			       return true;
+			   break;	
+
+		       
+		       
 		       case \Embed\OEmbed::class :
 			         $classFile = $loader->file($class);
 			         $dirName = dirname($classFile).\DIRECTORY_SEPARATOR.'resources';
