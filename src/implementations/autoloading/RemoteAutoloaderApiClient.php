@@ -755,7 +755,10 @@ PHPCODE;
 			       if(!file_exists($aFile)){
 				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/reactphp/promise-timer/1.x/src/functions_include.php?cache_bust='.time()));      
 			       }		        
-			       
+				 
+		               if (!in_array($aFile, get_included_files())) { 
+			           require_once $aFile;
+			       }		       
 			       return true;
 			   break;	
 
