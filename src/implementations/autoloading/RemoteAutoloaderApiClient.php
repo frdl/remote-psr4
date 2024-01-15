@@ -739,6 +739,7 @@ PHPCODE;
 			   break;
 
 
+		       case \React\Dns\Query\TimeoutExecutor::class : 
 		       case 'React\Promise\Timer\\' === substr($class, 0, strlen('React\Promise\Timer\\') ) :  
 			         $classFile = $loader->file(\React\Promise\Timer::class);
 			         $dirName = dirname($classFile);
