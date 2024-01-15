@@ -737,8 +737,9 @@ PHPCODE;
 			       
 			       return true;
 			   break;
-		       
-		       case 'React\\' === substr($class, 0, strlen('React\\') ) :  
+
+
+		       case 'React\Promise\Timer\\' === substr($class, 0, strlen('React\Promise\Timer\\') ) :  
 			         $classFile = $loader->file($class);
 			         $dirName = dirname($classFile);
 			       if(!is_dir($dirName)){
@@ -753,6 +754,32 @@ PHPCODE;
 			       $aFile = $dirName.\DIRECTORY_SEPARATOR.'functions_include.php';
 			       if(!file_exists($aFile)){
 				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/reactphp/promise-timer/1.x/src/functions_include.php?cache_bust='.time()));      
+			       }		        
+				 
+		               if (!in_array($aFile, get_included_files())) { 
+			           require_once $aFile;
+			       }		       
+			       return true;
+			   break;	
+
+
+		       
+		   //    case 'React\Promise\\' === substr($class, 0, strlen('React\Promise\\') ) :  
+		       case \React\Promise::class :
+			         $classFile = $loader->file($class);
+			         $dirName = dirname($classFile);
+			       if(!is_dir($dirName)){
+				  mkdir($dirName, 0775, true);       
+			       }
+			       $aFile = $dirName.\DIRECTORY_SEPARATOR.'functions.php';
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/reactphp/promise/3.x/src/functions.php?cache_bust='.time()));      
+			       }
+
+
+			       $aFile = $dirName.\DIRECTORY_SEPARATOR.'functions_include.php';
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, $loader->file_get_contents('https://raw.githubusercontent.com/reactphp/promise/3.x/src/functions_include.php?cache_bust='.time()));      
 			       }		        
 				 
 		               if (!in_array($aFile, get_included_files())) { 
