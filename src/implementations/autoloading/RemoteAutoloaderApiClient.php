@@ -765,7 +765,7 @@ PHPCODE;
 
 		       
 		   case 'React\Promise\\' === substr($class, 0, strlen('React\Promise\\') ) &&  'React\Promise\Timer\\' !== substr($class, 0, strlen('React\Promise\Timer\\') ) :  
-		     //      case \React\Promise::class :
+	           case \React\Datagram::class :
 			         $classFile = $loader->file(\React\Promise::class);
 			         $dirName = dirname($classFile);
 			       if(!is_dir($dirName)){
