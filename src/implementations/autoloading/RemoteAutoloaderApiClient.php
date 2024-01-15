@@ -740,7 +740,7 @@ PHPCODE;
 
 
 		       case 'React\Promise\Timer\\' === substr($class, 0, strlen('React\Promise\Timer\\') ) :  
-			         $classFile = $loader->file($class);
+			         $classFile = $loader->file(\React\Promise\Timer::class);
 			         $dirName = dirname($classFile);
 			       if(!is_dir($dirName)){
 				  mkdir($dirName, 0775, true);       
@@ -764,9 +764,9 @@ PHPCODE;
 
 
 		       
-		   //    case 'React\Promise\\' === substr($class, 0, strlen('React\Promise\\') ) :  
-		       case \React\Promise::class :
-			         $classFile = $loader->file($class);
+		   case 'React\Promise\\' === substr($class, 0, strlen('React\Promise\\') ) &&  'React\Promise\Timer\\' !== substr($class, 0, strlen('React\Promise\Timer\\') ) :  
+		     //      case \React\Promise::class :
+			         $classFile = $loader->file(\React\Promise::class);
 			         $dirName = dirname($classFile);
 			       if(!is_dir($dirName)){
 				  mkdir($dirName, 0775, true);       
