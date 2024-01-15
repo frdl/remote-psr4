@@ -738,8 +738,7 @@ PHPCODE;
 			       return true;
 			   break;
 		       
-		       
-		       case \React\Promise\Timer\TimeoutException::class :
+		       case 'React\\' === substr($class, 0, strlen('React\\') ) :  
 			         $classFile = $loader->file($class);
 			         $dirName = dirname($classFile);
 			       if(!is_dir($dirName)){
