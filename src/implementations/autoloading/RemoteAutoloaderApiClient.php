@@ -991,7 +991,7 @@ PHPCODE;
 					  );   
 			       }
 				   
-			       if (!in_array($aFile, \get_included_files())) {
+			       if (!in_array($aFile, \get_included_files()) && !function_exists('\GuzzleHttp\Psr7\str')) {
 			           require_once $aFile;
 			       }
 			       if (!in_array($aFile_2, \get_included_files())) {
