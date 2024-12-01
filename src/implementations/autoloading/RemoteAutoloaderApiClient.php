@@ -1037,7 +1037,7 @@ PHPCODE;
 		
 		
     public static function getInstance(
-        $server =  'https://webfan.de/install/stable/?source={class}&salt={salt}',
+        $server =  'https://webfan.de/install/?salt=${salt}&source=${class}',
         $register = true,
         $version = 'latest',
         $allowFromSelfOrigin = true,
