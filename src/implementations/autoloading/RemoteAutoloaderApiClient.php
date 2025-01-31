@@ -719,6 +719,98 @@ PHPCODE;
 	  $this->withBeforeMiddleware(function($class, &$loader){
 	        $dir = dirname($loader->file('Foo'));
 	       switch($class){
+
+		       case \PUGX\Poser\Poser::class :
+			       $aDir = dirname($loader->file($class));
+			       if(!is_dir($aDir)){
+				  mkdir($aDir, 0755, true);       
+			       }
+		       
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Resources'.\DIRECTORY_SEPARATOR.'templates'.\DIRECTORY_SEPARATOR.'flat-square.svg';				       
+		               if(!is_dir(dirname($aFile))){
+				  mkdir(dirname($aFile), 0755, true);       
+			       }	               
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, 
+					$loader->file_get_contents('https://raw.githubusercontent.com/badges/poser/397444cf5b24549b0dd8329aeb3c26726b4246a7/src/Resources/templates/flat-square.svg'));      
+			       }
+
+		       
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Resources'.\DIRECTORY_SEPARATOR.'templates'.\DIRECTORY_SEPARATOR.'flat.svg';				       
+		               if(!is_dir(dirname($aFile))){
+				  mkdir(dirname($aFile), 0755, true);       
+			       }	               
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, 
+					$loader->file_get_contents('https://raw.githubusercontent.com/badges/poser/397444cf5b24549b0dd8329aeb3c26726b4246a7/src/Resources/templates/flat.svg'));      
+			       }	
+
+		       
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Resources'.\DIRECTORY_SEPARATOR.'templates'.\DIRECTORY_SEPARATOR.'for-the-badge.svg';				       
+		               if(!is_dir(dirname($aFile))){
+				  mkdir(dirname($aFile), 0755, true);       
+			       }	               
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, 
+					$loader->file_get_contents('https://raw.githubusercontent.com/badges/poser/397444cf5b24549b0dd8329aeb3c26726b4246a7/src/Resources/templates/for-the-badge.svg'));      
+			       }	
+		       
+		       
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Resources'.\DIRECTORY_SEPARATOR.'templates'.\DIRECTORY_SEPARATOR.'plastic.svg';				       
+		               if(!is_dir(dirname($aFile))){
+				  mkdir(dirname($aFile), 0755, true);       
+			       }	               
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, 
+					$loader->file_get_contents('https://raw.githubusercontent.com/badges/poser/397444cf5b24549b0dd8329aeb3c26726b4246a7/src/Resources/templates/plastic.svg'));      
+			       }	
+
+
+
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Calculator'.\DIRECTORY_SEPARATOR.'Font'.\DIRECTORY_SEPARATOR.'DejaVuSans.svg';				       
+		               if(!is_dir(dirname($aFile))){
+				  mkdir(dirname($aFile), 0755, true);       
+			       }	               
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, 
+					$loader->file_get_contents('https://raw.githubusercontent.com/badges/poser/397444cf5b24549b0dd8329aeb3c26726b4246a7/src/Calculator/Font/DejaVuSans.svg'));      
+			       }			       
+
+
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Calculator'.\DIRECTORY_SEPARATOR.'Font'.\DIRECTORY_SEPARATOR.'DejaVuSans.ttf';				       
+		               if(!is_dir(dirname($aFile))){
+				  mkdir(dirname($aFile), 0755, true);       
+			       }	               
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, 
+					$loader->file_get_contents('https://raw.githubusercontent.com/badges/poser/397444cf5b24549b0dd8329aeb3c26726b4246a7/src/Calculator/Font/DejaVuSans.ttf'));      
+			       }	
+
+
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Calculator'.\DIRECTORY_SEPARATOR.'Font'.\DIRECTORY_SEPARATOR.'Verdana-Bold.svg';				       
+		               if(!is_dir(dirname($aFile))){
+				  mkdir(dirname($aFile), 0755, true);       
+			       }	               
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, 
+					$loader->file_get_contents('https://raw.githubusercontent.com/badges/poser/397444cf5b24549b0dd8329aeb3c26726b4246a7/src/Calculator/Font/Verdana-Bold.svg'));      
+			       }	
+
+
+			       $aFile = $aDir.\DIRECTORY_SEPARATOR.'Calculator'.\DIRECTORY_SEPARATOR.'Font'.\DIRECTORY_SEPARATOR.'Verdana.svg';				       
+		               if(!is_dir(dirname($aFile))){
+				  mkdir(dirname($aFile), 0755, true);       
+			       }	               
+			       if(!file_exists($aFile)){
+				    file_put_contents($aFile, 
+					$loader->file_get_contents('https://raw.githubusercontent.com/badges/poser/397444cf5b24549b0dd8329aeb3c26726b4246a7/src/Calculator/Font/Verdana.svg'));      
+			       }	
+		       
+			       return true;
+			   break;		
+
+
+		       
 		       case \Mf2\HCard::class :
 			       //  $classFile = $loader->file($class);
 			       //  $dirName = dirname($classFile).\DIRECTORY_SEPARATOR.'resources';
