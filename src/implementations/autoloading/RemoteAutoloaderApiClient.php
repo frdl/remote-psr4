@@ -447,7 +447,7 @@ class RemoteAutoloaderApiClient implements
 	  }
     }
 		
-    public function withSalt(bool $salted = null)
+    public function withSalt(?bool $salted = null)
     {
         if(null !== $salted){
          $this->salted = $salted;
@@ -545,7 +545,7 @@ PHPCODE;
 	   }
 		
 		
-    public function withDefaultValidators(string $dir = null,bool $increaseTimelimit = null){
+    public function withDefaultValidators(?string $dir = null,?bool $increaseTimelimit = null){
 	    
 	    if(\in_array(__METHOD__, $this->_calledWIthDefaultMethods)){
 		return;    
