@@ -1699,7 +1699,7 @@ PHPCODE;
       return $exists;
     }
 
-    public function fetchHttp(string $url, string $method = 'GET', array $headers = null, array $options = null, array $httpOpts= null){
+    public function fetchHttp(string $url, string $method = 'GET', ?array $headers = null, ?array $options = null, ?array $httpOpts= null){
         $httpOptions = [
         'http' => [
             'method'  => $method,
@@ -1770,7 +1770,7 @@ PHPCODE;
         'fragment' => 'new-fragment-value'
     ), true );    
     */
-    public static function unparse_url( string $url, array $overwrite_parsed_url_array = null, bool $merge_query_parameters = null ) : string {
+    public static function unparse_url( string $url, ?array $overwrite_parsed_url_array = null, ?bool $merge_query_parameters = null ) : string {
 
 		$merge_query_parameters = is_bool($merge_query_parameters) ? $merge_query_parameters : true;
 		$overwrite_parsed_url_array = is_array($overwrite_parsed_url_array) ? $overwrite_parsed_url_array : [];
