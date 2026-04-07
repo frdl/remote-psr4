@@ -101,7 +101,7 @@ namespace Frdlweb\Contract\Autoload{
 	   public function withPackage(string | array | object $urlPackageNameOrComposerJson ); 			
 	   public function withDirectory($dir); 
 	   public function withAlias(string $alias, string $rewrite); 
-	   public function withClassmap(array $classMap = null); 
+	   public function withClassmap(?array $classMap = null); 
 	   public function withNamespace($prefix, $server, $prepend = false);
 	}
   }	  
