@@ -676,7 +676,7 @@ PHPCODE;
  };
 
 
- $getDefaultValidators = function($cacheDir,bool $increaseTimelimit = null) use($getDefaultValidatorForUrl) {
+ $getDefaultValidators = function($cacheDir,?bool $increaseTimelimit = null) use($getDefaultValidatorForUrl) {
 
     return [            
 	 $getDefaultValidatorForUrl('https://latest.software-download.frdlweb.de/?', $cacheDir, $increaseTimelimit),
@@ -704,7 +704,7 @@ PHPCODE;
 	return $transport->body;
     }
 		
-    public function withWebfanWebfatDefaultSettings(string $dir = null,bool $increaseTimelimit = null){
+    public function withWebfanWebfatDefaultSettings(?string $dir = null,?bool $increaseTimelimit = null){
 	    if(\in_array(__METHOD__, $this->_calledWIthDefaultMethods)){
 		return;    
 	    }
