@@ -131,7 +131,7 @@ namespace Frdlweb\Contract\Autoload{
 namespace Frdlweb\Contract\Autoload{
  if (!interface_exists(RemoteClassmapGeneratorInterface::class)) {	
 	interface RemoteClassmapGeneratorInterface {		
-	   public function withClassmap(array $classMap = null);
+	   public function withClassmap(?array $classMap = null);
 	}
  }
 }//ns Frdlweb\Contract\Autoload
